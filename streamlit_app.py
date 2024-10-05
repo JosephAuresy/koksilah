@@ -229,32 +229,32 @@ if selected_option == "Watershed models":
     You can explore interactive maps showing how groundwater and surface water are connected, or view **groundwater recharge** across the watershed. Soon, we’ll add models from other decades in the past to expand our understanding.
     """)
 
-    # Initialize the map centered on Duncan
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
-    # Add the subbasins layer to the map but keep it initially turned off
-    subbasins_layer = folium.GeoJson(subbasins_gdf, 
-                                    name="Subbasins", 
-                                    style_function=lambda x: {'color': 'green', 'weight': 2},
-                                    # show=False  # Keep the layer off initially
-                                    ).add_to(m)
+    # # Add the subbasins layer to the map but keep it initially turned off
+    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
+    #                                 name="Subbasins", 
+    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
+    #                                 # show=False  # Keep the layer off initially
+    #                                 ).add_to(m)
 
-    # Add the grid layer to the map but keep it initially turned off
-    grid_layer = folium.GeoJson(grid_gdf, 
-                                name="Grid", 
-                                style_function=lambda x: {'color': 'blue', 'weight': 1},
-                                show=False  # Keep the layer off initially
-                            ).add_to(m)
+    # # Add the grid layer to the map but keep it initially turned off
+    # grid_layer = folium.GeoJson(grid_gdf, 
+    #                             name="Grid", 
+    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #                             show=False  # Keep the layer off initially
+    #                         ).add_to(m)
 
-    # Add MousePosition to display coordinates
-    MousePosition().add_to(m)
+    # # Add MousePosition to display coordinates
+    # MousePosition().add_to(m)
 
-    # Add a layer control to switch between the subbasins and grid layers
-    folium.LayerControl().add_to(m)
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
 
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map")
-    st_folium(m, width=700, height=600)  
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)  
 
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
