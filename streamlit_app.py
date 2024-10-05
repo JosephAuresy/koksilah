@@ -268,7 +268,7 @@ if selected_option == "Watershed models":
     ]
     
     captions = [
-        "This physical model provides a straightforward way to illustrate the complex interactions between groundwater and surface water, including the effects of pumping. Through this interactive web application, users can deepen their understanding of these dynamics and better interpret the complex results emerging from the watershed's behavior.",
+        "How does water emerge from the underground? This web application explains the interactions between groundwater and surface water, similar to the physical model shown in the picture, to help users understand the results from the watershed models.",
         
         "Reduced water levels during dry periods are evident in the low flow conditions of the river. These conditions highlight the importance of studying low flows, which are critical for understanding drought impacts, water resource availability, and the ecological health of the watershed.",
         
