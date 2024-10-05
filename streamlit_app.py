@@ -270,7 +270,7 @@ if selected_option == "Watershed models":
     captions = [
         "How does water emerge from the underground? This web application explains the interactions between groundwater and surface water, similar to the physical model shown in the picture, to help users understand the results from the watershed models.",
         
-        "Reduced water levels during dry periods are evident in the low flow conditions of the river. These conditions highlight the importance of studying low flows, which are critical for understanding drought impacts, water resource availability, and the ecological health of the watershed.",
+        "A creek with abundant flow supports a healthy habitat, but pressures from drivers such as low flows, climate change, land use, and water use must be analyzed to understand their impact. These factors are examined through watershed models.",
         
         "Accurate data from field monitoring activities plays a pivotal role in capturing real-time watershed conditions. The success of these monitoring efforts enhances our ability to track changes over time, offering valuable insights into watershed dynamics and informing evidence-based management strategies.",
         
