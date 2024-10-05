@@ -255,7 +255,7 @@ if selected_option == "Watershed models":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-    
+        
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
     
@@ -294,17 +294,21 @@ if selected_option == "Watershed models":
             
             try:
                 image = Image.open(image_path)
-                # Display the small image; use st.image's click event to trigger a larger view
-                if st.image(image, caption=image_file, width=100):
+                # Use a button to trigger the larger view instead of the image click
+                if st.button(f"Show Image {i+1}", key=f"button_{i}"):
                     selected_image = image
                     selected_caption = captions[i]
+                    # Use a success message when the button is clicked
+                    st.success(f"Showing: {image_file}")
+                st.image(image, width=100)  # Display the small image without a caption
+                
             except FileNotFoundError:
                 st.error(f"Image file {image_file} not found in {data_folder}.")
-        
+            
     # Display the selected image in a larger panel (if selected)
     if selected_image:
-        st.image(selected_image, caption=selected_caption, use_column_width=True)
-        st.write(selected_caption)
+        st.image(selected_image, caption="", use_column_width=True)  # No caption below the large image
+        st.write(selected_caption)  # Show the caption only after the image is clicked
     else:
         st.write("Click on an image to see a larger view and explanation.")
 
