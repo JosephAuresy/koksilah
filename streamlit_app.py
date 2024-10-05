@@ -255,7 +255,7 @@ if selected_option == "Watershed models":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-
+    
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
     
@@ -279,14 +279,14 @@ if selected_option == "Watershed models":
     
     # Set up the layout for small images (small panel)
     st.title("Interactive Image Viewer")
-    st.write("Select an image to see a larger view and an explanation.")
+    st.write("Click on an image to see a larger view and an explanation.")
     
     # Create columns for displaying small images
     cols = st.columns(4)  # 4 images, each in its own column
     selected_image = None  # To store which image is selected
     selected_caption = ""  # To store the selected caption
     
-    # Display the small images with buttons
+    # Display the small images
     for i, image_file in enumerate(image_files):
         with cols[i]:
             # Load each image
@@ -294,11 +294,8 @@ if selected_option == "Watershed models":
             
             try:
                 image = Image.open(image_path)
-                # Display the small image with a button
-                st.image(image, caption=image_file, width=100)
-                
-                # When the button is clicked, the corresponding image and message are selected
-                if st.button(f"Show {captions[i].split('.')[0]}"):  # Show caption up to the first period
+                # Display the small image; use st.image's click event to trigger a larger view
+                if st.image(image, caption=image_file, width=100):
                     selected_image = image
                     selected_caption = captions[i]
             except FileNotFoundError:
@@ -310,6 +307,7 @@ if selected_option == "Watershed models":
         st.write(selected_caption)
     else:
         st.write("Click on an image to see a larger view and explanation.")
+
         
 elif selected_option == "Water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
