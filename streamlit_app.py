@@ -278,8 +278,8 @@ if selected_option == "Watershed models":
     ]
     
     # Set up the layout for small images (small panel)
-    st.title("Interactive Image Viewer")
-    st.write("Click on an image to see a larger view and an explanation.")
+    st.title("Significance of the Models")
+    st.write("Select the description and scroll down")
     
     # Create columns for displaying small images
     cols = st.columns(4)  # 4 images, each in its own column
