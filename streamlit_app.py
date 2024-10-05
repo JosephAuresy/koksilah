@@ -256,7 +256,59 @@ if selected_option == "Watershed models":
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)  
 
-
+    # Set the data folder using Path
+    data_folder = Path(__file__).parent / 'data'
+    
+    # Define the updated image files and their corresponding captions or messages
+    image_files = [
+        '1_physical_model.jpg', 
+        '2_low_flow_river.jpg', 
+        '3_monitoring_data.jpg', 
+        '4_meeting_ideas.jpg'
+    ]
+    
+    captions = [
+        "This physical model provides a straightforward way to illustrate the complex interactions between groundwater and surface water, including the effects of pumping. Through this interactive web application, users can deepen their understanding of these dynamics and better interpret the complex results emerging from the watershed's behavior.",
+        
+        "Reduced water levels during dry periods are evident in the low flow conditions of the river. These conditions highlight the importance of studying low flows, which are critical for understanding drought impacts, water resource availability, and the ecological health of the watershed.",
+        
+        "Accurate data from field monitoring activities plays a pivotal role in capturing real-time watershed conditions. The success of these monitoring efforts enhances our ability to track changes over time, offering valuable insights into watershed dynamics and informing evidence-based management strategies.",
+        
+        "The exchange of diverse ideas during meetings drives the development of innovative projects that aim to improve the health of the watershed. Collaborative efforts such as these contribute to creating long-term solutions that promote sustainability and resilience in watershed management."
+    ]
+    
+    # Set up the layout for small images (small panel)
+    st.title("Interactive Image Viewer")
+    st.write("Select an image to see a larger view and an explanation.")
+    
+    # Create columns for displaying small images
+    cols = st.columns(4)  # 4 images, each in its own column
+    selected_image = None  # To store which image is selected
+    
+    # Display the small images with buttons
+    for i, image_file in enumerate(image_files):
+        with cols[i]:
+            # Load each image
+            image_path = data_folder / image_file
+            
+            try:
+                image = Image.open(image_path)
+                # Display the small image with a button
+                st.image(image, caption=f"{image_file}", width=100)
+                
+                # When the button is clicked, the corresponding image and message are selected
+                if st.button(f"Show {image_file}"):
+                    selected_image = image
+                    selected_caption = captions[i]
+            except FileNotFoundError:
+                st.error(f"Image file {image_file} not found in {data_folder}.")
+        
+    # Display the selected image in a larger panel (if selected)
+    if selected_image:
+        st.image(selected_image, caption=selected_caption, use_column_width=True)
+        st.write(selected_caption)
+    else:
+        st.write("Click on an image to see a larger view and explanation.")
     
 elif selected_option == "Water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
