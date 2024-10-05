@@ -284,6 +284,7 @@ if selected_option == "Watershed models":
     # Create columns for displaying small images
     cols = st.columns(4)  # 4 images, each in its own column
     selected_image = None  # To store which image is selected
+    selected_caption = ""  # To store the selected caption
     
     # Display the small images with buttons
     for i, image_file in enumerate(image_files):
@@ -294,10 +295,10 @@ if selected_option == "Watershed models":
             try:
                 image = Image.open(image_path)
                 # Display the small image with a button
-                st.image(image, caption=f"{image_file}", width=100)
+                st.image(image, caption=image_file, width=100)
                 
                 # When the button is clicked, the corresponding image and message are selected
-                if st.button(f"Show {image_file}"):
+                if st.button(f"Show {captions[i].split('.')[0]}"):  # Show caption up to the first period
                     selected_image = image
                     selected_caption = captions[i]
             except FileNotFoundError:
@@ -309,7 +310,7 @@ if selected_option == "Watershed models":
         st.write(selected_caption)
     else:
         st.write("Click on an image to see a larger view and explanation.")
-    
+        
 elif selected_option == "Water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
