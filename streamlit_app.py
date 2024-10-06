@@ -342,16 +342,17 @@ elif selected_option == "Water interactions":
 
     df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
     
-    # Function to preprocess and save rasters
-    def preprocess_and_save_rasters(unique_months, grid_gdf, output_dir):
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)  # Create the directory if it doesn't exist
+    # Define the path for saved raster files
+    DATA_FOLDER = Path(__file__).parent / 'data'
+    DATA_FOLDER.mkdir(parents=True, exist_ok=True)  # Create the data directory if it doesn't exist
     
+    # Function to preprocess and save rasters
+    def preprocess_and_save_rasters(unique_months, grid_gdf):
         transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
     
         for month in unique_months:
             water_interaction_dict = calculate_water_interactions_for_month(month)
-            save_raster(output_dir / f'interaction_raster_{month}.tif',
+            save_raster(DATA_FOLDER / f'interaction_raster_{month}.tif', 
                         water_interaction_dict, grid_gdf, transform)
     
     # Function to save raster data
@@ -376,9 +377,8 @@ elif selected_option == "Water interactions":
     # Step to trigger preprocessing
     if st.button("Preprocess and Save Rasters"):
         unique_months = st.text_input("Enter months (comma-separated):").split(',')
-        # Here you would initialize or load your grid_gdf and other parameters
-        output_dir = Path('data')  # Use Path for the output directory
-        preprocess_and_save_rasters(unique_months, grid_gdf, output_dir)
+        # Initialize or load your grid_gdf and other parameters here
+        preprocess_and_save_rasters(unique_months, grid_gdf)
         st.success("Rasters have been processed and saved successfully!")
     
     # Step to load and display rasters
@@ -386,7 +386,7 @@ elif selected_option == "Water interactions":
     selected_month = st.selectbox("Select a Month", unique_months)
     
     if selected_month:
-        raster_path = output_dir / f'interaction_raster_{selected_month}.tif'
+        raster_path = DATA_FOLDER / f'interaction_raster_{selected_month}.tif'
         if raster_path.exists():
             with rasterio.open(str(raster_path)) as src:
                 raster_data = src.read(1)  # Reading the first band
