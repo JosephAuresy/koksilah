@@ -327,62 +327,68 @@ elif selected_option == "Water interactions":
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
 
-    monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
-    monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
-
-    global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
-    global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
-
-    unique_months = sorted(monthly_stats['Month'].unique())
-    unique_month_names = [month_names[m - 1] for m in unique_months]
-
-    selected_month_name = st.selectbox("Month", unique_month_names, index=0)
-    selected_month = unique_months[unique_month_names.index(selected_month_name)]
-    stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
-
-    df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
-    
     # Define the path for saved raster files
     DATA_FOLDER = Path(__file__).parent / 'data'
     DATA_FOLDER.mkdir(parents=True, exist_ok=True)  # Create the data directory if it doesn't exist
     
-    # Function to preprocess and save rasters
-    def preprocess_and_save_rasters(unique_months, grid_gdf):
-        transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
-    
-        for month in unique_months:
-            water_interaction_dict = calculate_water_interactions_for_month(month)
-            save_raster(DATA_FOLDER / f'interaction_raster_{month}.tif', 
-                        water_interaction_dict, grid_gdf, transform)
+    # Function to calculate water interactions (to be implemented)
+    def calculate_water_interactions_for_month(month, df):
+        """Calculates water interactions for the specified month."""
+        monthly_stats = df[df['Month'] == month].groupby(['Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+        water_interaction_dict = {(row['Row'], row['Column']): row['mean'] for _, row in monthly_stats.iterrows()}
+        return water_interaction_dict
     
     # Function to save raster data
     def save_raster(file_name, data_dict, grid_gdf, transform):
         with rasterio.open(
-                str(file_name), 'w', 
-                driver='GTiff', 
-                height=grid_gdf.shape[0], 
-                width=grid_gdf.shape[1], 
-                count=1, 
-                dtype='float32', 
-                crs="EPSG:32610",
-                transform=transform) as dst:
+            str(file_name), 'w',
+            driver='GTiff',
+            height=grid_gdf.shape[0],
+            width=grid_gdf.shape[1],
+            count=1,
+            dtype='float32',
+            crs="EPSG:32610",
+            transform=transform) as dst:
+            
             raster_data = np.zeros((grid_gdf.shape[0], grid_gdf.shape[1]), dtype='float32')
             for (row, col), value in data_dict.items():
                 raster_data[row, col] = value
             dst.write(raster_data, 1)
     
+    # Function to preprocess and save rasters
+    def preprocess_and_save_rasters(unique_months, df, grid_gdf):
+        x_origin, y_origin = grid_gdf.geometry.x.min(), grid_gdf.geometry.y.max()  # Example origin
+        pixel_size_x, pixel_size_y = 30, 30  # Example pixel size, modify as needed
+        transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
+    
+        for month in unique_months:
+            water_interaction_dict = calculate_water_interactions_for_month(month, df)
+            save_raster(DATA_FOLDER / f'interaction_raster_{month}.tif',
+                        water_interaction_dict, grid_gdf, transform)
+    
     # Streamlit app structure
     st.title("Water Interaction Preprocessing")
     
+    # Sample DataFrame creation (Replace this with your actual DataFrame)
+    # Example DataFrame structure, modify according to your actual data
+    data = {
+        'Month': [1, 1, 2, 2, 3, 3],
+        'Row': [0, 1, 0, 1, 0, 1],
+        'Column': [0, 0, 1, 1, 2, 2],
+        'Rate': [10, 20, 15, 25, 30, 5]
+    }
+    df = pd.DataFrame(data)
+    
     # Step to trigger preprocessing
     if st.button("Preprocess and Save Rasters"):
-        unique_months = st.text_input("Enter months (comma-separated):").split(',')
-        # Initialize or load your grid_gdf and other parameters here
-        preprocess_and_save_rasters(unique_months, grid_gdf)
+        unique_months = df['Month'].unique()
+        grid_gdf = pd.DataFrame({'Row': df['Row'].unique(), 'Column': df['Column'].unique()})  # Example grid_gdf
+        preprocess_and_save_rasters(unique_months, df, grid_gdf)
         st.success("Rasters have been processed and saved successfully!")
     
     # Step to load and display rasters
     st.subheader("Load Rasters for Visualization")
+    unique_months = df['Month'].unique().tolist()  # Unique months from your DataFrame
     selected_month = st.selectbox("Select a Month", unique_months)
     
     if selected_month:
@@ -394,6 +400,21 @@ elif selected_option == "Water interactions":
         else:
             st.error(f"Raster for month {selected_month} does not exist.")
 
+    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+
+    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
+    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
+
+    # unique_months = sorted(monthly_stats['Month'].unique())
+    # unique_month_names = [month_names[m - 1] for m in unique_months]
+
+    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
+    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
+
+    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
+    
     # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
 
     # for _, row in df_filtered.iterrows():
