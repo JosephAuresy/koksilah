@@ -341,98 +341,58 @@ elif selected_option == "Water interactions":
     stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
 
     df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
-
-    water_interaction_dict = {}
     
-    # Step 1: Iterate through df_filtered to assign water interaction values
-    for _, row in df_filtered.iterrows():
-        # Calculate the column index (0-based)
-        column_index = int(row['Column']) - 1  # Adjusting for zero-based indexing
-        # Calculate the row index (0-based)
-        row_number = int(row['Row']) - 1  # Adjusting for zero-based indexing
+    # Function to preprocess and save rasters
+    def preprocess_and_save_rasters(unique_months, grid_gdf, output_dir):
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)  # Create the directory if it doesn't exist
     
-        # Store the corresponding value in the dictionary
-        water_interaction_dict[(row_number, column_index)] = row['Average Rate']
+        transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
     
-    # Debug: Display water_interaction_dict to ensure correct population
-    st.write("Water Interaction Dictionary:", water_interaction_dict)
+        for month in unique_months:
+            water_interaction_dict = calculate_water_interactions_for_month(month)
+            save_raster(output_dir / f'interaction_raster_{month}.tif',
+                        water_interaction_dict, grid_gdf, transform)
     
-    # Step 2: Create GeoDataFrame for water interactions
-    geometry = []
+    # Function to save raster data
+    def save_raster(file_name, data_dict, grid_gdf, transform):
+        with rasterio.open(
+                str(file_name), 'w', 
+                driver='GTiff', 
+                height=grid_gdf.shape[0], 
+                width=grid_gdf.shape[1], 
+                count=1, 
+                dtype='float32', 
+                crs="EPSG:32610",
+                transform=transform) as dst:
+            raster_data = np.zeros((grid_gdf.shape[0], grid_gdf.shape[1]), dtype='float32')
+            for (row, col), value in data_dict.items():
+                raster_data[row, col] = value
+            dst.write(raster_data, 1)
     
-    # Create geometry for each cell in the grid_gdf and assign water interaction values
-    for row_index, row in grid_gdf.iterrows():
-        x, y = row.geometry.centroid.x, row.geometry.centroid.y
-        water_value = water_interaction_dict.get((row_index // grid_gdf.shape[1], row_index % grid_gdf.shape[1]), 0)  # Default to 0 if no value found
-        geometry.append(Point(x, y))
+    # Streamlit app structure
+    st.title("Water Interaction Preprocessing")
     
-    # Correct the structure of the water interaction GeoDataFrame
-    gdf_water_interactions = gpd.GeoDataFrame(
-        {
-            'Water Interaction Value': [
-                water_interaction_dict.get((i // grid_gdf.shape[1], i % grid_gdf.shape[1]), 0)
-                for i in range(len(geometry))
-            ],
-        },
-        geometry=geometry,
-        crs="EPSG:32610"
-    )
+    # Step to trigger preprocessing
+    if st.button("Preprocess and Save Rasters"):
+        unique_months = st.text_input("Enter months (comma-separated):").split(',')
+        # Here you would initialize or load your grid_gdf and other parameters
+        output_dir = Path('data')  # Use Path for the output directory
+        preprocess_and_save_rasters(unique_months, grid_gdf, output_dir)
+        st.success("Rasters have been processed and saved successfully!")
     
-    # Step 3: Create a Folium map centered on Duncan
-    duncan_lat = 48.67  # Latitude
-    duncan_lon = -123.79  # Longitude
-    m = folium.Map(location=[duncan_lat, duncan_lon], zoom_start=11, control_scale=True)
+    # Step to load and display rasters
+    st.subheader("Load Rasters for Visualization")
+    selected_month = st.selectbox("Select a Month", unique_months)
     
-    # Add a marker for Duncan
-    folium.Marker([duncan_lat, duncan_lon], popup='Duncan, BC').add_to(m)
-    
-    # Add the grid as a GeoJSON layer to the map
-    folium.GeoJson(
-        grid_gdf,
-        name="Grid",
-        style_function=lambda x: {'color': 'blue', 'weight': 1},
-    ).add_to(m)
-        
-    # Prepare heatmap data using water interaction values and handle no data (e.g., NaN values)
-    heatmap_data = []
-    
-    # Make sure we're extracting geometry as raw floats and skip no data (e.g., NaN) rows
-    for _, row in gdf_water_interactions.iterrows():
-        y = float(row.geometry.y)  # Convert y-coordinate to float
-        x = float(row.geometry.x)  # Convert x-coordinate to float
-        value = row['Water Interaction Value']
-        
-        # Check if the value is valid (not NaN or None)
-        if pd.notna(value):  # pd.notna() checks for non-NaN values
-            value = float(value)  # Ensure the value is a float
-            heatmap_data.append([y, x, value])  # Append valid data only
-    
-    # Debug: Display the serializable heatmap data to ensure compatibility
-    st.write("Heatmap Data (Serializable):", heatmap_data)
-    
-    # Add the heatmap layer to the map (Make sure to use the serialized version)
-    heatmap = plugins.HeatMap(
-        heatmap_data,  # Use the properly serialized version
-        radius=15,     # Adjust radius for heatmap intensity
-        name='Water Interactions',
-        overlay=True,
-        control=True,
-    )
-    
-    # Create the folium map centered at Duncan, BC
-    duncan_lat = 48.67  # Latitude
-    duncan_lon = -123.79  # Longitude
-    m = folium.Map(location=[duncan_lat, duncan_lon], zoom_start=11, control_scale=True)
-    
-    # Add the heatmap to the folium map
-    m.add_child(heatmap)
-    
-    # Add Layer Control
-    folium.LayerControl().add_to(m)
-    
-    # Render the Folium map in Streamlit
-    st.title("Water Interactions Map")
-    st_folium(m, width=700, height=600) 
+    if selected_month:
+        raster_path = output_dir / f'interaction_raster_{selected_month}.tif'
+        if raster_path.exists():
+            with rasterio.open(str(raster_path)) as src:
+                raster_data = src.read(1)  # Reading the first band
+                st.image(raster_data, caption=f'Raster for Month: {selected_month}', use_column_width=True)
+        else:
+            st.error(f"Raster for month {selected_month} does not exist.")
 
     # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
 
