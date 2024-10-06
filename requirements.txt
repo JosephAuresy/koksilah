@@ -13,3 +13,5 @@ geojson
 geopandas
 point
 pillow
+rasterio
+os
