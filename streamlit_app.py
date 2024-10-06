@@ -341,7 +341,7 @@ elif selected_option == "Water interactions":
 
     water_interaction_dict = {}
     
-    # Iterate through df_filtered to assign water interaction values
+    # Step 1: Iterate through df_filtered to assign water interaction values
     for _, row in df_filtered.iterrows():
         # Calculate the column index (0-based)
         column_index = int(row['Column']) - 1  # Adjusting for zero-based indexing
@@ -368,6 +368,10 @@ elif selected_option == "Water interactions":
         geometry=geometry,
         crs="EPSG:32610"
     )
+
+    # Debugging Step 2: Print water interaction GeoDataFrame to check values and geometry
+    print("Water Interaction GeoDataFrame:")
+    print(gdf_water_interactions.head())
     
     # Step 3: Create a Folium map centered on Duncan
     duncan_lat = 48.67  # Latitude
@@ -375,7 +379,7 @@ elif selected_option == "Water interactions":
     m = folium.Map(location=[duncan_lat, duncan_lon], zoom_start=11, control_scale=True)
     
     # Add a marker for Duncan
-    folium.Marker([duncan_lat, duncan_lon], popup='Duncan, BC').add_to(m)
+    #folium.Marker([duncan_lat, duncan_lon], popup='Duncan, BC').add_to(m)
     
     # Add the grid as a GeoJSON layer to the map
     folium.GeoJson(
@@ -389,7 +393,9 @@ elif selected_option == "Water interactions":
         [row.geometry.y, row.geometry.x, row['Water Interaction Value']]
         for _, row in gdf_water_interactions.iterrows()
     ]
-    print(heatmap_data)  # Add this line to debug the contents of heatmap_data
+    # Debugging Step 3: Print heatmap data to ensure correct structure
+    print("Heatmap Data (Lat, Lon, Value):")
+    print(heatmap_data)
     
     # Add the heatmap layer to the map
     heatmap = plugins.HeatMap(
