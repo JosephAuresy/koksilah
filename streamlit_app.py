@@ -326,12 +326,11 @@ elif selected_option == "Water interactions":
     
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
-
     # Define the path for saved raster files
     DATA_FOLDER = Path(__file__).parent / 'data'
     DATA_FOLDER.mkdir(parents=True, exist_ok=True)  # Create the data directory if it doesn't exist
     
-    # Function to calculate water interactions (to be implemented)
+    # Function to calculate water interactions for the specified month
     def calculate_water_interactions_for_month(month, df):
         """Calculates water interactions for the specified month."""
         monthly_stats = df[df['Month'] == month].groupby(['Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
@@ -358,19 +357,17 @@ elif selected_option == "Water interactions":
     # Function to preprocess and save rasters
     def preprocess_and_save_rasters(unique_months, df, grid_gdf):
         x_origin, y_origin = grid_gdf.geometry.x.min(), grid_gdf.geometry.y.max()  # Example origin
-        pixel_size_x, pixel_size_y = 30, 30  # Example pixel size, modify as needed
+        pixel_size_x, pixel_size_y = 30, 30  # Example pixel size
         transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
     
         for month in unique_months:
             water_interaction_dict = calculate_water_interactions_for_month(month, df)
-            save_raster(DATA_FOLDER / f'interaction_raster_{month}.tif',
-                        water_interaction_dict, grid_gdf, transform)
+            save_raster(DATA_FOLDER / f'interaction_raster_{month}.tif', water_interaction_dict, grid_gdf, transform)
     
     # Streamlit app structure
     st.title("Water Interaction Preprocessing")
     
     # Sample DataFrame creation (Replace this with your actual DataFrame)
-    # Example DataFrame structure, modify according to your actual data
     data = {
         'Month': [1, 1, 2, 2, 3, 3],
         'Row': [0, 1, 0, 1, 0, 1],
@@ -396,10 +393,32 @@ elif selected_option == "Water interactions":
         if raster_path.exists():
             with rasterio.open(str(raster_path)) as src:
                 raster_data = src.read(1)  # Reading the first band
-                st.image(raster_data, caption=f'Raster for Month: {selected_month}', use_column_width=True)
+                
+                # Create a Folium map centered on a specific location (Duncan as an example)
+                initial_location = [48.7787, -123.7034]  # Example coordinates for Duncan
+                m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    
+                # Create a color map for raster visualization
+                colormap = folium.LinearColormap(['blue', 'yellow', 'red'], vmin=0, vmax=np.nanmax(raster_data))
+    
+                # Add raster data as an overlay
+                folium.raster_layers.ImageOverlay(
+                    image=raster_data,
+                    bounds=[[grid_gdf['Row'].min(), grid_gdf['Column'].min()], [grid_gdf['Row'].max(), grid_gdf['Column'].max()]],
+                    colormap=colormap,
+                    name=f'Raster for Month: {selected_month}',
+                    opacity=0.6
+                ).add_to(m)
+    
+                # Add layer control
+                folium.LayerControl().add_to(m)
+    
+                # Render the Folium map in Streamlit
+                st_folium(m, width=700, height=600)
         else:
             st.error(f"Raster for month {selected_month} does not exist.")
 
+    
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
