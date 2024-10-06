@@ -8,7 +8,6 @@ import folium
 from streamlit_folium import st_folium
 import geopandas as gpd
 import rasterio
-import os
 from rasterio.transform import from_origin
 from folium import plugins
 from folium import GeoJson  
