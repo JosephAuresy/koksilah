@@ -351,6 +351,9 @@ elif selected_option == "Water interactions":
         # Store the corresponding value in the dictionary
         water_interaction_dict[(row_number, column_index)] = row['Average Rate']
     
+    # Debug: Display water_interaction_dict to ensure correct population
+    st.write("Water Interaction Dictionary:", water_interaction_dict)
+    
     # Step 2: Create GeoDataFrame for water interactions
     geometry = []
     
@@ -360,18 +363,17 @@ elif selected_option == "Water interactions":
         water_value = water_interaction_dict.get((row_index // grid_gdf.shape[1], row_index % grid_gdf.shape[1]), 0)  # Default to 0 if no value found
         geometry.append(Point(x, y))
     
-    # Create a new GeoDataFrame for visualization
+    # Correct the structure of the water interaction GeoDataFrame
     gdf_water_interactions = gpd.GeoDataFrame(
         {
-            'Water Interaction Value': [water_interaction_dict.get((i // grid_gdf.shape[1], i % grid_gdf.shape[1]), 0) for i in range(len(geometry))],
+            'Water Interaction Value': [
+                water_interaction_dict.get((i // grid_gdf.shape[1], i % grid_gdf.shape[1]), 0)
+                for i in range(len(geometry))
+            ],
         },
         geometry=geometry,
         crs="EPSG:32610"
     )
-
-    # Debugging Step 2: Print water interaction GeoDataFrame to check values and geometry
-    print("Water Interaction GeoDataFrame:")
-    print(gdf_water_interactions.head())
     
     # Step 3: Create a Folium map centered on Duncan
     duncan_lat = 48.67  # Latitude
@@ -379,7 +381,7 @@ elif selected_option == "Water interactions":
     m = folium.Map(location=[duncan_lat, duncan_lon], zoom_start=11, control_scale=True)
     
     # Add a marker for Duncan
-    #folium.Marker([duncan_lat, duncan_lon], popup='Duncan, BC').add_to(m)
+    folium.Marker([duncan_lat, duncan_lon], popup='Duncan, BC').add_to(m)
     
     # Add the grid as a GeoJSON layer to the map
     folium.GeoJson(
@@ -393,9 +395,9 @@ elif selected_option == "Water interactions":
         [row.geometry.y, row.geometry.x, row['Water Interaction Value']]
         for _, row in gdf_water_interactions.iterrows()
     ]
-    # Debugging Step 3: Print heatmap data to ensure correct structure
-    print("Heatmap Data (Lat, Lon, Value):")
-    print(heatmap_data)
+    
+    # Debug: Display the heatmap data before adding it to the map
+    st.write("Heatmap Data:", heatmap_data)
     
     # Add the heatmap layer to the map
     heatmap = plugins.HeatMap(
