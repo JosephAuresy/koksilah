@@ -396,12 +396,15 @@ elif selected_option == "Water interactions":
         for _, row in gdf_water_interactions.iterrows()
     ]
     
-    # Debug: Display the heatmap data before adding it to the map
-    st.write("Heatmap Data:", heatmap_data)
+    # Debug: Convert to serializable format by casting any non-serializable types to serializable ones.
+    heatmap_data_serializable = [[float(y), float(x), float(value)] for y, x, value in heatmap_data]
+    
+    # Debug: Display the serializable heatmap data before adding it to the map
+    st.write("Heatmap Data (Serializable):", heatmap_data_serializable)
     
     # Add the heatmap layer to the map
     heatmap = plugins.HeatMap(
-        heatmap_data,
+        heatmap_data_serializable,  # Use the serializable version
         radius=15,  # Adjust radius for heatmap intensity
         name='Water Interactions',
         overlay=True,
