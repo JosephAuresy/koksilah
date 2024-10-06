@@ -389,16 +389,20 @@ elif selected_option == "Water interactions":
         name="Grid",
         style_function=lambda x: {'color': 'blue', 'weight': 1},
     ).add_to(m)
-    
-    # Prepare heatmap data using water interaction values
+        
+    # Prepare heatmap data using water interaction values and handle no data (e.g., NaN values)
     heatmap_data = []
     
-    # Make sure we're extracting geometry as raw floats, not tuples or complex objects
+    # Make sure we're extracting geometry as raw floats and skip no data (e.g., NaN) rows
     for _, row in gdf_water_interactions.iterrows():
         y = float(row.geometry.y)  # Convert y-coordinate to float
         x = float(row.geometry.x)  # Convert x-coordinate to float
-        value = float(row['Water Interaction Value'])  # Ensure the value is a float
-        heatmap_data.append([y, x, value])  # Append as a list of floats
+        value = row['Water Interaction Value']
+        
+        # Check if the value is valid (not NaN or None)
+        if pd.notna(value):  # pd.notna() checks for non-NaN values
+            value = float(value)  # Ensure the value is a float
+            heatmap_data.append([y, x, value])  # Append valid data only
     
     # Debug: Display the serializable heatmap data to ensure compatibility
     st.write("Heatmap Data (Serializable):", heatmap_data)
@@ -425,8 +429,7 @@ elif selected_option == "Water interactions":
     
     # Render the Folium map in Streamlit
     st.title("Water Interactions Map")
-    st_folium(m, width=700, height=600)
-    
+    st_folium(m, width=700, height=600) 
 
     # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
 
