@@ -391,17 +391,21 @@ elif selected_option == "Water interactions":
     ).add_to(m)
     
     # Prepare heatmap data using water interaction values
-    heatmap_data = [
-        [float(row.geometry.y), float(row.geometry.x), float(row['Water Interaction Value'])]
-        for _, row in gdf_water_interactions.iterrows()
-    ]
+    heatmap_data = []
     
-    # Debug: Try printing the serialized heatmap data to ensure compatibility
+    # Make sure we're extracting geometry as raw floats, not tuples or complex objects
+    for _, row in gdf_water_interactions.iterrows():
+        y = float(row.geometry.y)  # Convert y-coordinate to float
+        x = float(row.geometry.x)  # Convert x-coordinate to float
+        value = float(row['Water Interaction Value'])  # Ensure the value is a float
+        heatmap_data.append([y, x, value])  # Append as a list of floats
+    
+    # Debug: Display the serializable heatmap data to ensure compatibility
     st.write("Heatmap Data (Serializable):", heatmap_data)
     
     # Add the heatmap layer to the map (Make sure to use the serialized version)
     heatmap = plugins.HeatMap(
-        heatmap_data,  # Use the serializable version
+        heatmap_data,  # Use the properly serialized version
         radius=15,     # Adjust radius for heatmap intensity
         name='Water Interactions',
         overlay=True,
