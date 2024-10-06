@@ -392,24 +392,28 @@ elif selected_option == "Water interactions":
     
     # Prepare heatmap data using water interaction values
     heatmap_data = [
-        [row.geometry.y, row.geometry.x, row['Water Interaction Value']]
+        [float(row.geometry.y), float(row.geometry.x), float(row['Water Interaction Value'])]
         for _, row in gdf_water_interactions.iterrows()
     ]
     
-    # Debug: Convert to serializable format by casting any non-serializable types to serializable ones.
-    heatmap_data_serializable = [[float(y), float(x), float(value)] for y, x, value in heatmap_data]
+    # Debug: Try printing the serialized heatmap data to ensure compatibility
+    st.write("Heatmap Data (Serializable):", heatmap_data)
     
-    # Debug: Display the serializable heatmap data before adding it to the map
-    st.write("Heatmap Data (Serializable):", heatmap_data_serializable)
-    
-    # Add the heatmap layer to the map
+    # Add the heatmap layer to the map (Make sure to use the serialized version)
     heatmap = plugins.HeatMap(
-        heatmap_data_serializable,  # Use the serializable version
-        radius=15,  # Adjust radius for heatmap intensity
+        heatmap_data,  # Use the serializable version
+        radius=15,     # Adjust radius for heatmap intensity
         name='Water Interactions',
         overlay=True,
         control=True,
     )
+    
+    # Create the folium map centered at Duncan, BC
+    duncan_lat = 48.67  # Latitude
+    duncan_lon = -123.79  # Longitude
+    m = folium.Map(location=[duncan_lat, duncan_lon], zoom_start=11, control_scale=True)
+    
+    # Add the heatmap to the folium map
     m.add_child(heatmap)
     
     # Add Layer Control
