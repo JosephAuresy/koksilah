@@ -7,7 +7,6 @@ from pathlib import Path
 import base64
 import folium
 from streamlit_folium import st_folium
-from folium import raster_layers
 import geopandas as gpd
 import rasterio
 from rasterio.transform import from_origin
@@ -16,6 +15,8 @@ from folium import GeoJson
 from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
+from folium import raster_layers
+from folium import ImageOverlay
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
