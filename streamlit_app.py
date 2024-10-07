@@ -289,9 +289,9 @@ elif selected_option == "Groundwater / Surface water interactions":
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
 
-    # Group by Month, Row, and Column to compute average and standard deviation
-    monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
-    monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+    # Group by Month, Row, and Column to compute average
+    monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean']).reset_index()
+    monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate']
     
     # Unique months for selection
     unique_months = sorted(monthly_stats['Month'].unique())
@@ -301,35 +301,34 @@ elif selected_option == "Groundwater / Surface water interactions":
     selected_month_name = st.selectbox("Select Month", month_names, index=0)
     selected_month = unique_months[month_names.index(selected_month_name)]
     
-    # Initialize a grid to visualize sign changes for each month
-    grids = {}
+    # Create a grid to visualize sign changes for the selected month
+    grid = np.full((10, 10), np.nan)  # Adjust grid size according to your data (10x10 as an example)
     
-    # Analyze sign changes for each month
-    for month in unique_months:
-        # Filter for the current month
-        df_filtered = monthly_stats[monthly_stats['Month'] == month]
+    # Analyze sign changes by comparing the current month with the previous month
+    for month in unique_months[1:]:  # Skip the first month for comparison
+        current_month_data = monthly_stats[monthly_stats['Month'] == month]
+        previous_month_data = monthly_stats[monthly_stats['Month'] == month - 1]
     
-        # Create a column with the sign of the Average Rate (+1, 0, -1)
-        df_filtered['Sign'] = np.sign(df_filtered['Average Rate'])
+        # Merge current and previous month data on Row and Column
+        merged_data = pd.merge(current_month_data, previous_month_data, on=['Row', 'Column'], suffixes=('_current', '_previous'))
     
-        # Detect sign changes (negative to positive or vice versa) for each (Row, Column)
-        df_filtered['Sign Change'] = df_filtered.groupby(['Row', 'Column'])['Sign'].diff().fillna(0).abs() > 1
+        # Determine sign changes
+        merged_data['Sign Change'] = np.where(
+            (merged_data['Average Rate_current'] > 0) & (merged_data['Average Rate_previous'] <= 0,  # Positive from negative
+            1,  # Sign change from negative to positive
+            np.where(
+                (merged_data['Average Rate_current'] < 0) & (merged_data['Average Rate_previous'] >= 0,  # Negative from positive
+                -1,  # Sign change from positive to negative
+                0  # No change
+            )
+        )
     
         # Filter only the locations where a sign change occurred
-        df_filtered_sign_changes = df_filtered[df_filtered['Sign Change']]
-    
-        # Create a grid for the heatmap, but only with locations where sign changes occurred
-        grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+        sign_changes = merged_data[merged_data['Sign Change'] != 0]
     
         # Fill the grid with the Average Rate values where sign changes occurred
-        for _, row in df_filtered_sign_changes.iterrows():
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate']
-        
-        # Store the grid for this month
-        grids[month] = grid
-    
-    # Create heatmap for the selected month
-    grid = grids[selected_month]
+        for _, row in sign_changes.iterrows():
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate_current']  # Current month's rate
     
     # Define color scale and boundaries for heatmap, focusing on blue for negative and brown for positive
     colorscale = [
@@ -338,17 +337,13 @@ elif selected_option == "Groundwater / Surface water interactions":
         [1, 'rgb(165, 42, 42)']   # Brown for positive values
     ]
     
-    # Set boundaries for the color scale based on the data
-    zmin = np.nanmin(grid)
-    zmax = np.nanmax(grid)
-    
     # Create the heatmap figure with the custom color scale
     fig = go.Figure(data=go.Heatmap(
         z=grid,
         colorscale=colorscale,  # Apply blue-brown colorscale
         zmid=0,                 # Center the color scale at zero
-        zmin=zmin,
-        zmax=zmax,
+        zmin=np.nanmin(grid),
+        zmax=np.nanmax(grid),
         colorbar=dict(
             title="Rate<br>[m³/day]", 
             orientation='h', 
@@ -356,18 +351,16 @@ elif selected_option == "Groundwater / Surface water interactions":
             y=-0.1, 
             xanchor='center', 
             yanchor='top',
-            tickvals=[zmin, 0, zmax],  # Specify tick positions
-            ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
         ),
         hovertemplate='%{z:.2f}<extra></extra>',
     ))
     
     fig.update_layout(
         title=f'Sign Changes for Selected Month: {selected_month_name}',
-        xaxis_title=None,
-        yaxis_title=None,
-        xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-        yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+        xaxis_title='Column',
+        yaxis_title='Row',
+        xaxis=dict(showticklabels=True, ticks=''),
+        yaxis=dict(showticklabels=True, ticks='', autorange='reversed'),
         plot_bgcolor='rgba(240, 240, 240, 0.8)',
         paper_bgcolor='white',
         font=dict(family='Arial, sans-serif', size=8, color='black')
@@ -375,7 +368,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Display the heatmap
     st.plotly_chart(fig)
-
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
