@@ -26,7 +26,8 @@ st.set_page_config(
 st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
-    ("Watershed models", "Water interactions", "Recharge", "View Report")
+    #("Watershed models", "Water interactions", "Recharge", "View Report")
+    ("Watershed models", "Water interactions", "Recharge")
 )
 
 # Month names for mapping
