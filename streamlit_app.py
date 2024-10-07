@@ -15,6 +15,7 @@ from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
 from folium import raster_layers, GeoJson, plugins
+from rasterio.plot import show
 import os 
 
 # Set the title and favicon that appear in the browser's tab bar.
@@ -310,105 +311,39 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
             
-    # Function to create a dummy raster and save it
-    def create_raster():
-        # Define raster size and resolution
-        width = 2  # 2 pixels wide
-        height = 2  # 2 pixels high
-        pixel_size = 300  # Each pixel is 300m x 300m
+    # Function to load the raster and extract bounds
+    def load_raster(file_path):
+        with rasterio.open(file_path) as src:
+            # Read the raster data
+            data = src.read(1)  # Read the first band
+            bounds = src.bounds  # Get the bounds
+            crs = src.crs  # Get the coordinate reference system
+        return data, bounds
     
-        # Create a dummy raster data (2x2)
-        data = np.array([[1, 2], [3, 4]], dtype=np.uint8)
+    # Path to the raster file
+    raster_path = 'data/dem_clip_3.tif'
     
-        # Define the transform for the raster (top-left corner)
-        transform = from_origin(-123.79, 48.67 + pixel_size, pixel_size, pixel_size)  # top-left corner (longitude, latitude)
+    # Load the raster
+    data, bounds = load_raster(raster_path)
     
-        # Create the raster file
-        raster_path = 'output_raster.tif'
-        with rasterio.open(
-            raster_path,
-            'w',
-            driver='GTiff',
-            height=height,
-            width=width,
-            count=1,
-            dtype='uint8',
-            crs='EPSG:4326',  # WGS 84
-            transform=transform,
-        ) as dst:
-            dst.write(data, 1)
-        
-        return raster_path
+    # Create a folium map centered around Duncan, BC
+    initial_location = [48.67, -123.79]
+    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-    # Function to plot on the map
-    def plot_on_map(raster_path, subbasins_gdf, grid_gdf):
-        initial_location = [48.67, -123.79]  # Duncan, BC
-        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    # Adding the raster to the map as an overlay
+    raster_bounds = [[bounds.bottom, bounds.left], [bounds.top, bounds.right]]
+    raster_layers.ImageOverlay(
+        image=raster_path,
+        bounds=raster_bounds,
+        opacity=0.6,
+        name='DEM Layer',
+    ).add_to(m)
     
-        # Add the subbasins layer to the map but keep it initially turned off
-        subbasins_layer = GeoJson(subbasins_gdf, 
-                                  name="Subbasins", 
-                                  style_function=lambda x: {'color': 'green', 'weight': 2},
-                                  show=False  # Keep the layer off initially
-                                  ).add_to(m)
+    # Add Layer Control
+    folium.LayerControl().add_to(m)
     
-        # Add the grid layer to the map but keep it initially turned off
-        grid_layer = GeoJson(grid_gdf, 
-                             name="Grid", 
-                             style_function=lambda x: {'color': 'blue', 'weight': 1},
-                             show=False  # Keep the layer off initially
-                             ).add_to(m)
-    
-        # Add MousePosition to display coordinates
-        MousePosition().add_to(m)
-    
-        # Add raster overlay
-        raster_bounds = [
-            [48.67, -123.79],  # Bottom-left corner
-            [48.67 + (2 * 300 / 111320), -123.79 + (2 * 300 / (111320 * np.cos(np.radians(48.67))))]  # Top-right corner
-        ]
-        if os.path.exists(raster_path):
-            folium.raster_layers.ImageOverlay(
-                image=raster_path,
-                bounds=raster_bounds,
-                opacity=0.6,
-                name='Raster Layer'
-            ).add_to(m)
-    
-        # Add layer control to switch between the subbasins and grid layers
-        folium.LayerControl().add_to(m)
-    
-        return m
-    
-    # Load or create subbasins and grid GeoDataFrames
-    def load_geodataframes():
-        # Placeholder for your GeoDataFrames
-        # You should replace these with your actual data
-        subbasins_data = {
-            'geometry': [Point(-123.79, 48.67).buffer(0.01), Point(-123.78, 48.68).buffer(0.01)]
-        }
-        grid_data = {
-            'geometry': [Point(-123.79, 48.67).buffer(0.005), Point(-123.78, 48.68).buffer(0.005)]
-        }
-        
-        subbasins_gdf = gpd.GeoDataFrame(subbasins_data, crs="EPSG:4326")
-        grid_gdf = gpd.GeoDataFrame(grid_data, crs="EPSG:4326")
-        
-        return subbasins_gdf, grid_gdf
-    
-    # Streamlit app layout
-    st.title("Watershed Map with Raster Overlay")
-    
-    # Create and save the raster
-    raster_path = create_raster()
-    
-    # Load or create GeoDataFrames
-    subbasins_gdf, grid_gdf = load_geodataframes()
-    
-    # Create the map with the raster overlay and layers
-    m = plot_on_map(raster_path, subbasins_gdf, grid_gdf)
-    
-    # Render the Folium map in Streamlit
+    # Display the map in Streamlit
+    st.title("Watershed Map with DEM Overlay")
     folium_static(m, width=700, height=600)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
