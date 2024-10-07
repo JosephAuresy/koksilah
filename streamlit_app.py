@@ -17,6 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 from folium import raster_layers, GeoJson, plugins
 from rasterio.plot import show
 import os 
+import tempfile
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
@@ -310,42 +311,54 @@ elif selected_option == "Water interactions":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-                
-    # Set the path to the raster file
-    raster_path = main_path / 'data/dem_clip_3.tif'
-    
-    # Function to load the raster and extract bounds
+                    
+    # Load the raster and get bounds
     def load_raster(file_path):
         with rasterio.open(file_path) as src:
-            bounds = src.bounds  # Get the bounds
-        return bounds
+            bounds = src.bounds
+            image = src.read(1)  # Read the first band
+            return bounds, image
     
-    # Load raster bounds
-    raster_bounds = load_raster(raster_path)
+    # Function to convert raster data to a PNG file
+    def raster_to_png(raster_data):
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+            plt.imshow(raster_data, cmap='terrain')
+            plt.colorbar()
+            plt.axis('off')
+            plt.savefig(temp_file.name, bbox_inches='tight', pad_inches=0, dpi=300)
+            plt.close()
+            return temp_file.name
+    
+    # Load raster data
+    raster_bounds, raster_data = load_raster(raster_path)
+    
+    # Convert the raster to PNG format
+    png_path = raster_to_png(raster_data)
     
     # Initialize the map centered on Duncan
+    initial_location = [48.67, -123.79]  # Duncan, BC
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
     # Adding the raster to the map as an overlay using the bounds from the UTM coordinates
     raster_layers.ImageOverlay(
-        image=raster_path,
-        bounds=[[raster_bounds.bottom, raster_bounds.left], [raster_bounds.top, raster_bounds.right]],  # Use bounds directly
+        image=png_path,
+        bounds=[[raster_bounds.bottom, raster_bounds.left], [raster_bounds.top, raster_bounds.right]],
         opacity=0.6,
         name='DEM Layer',
     ).add_to(m)
     
     # Add the subbasins layer to the map but keep it initially turned off
     subbasins_layer = GeoJson(
-        subbasins_gdf, 
-        name="Subbasins", 
+        subbasins_gdf,
+        name="Subbasins",
         style_function=lambda x: {'color': 'green', 'weight': 2},
         show=False  # Keep the layer off initially
     ).add_to(m)
     
     # Add the grid layer to the map but keep it initially turned off
     grid_layer = GeoJson(
-        grid_gdf, 
-        name="Grid", 
+        grid_gdf,
+        name="Grid",
         style_function=lambda x: {'color': 'blue', 'weight': 1},
         show=False  # Keep the layer off initially
     ).add_to(m)
