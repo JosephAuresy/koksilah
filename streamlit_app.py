@@ -325,31 +325,30 @@ elif selected_option == "Water interactions":
         
         # Define raster bounds (longitude and latitude)
         x_start = initial_location[1]  # Bottom-left longitude
-        y_start = initial_location[0]    # Bottom-left latitude
+        y_start = initial_location[0]   # Bottom-left latitude
         x_end = x_start + (pixel_size * raster_data.shape[1] / 111320)  # Calculate top-right longitude
         y_end = y_start + (pixel_size * raster_data.shape[0] / 111320)   # Calculate top-right latitude
     
         # Define the transform
         transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
     
-        # Create a temporary raster file
-        output_raster_path = Path('temp_raster.tif')
+        # Create the output directory if it doesn't exist
+        data_folder = Path(__file__).parent / 'data'
+        data_folder.mkdir(parents=True, exist_ok=True)
     
-        # Write raster data to a file
+        # Write raster data to a file in the specified folder
+        output_raster_path = data_folder / 'temp_raster.tif'
         with rasterio.open(output_raster_path, 'w', driver='GTiff',
                            height=raster_data.shape[0], width=raster_data.shape[1], count=1,
                            dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
     
-        # Generate a colorized version of the raster using the Viridis colormap
-        normalized_data = raster_data / np.max(raster_data)  # Normalize data for color mapping
-        colored_raster = plt.get_cmap('viridis')(normalized_data)  # Apply colormap
-    
-        # Convert to uint8 format for saving
+        # Generate a colorized version of the raster
+        colored_raster = plt.get_cmap('viridis')(raster_data / np.max(raster_data))[:, :, :3]  # Normalize and apply colormap
         colored_raster = (colored_raster[:, :, :3] * 255).astype(np.uint8)  # Convert to uint8
     
-        # Save the colored raster to a temporary file
-        colored_raster_path = Path(tempfile.gettempdir()) / 'colored_raster.tif'
+        # Save the colored raster to the specified folder
+        colored_raster_path = data_folder / 'colored_raster.tif'
         with rasterio.open(colored_raster_path, 'w', driver='GTiff',
                            height=colored_raster.shape[0], width=colored_raster.shape[1], count=3,
                            dtype='uint8', transform=transform) as dst:
@@ -364,18 +363,15 @@ elif selected_option == "Water interactions":
     
     # Create a Folium map centered on the initial location
     m = folium.Map(location=initial_location, zoom_start=11)
-        
-    # Add colored raster overlay to the map with corrected settings
+    
+    # Add colored raster overlay to the map
     folium.raster_layers.ImageOverlay(
         image=str(colored_raster_path),
         bounds=[[y_start, x_start], [y_end, x_end]],
-        opacity=0.9,  # Adjust opacity
+        opacity=0.9,
         name="Colored Value Raster",
-        z_index=10  # Set high z-index
+        z_index=10  # High z-index to ensure it's on top
     ).add_to(m)
-    
-    # Debugging output to check bounds
-    st.write(f"Raster bounds: [[{y_start}, {x_start}], [{y_end}, {x_end}]]")
     
     # Add Layer Control to switch between layers
     folium.LayerControl().add_to(m)
@@ -383,7 +379,6 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map with Colored Raster")
     st_folium(m, width=700, height=600)
-
         
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
