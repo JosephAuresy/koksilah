@@ -310,9 +310,9 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
         
-    # Function to create a 4-cell raster and save it as a GeoTIFF
+   # Function to create a 4-cell raster and save it as a GeoTIFF
     def create_raster():
-        # Create a 4x4 raster data with values for each cell (300m x 300m)
+        # Create a 2x2 raster data with values for each cell (300m x 300m)
         raster_data = np.array([[1, 2], [3, 4]], dtype=np.float32)  # Values for the raster cells
         pixel_size = 300  # Size of each pixel in meters
     
@@ -333,9 +333,33 @@ elif selected_option == "Water interactions":
         # Create a Folium map centered around the raster location
         m = folium.Map(location=[450, 150], zoom_start=12)
     
-        # Add the raster layer to the map
-        raster_layer = raster_layers.TileLayer(raster_path)
-        raster_layer.add_to(m)
+        # Read the raster image and transform it to a format suitable for Folium
+        with rasterio.open(raster_path) as src:
+            image = src.read(1)  # Read the first band
+            # Get the bounds of the raster
+            bounds = src.bounds
+    
+        # Create a color map for the raster
+        cmap = {1: 'blue', 2: 'green', 3: 'yellow', 4: 'red'}  # Example color mapping
+    
+        # Create an image to overlay
+        img = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
+        for value, color in cmap.items():
+            img[image == value] = Image.new('RGB', (1, 1), color).getpixel((0, 0))
+    
+        # Save the colorized image as PNG
+        colorized_image_path = 'data/colorized_raster.png'
+        Image.fromarray(img).save(colorized_image_path)
+    
+        # Add the colorized image overlay to the map
+        overlay = ImageOverlay(
+            image=colorized_image_path,
+            bounds=[[bounds.bottom, bounds.left], [bounds.top, bounds.right]],
+            opacity=0.5,
+            interactive=True,
+            cross_origin=False,
+        )
+        overlay.add_to(m)
     
         return m
     
@@ -349,7 +373,7 @@ elif selected_option == "Water interactions":
     m = plot_on_map(raster_path)
     
     # Display the map in the Streamlit app
-    folium_static(m)
+    st.write(m)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
