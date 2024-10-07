@@ -372,11 +372,6 @@ elif selected_option == "Water interactions":
     # Save raster data to a PNG file
     output_png_path = raster_to_png(raster_data, str(output_png_path))  # Save directly to the specified output path
     
-    # Check if the PNG file was created successfully
-    if output_png_path.exists():
-        st.success("Image saved successfully.")
-    else:
-        st.error("Failed to save the image.")
     # Check if the PNG exists before attempting to display it
     if output_png_path.exists():
         # Initialize the Folium map
