@@ -348,13 +348,17 @@ elif selected_option == "Water interactions":
     
     # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
-        # Initialize the Folium map
-        m = folium.Map(control_scale=True)  # Initialize without setting bounds or location
+        # Calculate the bounds from the grid's bounding box
+        minx, miny, maxx, maxy = grid_gdf.total_bounds  # Extract bounds from the grid
     
-        # Add the raster image as an overlay without modifying bounds
+        # Initialize the Folium map using a calculated center based on bounds
+        m = folium.Map(location=[(miny + maxy) / 2, (minx + maxx) / 2], zoom_start=11, control_scale=True)
+    
+        # Add the raster image as an overlay using the grid's bounds
         try:
             raster_overlay = folium.raster_layers.ImageOverlay(
                 image=str(raster_image_path),  # Path to the saved PNG file
+                bounds=[[miny, minx], [maxy, maxx]],  # Use the grid's total bounds
                 opacity=0.6,
                 interactive=True,
                 cross_origin=False,
@@ -400,6 +404,7 @@ elif selected_option == "Water interactions":
         st_folium(m, width=700, height=600)
     else:
         st.error("Raster image file does not exist.")
+        
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
