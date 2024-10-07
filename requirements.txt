@@ -14,5 +14,3 @@ geopandas
 point
 pillow
 rasterio
-matplotlib
-logging
