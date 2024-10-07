@@ -310,7 +310,7 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
     
-        # Function to create raster from DataFrame
+    # Function to create raster from DataFrame
     def create_raster_from_df(df):
         max_row = df['Row'].max()
         max_column = df['Column'].max()
@@ -357,6 +357,7 @@ elif selected_option == "Water interactions":
     map_object = create_map(df)
     st_folium(map_object, width=700, height=600)
     
+
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
