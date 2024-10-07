@@ -346,65 +346,44 @@ elif selected_option == "Water interactions":
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
         
-    # Set coordinates for centering the map (replace with your desired coordinates)
-    center_coordinates = [48.67, -123.79]  # Example coordinates for Duncan, BC
+    # Initialize the Folium map centered on the grid bounds
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=11, control_scale=True)
     
-    # Check if the PNG exists before attempting to display it
-    if raster_image_path.exists():
-        # Initialize the Folium map using the specified center coordinates
-        m = folium.Map(location=center_coordinates, zoom_start=11, control_scale=True)
+    # Add the raster image as an overlay using the grid bounds
+    raster_overlay = folium.raster_layers.ImageOverlay(
+        image=str(raster_image_path),  # Path to the saved PNG file
+        bounds=[[bounds[1], bounds[0]], [bounds[3], bounds[2]]],  # Use grid bounds directly
+        opacity=0.6,
+        interactive=True,
+        cross_origin=False,
+        zindex=1
+    )
+    raster_overlay.add_to(m)
     
-        # Calculate the bounds from the grid's bounding box
-        minx, miny, maxx, maxy = grid_gdf.total_bounds  # Extract bounds from the grid
+    # Add the subbasins layer to the map
+    subbasins_layer = GeoJson(
+        subbasins_gdf,
+        name="Subbasins",
+        style_function=lambda x: {'color': 'green', 'weight': 2},
+    ).add_to(m)
     
-        # Add the raster image as an overlay using the grid's bounds
-        try:
-            raster_overlay = folium.raster_layers.ImageOverlay(
-                image=str(raster_image_path),  # Path to the saved PNG file
-                bounds=[[miny, minx], [maxy, maxx]],  # Use the grid's total bounds
-                opacity=0.6,
-                interactive=True,
-                cross_origin=False,
-                zindex=1,
-            )
-            raster_overlay.add_to(m)
-        except Exception as e:
-            st.error(f"Error adding the raster overlay: {e}")
-            st.stop()
+    # Add the grid layer to the map
+    grid_layer = GeoJson(
+        grid_gdf,
+        name="Grid",
+        style_function=lambda x: {'color': 'blue', 'weight': 1},
+        show=False  # Keep the layer off initially
+    ).add_to(m)
     
-        # Add the subbasins layer to the map
-        try:
-            subbasins_layer = GeoJson(
-                subbasins_gdf,
-                name="Subbasins",
-                style_function=lambda x: {'color': 'green', 'weight': 2},
-            ).add_to(m)
-        except Exception as e:
-            st.error(f"Error adding the subbasins layer: {e}")
-            st.stop()
+    # Add MousePosition to display coordinates
+    MousePosition().add_to(m)
     
-        # Add the grid layer to the map
-        try:
-            grid_layer = GeoJson(
-                grid_gdf,
-                name="Grid",
-                style_function=lambda x: {'color': 'blue', 'weight': 1},
-            ).add_to(m)
-        except Exception as e:
-            st.error(f"Error adding the grid layer: {e}")
-            st.stop()
+    # Add a layer control to switch between the subbasins and grid layers
+    folium.LayerControl().add_to(m)
     
-        # Add MousePosition to display coordinates
-        MousePosition().add_to(m)
-    
-        # Add a layer control to switch between the subbasins and grid layers
-        folium.LayerControl().add_to(m)
-    
-        # Render the Folium map in Streamlit
-        st.title("Watershed Map with Raster Overlay, Subbasins, and Grid Layers")
-        st_folium(m, width=700, height=600)
-    else:
-        st.error("Raster image file does not exist.")
+    # Render the Folium map in Streamlit
+    st.title("Watershed Map with Raster Overlay, Subbasins, and Grid Layers")
+    st_folium(m, width=700, height=600)
         
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
