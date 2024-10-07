@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import logging
 import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
@@ -309,11 +310,15 @@ elif selected_option == "Water interactions":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
+        
+    # Initialize logging
+    logging.basicConfig(level=logging.INFO)
     
-    # Define pixel size (300m)
+    # Define your initial location and pixel size
+    initial_location = (0, 0)  # Replace with actual values
     pixel_size = 300  
-    
-    # Define function to create and colorize raster data
+
+    @st.cache_data
     def create_colored_raster():
         # Create a specific 4x4 raster data with defined values
         raster_data = np.array([[1, 2, 3, 4],
@@ -336,21 +341,32 @@ elif selected_option == "Water interactions":
     
         # Write raster data to a file in the specified folder
         output_raster_path = data_folder / 'temp_raster.tif'
-        with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                           height=raster_data.shape[0], width=raster_data.shape[1], count=1,
-                           dtype='float32', transform=transform) as dst:
-            dst.write(raster_data, 1)
-    
-        df = px.data.tips()  # Using tips dataset for color mapping (placeholder)
         
+        try:
+            with rasterio.open(output_raster_path, 'w', driver='GTiff',
+                               height=raster_data.shape[0], width=raster_data.shape[1],
+                               count=1, dtype='float32', transform=transform) as dst:
+                dst.write(raster_data, 1)
+            logging.info(f"Raster saved successfully at {output_raster_path}")
+        except Exception as e:
+            logging.error(f"Error saving raster: {e}")
+        
+        # Using tips dataset for color mapping (placeholder)
+        df = px.data.tips()  
         df['values'] = raster_data.flatten()
-        
-        fig = px.imshow(raster_data, color_continuous_scale='plasma', 
-                    origin='lower', aspect='auto')
     
+        # Create a colorized raster image
+        fig = px.imshow(raster_data, color_continuous_scale='plasma', 
+                        origin='lower', aspect='auto')
+        
         # Save the colorized raster to the specified folder as an image
         colorized_raster_path = data_folder / 'colored_raster.png'
-        fig.write_image(colorized_raster_path)
+        
+        try:
+            fig.write_image(colorized_raster_path)
+            logging.info(f"Colored raster image saved at {colorized_raster_path}")
+        except Exception as e:
+            logging.error(f"Error saving colored raster image: {e}")
     
         return str(colorized_raster_path), x_start, y_start, x_end, y_end
     
