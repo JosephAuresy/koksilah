@@ -345,8 +345,8 @@ elif selected_option == "Water interactions":
     
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
-    
-    # Check if the PNG exists before attempting to display it
+        
+     # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
         # Calculate the bounds from the grid's bounding box
         minx, miny, maxx, maxy = grid_gdf.total_bounds  # Extract bounds from the grid
