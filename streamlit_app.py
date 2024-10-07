@@ -19,6 +19,7 @@ from rasterio.plot import show
 import os 
 import tempfile
 import matplotlib.pyplot as plt
+from rasterio.warp import transform_bounds
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
@@ -345,13 +346,20 @@ elif selected_option == "Water interactions":
     
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
-
-    # Load the raster and get bounds
+    
+    # Load raster and get bounds
     def load_raster(file_path):
         with rasterio.open(file_path) as src:
-            bounds = src.bounds
-            image = src.read(1)  # Read the first band
-            return bounds, image
+            bounds = src.bounds  # Get bounds of the raster
+            crs = src.crs  # Get CRS (Coordinate Reference System)
+            
+            # Convert the bounds to geographic coordinates (lat/lon)
+            bounds_geo = transform_bounds(crs, 'EPSG:4326', bounds.left, bounds.bottom, bounds.right, bounds.top)
+            
+            # Read the first band of raster data
+            image = src.read(1)
+            
+            return bounds_geo, image
     
     # Function to save raster data as a PNG
     def save_raster_as_png(raster_data, output_path):
