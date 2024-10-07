@@ -310,71 +310,43 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
     
-    # Create a 4x4 raster data (for example, using random values)
+    # Create a simple 4x4 raster data with random values
     rows, cols = 4, 4
     raster_data = np.random.rand(rows, cols)  # Random values for raster data
     
-    # Define pixel size in meters
-    pixel_size_m = 300  # 300 meters
+    # Define pixel size (300m)
+    pixel_size = 300  
     
-    # Convert pixel size to degrees
-    # Latitude conversion
-    degrees_lat = pixel_size_m / 111320  # 1 degree latitude in meters
-    # Longitude conversion (approximate)
-    degrees_long = pixel_size_m / (76110 * np.cos(np.radians(initial_location[0])))  # 1 degree longitude in meters at this latitude
+    # Define raster bounds (longitude and latitude)
+    x_start = initial_location[1]  # Bottom-left longitude
+    y_start = initial_location[0]    # Bottom-left latitude
+    x_end = x_start + (pixel_size * cols / 111320)  # Calculate top-right longitude
+    y_end = y_start + (pixel_size * rows / 111320)   # Calculate top-right latitude
     
-    # Define the extent of the raster based on the initial location
-    x_start = initial_location[1]  # Longitude for the bottom-left corner
-    y_start = initial_location[0]    # Latitude for the bottom-left corner
-    x_end = x_start + (degrees_long * cols)  # Top-right corner longitude
-    y_end = y_start + (degrees_lat * rows)    # Top-right corner latitude
+    # Define the transform
+    transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
     
-    # Define the raster's transform and CRS
-    transform = from_origin(x_start, y_end, degrees_long, degrees_lat)  # Origin at (x_start, y_end)
-    crs = "EPSG:4326"  # WGS 84
+    # Create a temporary raster file
+    output_raster_path = Path('temp_raster.tif')
     
-    # Create a Folium map centered on Duncan
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    # Write raster data to a file
+    with rasterio.open(output_raster_path, 'w', driver='GTiff',
+                       height=rows, width=cols, count=1,
+                       dtype='float32', transform=transform) as dst:
+        dst.write(raster_data, 1)
     
-    # Add the subbasins layer to the map
-    subbasins_layer = folium.GeoJson(
-        subbasins_gdf,
-        name="Subbasins",
-        style_function=lambda x: {'color': 'green', 'weight': 2}
+    # Create a Folium map centered on the initial location
+    m = folium.Map(location=initial_location, zoom_start=11)
+    
+    # Add raster overlay to the map
+    folium.raster_layers.ImageOverlay(
+        image=str(output_raster_path),
+        bounds=[[y_start, x_start], [y_end, x_end]],
+        opacity=0.5,
+        name="Random Raster"
     ).add_to(m)
     
-    # Function to create and add raster overlay to the Folium map
-    def add_raster_to_map(raster_data, transform, crs, map_obj):
-        # Create a temporary raster file
-        output_raster_path = Path(__file__).parent / 'temp_raster.tif'
-        
-        # Write raster to a temporary file with specified CRS
-        with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                           height=rows, width=cols, count=1,
-                           dtype='float32', transform=transform,
-                           crs=crs) as dst:
-            dst.write(raster_data, 1)
-    
-        # Add the raster overlay to the map
-        folium.raster_layers.ImageOverlay(
-            image=str(output_raster_path),
-            bounds=[[y_start, x_start], [y_end, x_end]],
-            opacity=0.5,
-            name="Raster Overlay"
-        ).add_to(map_obj)
-    
-    # Use session state to manage raster creation
-    if 'raster_added' not in st.session_state:
-        st.session_state.raster_added = False
-    
-    if st.button("Add Raster Overlay") and not st.session_state.raster_added:
-        add_raster_to_map(raster_data, transform, crs, m)
-        st.session_state.raster_added = True
-    
-    # Add MousePosition to display coordinates
-    MousePosition().add_to(m)
-    
-    # Add a layer control to switch between the subbasins and raster layers
+    # Add Layer Control to switch between layers
     folium.LayerControl().add_to(m)
     
     # Render the Folium map in Streamlit
