@@ -396,7 +396,9 @@ elif selected_option == "Water interactions":
             cross_origin=False,
             zindex=1,
         )
-        
+        # Add the overlay to the map
+        image_overlay.add_to(m)
+
     # Add the subbasins layer to the map but keep it initially turned off
     subbasins_layer = GeoJson(
         subbasins_gdf,
