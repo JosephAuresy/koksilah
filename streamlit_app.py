@@ -348,9 +348,8 @@ elif selected_option == "Water interactions":
     
     # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
-        # Initialize the Folium map
-        initial_location = [48.67, -123.79]  # Example location (Duncan, BC)
-        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+        # Initialize the Folium map without a predefined location
+        m = folium.Map(control_scale=True)  # No initial location, let Folium handle it
     
         # Add the raster image as an overlay
         raster_overlay = folium.raster_layers.ImageOverlay(
@@ -392,7 +391,7 @@ elif selected_option == "Water interactions":
         st_folium(m, width=700, height=600)
     else:
         st.error("Raster image file does not exist.")
-
+        
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
