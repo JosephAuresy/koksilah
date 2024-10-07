@@ -293,35 +293,54 @@ elif selected_option == "Groundwater / Surface water interactions":
     monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
     
-    # Sort data by Row, Column, and Month to ensure we analyze time changes correctly
-    monthly_stats = monthly_stats.sort_values(by=['Row', 'Column', 'Month'])
+    # Unique months for selection
+    unique_months = sorted(monthly_stats['Month'].unique())
+    month_names = [f'Month {m}' for m in unique_months]  # Replace with actual month names if desired
     
-    # Create a column with the sign of the Average Rate (+1, 0, -1)
-    monthly_stats['Sign'] = np.sign(monthly_stats['Average Rate'])
+    # Month selection in Streamlit
+    selected_month_name = st.selectbox("Select Month", month_names, index=0)
+    selected_month = unique_months[month_names.index(selected_month_name)]
     
-    # Detect sign changes (negative to positive or vice versa) for each (Row, Column)
-    monthly_stats['Sign Change'] = monthly_stats.groupby(['Row', 'Column'])['Sign'].diff().fillna(0).abs() > 1
+    # Initialize a grid to visualize sign changes for each month
+    grids = {}
     
-    # Filter only the locations where a sign change occurred
-    df_filtered = monthly_stats[monthly_stats['Sign Change']]
+    # Analyze sign changes for each month
+    for month in unique_months:
+        # Filter for the current month
+        df_filtered = monthly_stats[monthly_stats['Month'] == month]
     
-    # Create a grid for the heatmap, but only with locations where sign changes occurred
-    grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+        # Create a column with the sign of the Average Rate (+1, 0, -1)
+        df_filtered['Sign'] = np.sign(df_filtered['Average Rate'])
     
-    # Fill the grid with the Average Rate values where sign changes occurred
-    for _, row in df_filtered.iterrows():
-        grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate']
+        # Detect sign changes (negative to positive or vice versa) for each (Row, Column)
+        df_filtered['Sign Change'] = df_filtered.groupby(['Row', 'Column'])['Sign'].diff().fillna(0).abs() > 1
+    
+        # Filter only the locations where a sign change occurred
+        df_filtered_sign_changes = df_filtered[df_filtered['Sign Change']]
+    
+        # Create a grid for the heatmap, but only with locations where sign changes occurred
+        grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+    
+        # Fill the grid with the Average Rate values where sign changes occurred
+        for _, row in df_filtered_sign_changes.iterrows():
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate']
+        
+        # Store the grid for this month
+        grids[month] = grid
+    
+    # Create heatmap for the selected month
+    grid = grids[selected_month]
     
     # Define color scale and boundaries for heatmap, focusing on blue for negative and brown for positive
     colorscale = [
-        [0, 'rgb(0, 0, 255)'],    # Blue for negative values (to stream)
+        [0, 'rgb(0, 0, 255)'],    # Blue for negative values
         [0.5, 'rgb(255, 255, 255)'], # White at zero (transition point)
-        [1, 'rgb(165, 42, 42)']   # Brown for positive values (to aquifer)
+        [1, 'rgb(165, 42, 42)']   # Brown for positive values
     ]
     
     # Set boundaries for the color scale based on the data
-    zmin = df_filtered['Average Rate'].min()
-    zmax = df_filtered['Average Rate'].max()
+    zmin = np.nanmin(grid)
+    zmax = np.nanmax(grid)
     
     # Create the heatmap figure with the custom color scale
     fig = go.Figure(data=go.Heatmap(
@@ -344,7 +363,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     ))
     
     fig.update_layout(
-        title='Locations with Positive and Negative Changes',
+        title=f'Sign Changes for Selected Month: {selected_month_name}',
         xaxis_title=None,
         yaxis_title=None,
         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
