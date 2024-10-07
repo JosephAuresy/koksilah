@@ -288,86 +288,121 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
-
-    # Group by Month, Row, and Column to compute average
-    monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean']).reset_index()
-    monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate']
     
-    # Unique months for selection
+    # Calculate monthly statistics
+    monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+    monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+    
+    # Global min and max for consistent color scaling
+    global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
+    global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
+    
+    # Streamlit user interface
+    st.title("Monthly Rate Analysis")
+    month_names = ["January", "February", "March", "April", "May", "June", 
+                   "July", "August", "September", "October", "November", "December"]
     unique_months = sorted(monthly_stats['Month'].unique())
-    month_names = [f'Month {m}' for m in unique_months]  # Replace with actual month names if desired
+    unique_month_names = [month_names[m - 1] for m in unique_months]
     
-    # Month selection in Streamlit
-    selected_month_name = st.selectbox("Select Month", month_names, index=0)
-    selected_month = unique_months[month_names.index(selected_month_name)]
+    selected_month_name = st.selectbox("Month", unique_month_names, index=0)
+    selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    stat_type = st.radio("Statistic Type", ['Average Rate', 'Standard Deviation'], index=0)
     
-    # Create a grid to visualize sign changes for the selected month
-    grid = np.full((10, 10), np.nan)  # Adjust grid size according to your data (10x10 as an example)
+    # Function to update heatmap
+    def update_heatmap(selected_month, stat_type):
+        # Filter data for the selected month
+        df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
     
-    # Analyze sign changes by comparing the current month with the previous month
-    for month in unique_months[1:]:  # Skip the first month for comparison
-        current_month_data = monthly_stats[monthly_stats['Month'] == month]
-        previous_month_data = monthly_stats[monthly_stats['Month'] == month - 1]
+        # Identify maximum rows and columns
+        max_row = df_filtered['Row'].max()
+        max_column = df_filtered['Column'].max()
     
-        # Merge current and previous month data on Row and Column
-        merged_data = pd.merge(current_month_data, previous_month_data, on=['Row', 'Column'], suffixes=('_current', '_previous'))
+        # Create an empty grid with maximum rows and columns
+        grid = np.full((int(max_row), int(max_column)), np.nan)  # Using NaN to represent no data
     
-        # Determine sign changes
-        merged_data['Sign Change'] = np.where(
-            (merged_data['Average Rate_current'] > 0) & (merged_data['Average Rate_previous'] <= 0,  # Positive from negative
-            1,  # Sign change from negative to positive
-            np.where(
-                (merged_data['Average Rate_current'] < 0) & (merged_data['Average Rate_previous'] >= 0,  # Negative from positive
-                -1,  # Sign change from positive to negative
-                0  # No change
-            )
+        # Fill the grid with the selected statistic values
+        for _, row in df_filtered.iterrows():
+            r = int(row['Row']) - 1
+            c = int(row['Column']) - 1
+            if 0 <= r < grid.shape[0] and 0 <= c < grid.shape[1]:
+                grid[r, c] = row[stat_type]  # Fill the grid with Average Rate or Standard Deviation
+    
+        # Create annotations to highlight sign changes
+        annotations = []
+        for _, row in df_filtered.iterrows():
+            r = int(row['Row']) - 1
+            c = int(row['Column']) - 1
+            current_rate = row['Average Rate']
+    
+            # Check for sign change based on the previous month's data
+            previous_month_data = monthly_stats[monthly_stats['Month'] == selected_month - 1]
+            previous_rate = previous_month_data.loc[
+                (previous_month_data['Row'] == row['Row']) & (previous_month_data['Column'] == row['Column']), 
+                'Average Rate'
+            ]
+    
+            if not previous_rate.empty:
+                previous_rate = previous_rate.values[0]
+                # Determine if there's a sign change
+                if (current_rate > 0 and previous_rate <= 0) or (current_rate < 0 and previous_rate >= 0):
+                    annotations.append(
+                        dict(
+                            x=c,
+                            y=r,
+                            xref='x',
+                            yref='y',
+                            text='',  # Leave empty for no text
+                            showarrow=True,
+                            arrowhead=2,
+                            ax=0,
+                            ay=-40 if current_rate > 0 else 40,
+                            font=dict(color='black', size=14),
+                            bordercolor='black',
+                            borderwidth=2,
+                        )
+                    )
+    
+        # Create heatmap with emphasis on changed values
+        fig = go.Figure(data=go.Heatmap(
+            z=grid,
+            colorscale='RdYlGn',  # Color scale from Red (negative) to Green (positive)
+            zmin=-max(abs(grid.flatten()), 1),  # Set zmin to capture negative values
+            zmax=max(abs(grid.flatten()), 1),   # Set zmax to capture positive values
+            colorbar=dict(title=stat_type),
+            hovertemplate='%{z:.2f}<extra></extra>',  # Only display actual values, no extra info for NaNs
+            texttemplate='%{z:.2f}',  # Format the displayed value in hover
+            hoverinfo='z'  # Show only the z value in hover
+        ))
+    
+        # Update the layout with a custom title and annotations
+        fig.update_layout(
+            annotations=annotations,
+            title=f'Changes in {stat_type} for Month {selected_month}',
+            title_x=0.5,  # Center title
+            xaxis_title=None,  # Remove X-axis title
+            yaxis_title=None,  # Remove Y-axis title
+            xaxis=dict(
+                showticklabels=False,  # Hide X-axis tick labels
+                ticks='',  # Remove tick marks
+                showgrid=False,  # Remove grid lines if desired
+            ),
+            yaxis=dict(
+                showticklabels=False,  # Hide Y-axis tick labels
+                ticks='',  # Remove tick marks
+                autorange='reversed',  # Start Y-axis from the maximum row
+                showgrid=False,  # Remove grid lines if desired
+            ),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',  # Light gray background for the plot
+            paper_bgcolor='white',  # White background for the page
+            font=dict(family='Arial, sans-serif', size=12, color='black')  # Font styling
         )
     
-        # Filter only the locations where a sign change occurred
-        sign_changes = merged_data[merged_data['Sign Change'] != 0]
-    
-        # Fill the grid with the Average Rate values where sign changes occurred
-        for _, row in sign_changes.iterrows():
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate_current']  # Current month's rate
-    
-    # Define color scale and boundaries for heatmap, focusing on blue for negative and brown for positive
-    colorscale = [
-        [0, 'rgb(0, 0, 255)'],    # Blue for negative values
-        [0.5, 'rgb(255, 255, 255)'], # White at zero (transition point)
-        [1, 'rgb(165, 42, 42)']   # Brown for positive values
-    ]
-    
-    # Create the heatmap figure with the custom color scale
-    fig = go.Figure(data=go.Heatmap(
-        z=grid,
-        colorscale=colorscale,  # Apply blue-brown colorscale
-        zmid=0,                 # Center the color scale at zero
-        zmin=np.nanmin(grid),
-        zmax=np.nanmax(grid),
-        colorbar=dict(
-            title="Rate<br>[m³/day]", 
-            orientation='h', 
-            x=0.5, 
-            y=-0.1, 
-            xanchor='center', 
-            yanchor='top',
-        ),
-        hovertemplate='%{z:.2f}<extra></extra>',
-    ))
-    
-    fig.update_layout(
-        title=f'Sign Changes for Selected Month: {selected_month_name}',
-        xaxis_title='Column',
-        yaxis_title='Row',
-        xaxis=dict(showticklabels=True, ticks=''),
-        yaxis=dict(showticklabels=True, ticks='', autorange='reversed'),
-        plot_bgcolor='rgba(240, 240, 240, 0.8)',
-        paper_bgcolor='white',
-        font=dict(family='Arial, sans-serif', size=8, color='black')
-    )
+        return fig
     
     # Display the heatmap
+    fig = update_heatmap(selected_month, stat_type)
     st.plotly_chart(fig)
+    
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
