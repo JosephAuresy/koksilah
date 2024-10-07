@@ -348,19 +348,12 @@ elif selected_option == "Water interactions":
     
     # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
-        # Initialize the Folium map without a predefined location
-        m = folium.Map(crs='EPSG32610', control_scale=True)  # Force map CRS to EPSG:32610
+        # Initialize the Folium map
+        m = folium.Map(control_scale=True)  # Map initialized without setting bounds or location
     
-        # Get the bounds from the subbasins and transform them to EPSG:32610
-        bounds = [
-            [subbasins_gdf.bounds.miny.min(), subbasins_gdf.bounds.minx.min()],
-            [subbasins_gdf.bounds.maxy.max(), subbasins_gdf.bounds.maxx.max()]
-        ]
-    
-        # Add the raster image as an overlay, force the CRS to align
+        # Add the raster image as an overlay without modifying bounds
         raster_overlay = folium.raster_layers.ImageOverlay(
             image=str(raster_image_path),  # Path to the saved PNG file
-            bounds=bounds,  # Using subbasin bounds
             opacity=0.6,
             interactive=True,
             cross_origin=False,
@@ -396,7 +389,7 @@ elif selected_option == "Water interactions":
         st_folium(m, width=700, height=600)
     else:
         st.error("Raster image file does not exist.")
-        
+
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
