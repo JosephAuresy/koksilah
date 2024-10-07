@@ -14,5 +14,4 @@ geopandas
 point
 pillow
 rasterio
-tempfile
 matplotlib
