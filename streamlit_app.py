@@ -349,36 +349,47 @@ elif selected_option == "Water interactions":
     # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
         # Initialize the Folium map
-        m = folium.Map(control_scale=True)  # Map initialized without setting bounds or location
+        m = folium.Map(control_scale=True)  # Initialize without setting bounds or location
     
         # Add the raster image as an overlay without modifying bounds
-        raster_overlay = folium.raster_layers.ImageOverlay(
-            image=str(raster_image_path),  # Path to the saved PNG file
-            opacity=0.6,
-            interactive=True,
-            cross_origin=False,
-            zindex=1,
-        )
-        raster_overlay.add_to(m)
+        try:
+            raster_overlay = folium.raster_layers.ImageOverlay(
+                image=str(raster_image_path),  # Path to the saved PNG file
+                opacity=0.6,
+                interactive=True,
+                cross_origin=False,
+                zindex=1,
+            )
+            raster_overlay.add_to(m)
+        except Exception as e:
+            st.error(f"Error adding the raster overlay: {e}")
+            st.stop()
     
-        # Add the subbasins layer to the map but keep it initially turned off
-        subbasins_layer = GeoJson(
-            subbasins_gdf,
-            name="Subbasins",
-            style_function=lambda x: {'color': 'green', 'weight': 2},
-            show=False  # Keep the layer off initially
-        ).add_to(m)
+        # Add the subbasins layer to the map
+        try:
+            subbasins_layer = GeoJson(
+                subbasins_gdf,
+                name="Subbasins",
+                style_function=lambda x: {'color': 'green', 'weight': 2},
+                show=False  # Keep the layer off initially
+            ).add_to(m)
+        except Exception as e:
+            st.error(f"Error adding the subbasins layer: {e}")
+            st.stop()
     
-        # Add the grid layer to the map but keep it initially turned off
-        grid_layer = GeoJson(
-            grid_gdf,
-            name="Grid",
-            style_function=lambda x: {'color': 'blue', 'weight': 1},
-            show=False  # Keep the layer off initially
-        ).add_to(m)
+        # Add the grid layer to the map
+        try:
+            grid_layer = GeoJson(
+                grid_gdf,
+                name="Grid",
+                style_function=lambda x: {'color': 'blue', 'weight': 1},
+                show=False  # Keep the layer off initially
+            ).add_to(m)
+        except Exception as e:
+            st.error(f"Error adding the grid layer: {e}")
+            st.stop()
     
         # Add MousePosition to display coordinates
-        from folium.plugins import MousePosition
         MousePosition().add_to(m)
     
         # Add a layer control to switch between the subbasins and grid layers
@@ -389,7 +400,6 @@ elif selected_option == "Water interactions":
         st_folium(m, width=700, height=600)
     else:
         st.error("Raster image file does not exist.")
-
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
