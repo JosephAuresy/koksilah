@@ -352,14 +352,10 @@ elif selected_option == "Water interactions":
         with rasterio.open(file_path) as src:
             bounds = src.bounds  # Get bounds of the raster
             crs = src.crs  # Get CRS (Coordinate Reference System)
-            
-            # Convert the bounds to geographic coordinates (lat/lon)
-            bounds_geo = transform_bounds(crs, 'EPSG:4326', bounds.left, bounds.bottom, bounds.right, bounds.top)
-            
-            # Read the first band of raster data
+            # Just read the first band of raster data
             image = src.read(1)
-            
-            return bounds_geo, image
+    
+            return bounds, image  # Return the original bounds
     
     # Function to convert raster data to a PNG file
     def raster_to_png(raster_data, output_path):
