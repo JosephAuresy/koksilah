@@ -310,53 +310,65 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
     
-    # Function to create raster from DataFrame
-    def create_raster_from_df(df):
-        max_row = df['Row'].max()
-        max_column = df['Column'].max()
-        
-        # Initialize the raster data array
-        raster_data = np.zeros((max_row, max_column), dtype=np.float32)
-        
-        # Populate the raster data
-        for index, row in df.iterrows():
-            raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
-        
-        # Define raster file parameters
-        output_file = DATA_DIRECTORY / 'output_raster.tif'
-        transform = rasterio.transform.from_origin(0, max_row, 1, 1)  # Adjust based on your specific requirements
-        
-        # Write raster to a file
-        with rasterio.open(output_file, 'w', driver='GTiff',
-                           height=max_row, width=max_column, count=1,
+    # Create a 4x4 raster data (for example, using random values)
+    rows, cols = 4, 4
+    raster_data = np.random.rand(rows, cols)  # Random values for raster data
+    
+    # Define the extent of the raster based on the desired location
+    x_start, y_start = 0, 0  # Bottom left corner of the raster
+    x_end, y_end = 4, 4      # Top right corner of the raster
+    extent = [x_start, x_end, y_start, y_end]
+    
+    # Create a Folium map centered on Duncan
+    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    
+    # Add the subbasins layer to the map
+    subbasins_layer = folium.GeoJson(
+        subbasins_gdf,
+        name="Subbasins",
+        style_function=lambda x: {'color': 'green', 'weight': 2}
+    ).add_to(m)
+    
+    # Add the grid layer to the map
+    grid_layer = folium.GeoJson(
+        grid_gdf,
+        name="Grid",
+        style_function=lambda x: {'color': 'blue', 'weight': 1}
+    ).add_to(m)
+    
+    # Function to create and add raster overlay to the Folium map
+    def add_raster_to_map(raster_data, map_obj):
+        # Create a temporary raster file
+        output_raster_path = Path(__file__).parent / 'temp_raster.tif'
+        transform = from_origin(0, 4, 1, 1)  # Adjust based on your specific requirements
+    
+        # Write raster to a temporary file
+        with rasterio.open(output_raster_path, 'w', driver='GTiff',
+                           height=rows, width=cols, count=1,
                            dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
-        
-        return output_file
     
-    # Upload CSV file
-    uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
+        # Add the raster overlay to the map
+        folium.raster_layers.ImageOverlay(
+            image=str(output_raster_path),
+            bounds=[[y_start, x_start], [y_end, x_end]],
+            opacity=0.5,
+            name="Raster Overlay"
+        ).add_to(map_obj)
     
-    if uploaded_file is not None:
-        # Process the uploaded data
-        df = process_swatmf_data(uploaded_file)
-        
-        # Display the DataFrame in a table
-        st.write("Data Overview:")
-        st.dataframe(df)
+    # Add raster overlay to the map
+    add_raster_to_map(raster_data, m)
     
-        # Show a button to create raster
-        if st.button("Create Raster"):
-            raster_file = create_raster_from_df(df)
-            st.success(f"Raster created successfully! You can download it [here](./{raster_file.name}).")
-        
-    # Instructions for uploading and visualizing data
-    st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
+    # Add MousePosition to display coordinates
+    MousePosition().add_to(m)
     
-    # Create and display the map
-    map_object = create_map(df)
-    st_folium(map_object, width=700, height=600)
+    # Add a layer control to switch between the subbasins, grid, and raster layers
+    folium.LayerControl().add_to(m)
     
+    # Render the Folium map in Streamlit
+    st.title("Watershed Map")
+    st_folium(m, width=700, height=600)    
+
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
