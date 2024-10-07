@@ -345,7 +345,12 @@ elif selected_option == "Water interactions":
     
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
-        
+
+    # Use grid_gdf bounds to set the map bounds and center
+    bounds = grid_gdf.total_bounds  # Returns minx, miny, maxx, maxy
+    center_lat = (bounds[1] + bounds[3]) / 2  # Midpoint of latitude (miny, maxy)
+    center_lon = (bounds[0] + bounds[2]) / 2  # Midpoint of longitude (minx, maxx)
+            
     # Initialize the Folium map centered on the grid bounds
     m = folium.Map(location=[center_lat, center_lon], zoom_start=11, control_scale=True)
     
