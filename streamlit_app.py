@@ -331,34 +331,43 @@ elif selected_option == "Water interactions":
     DATA_FOLDER = Path(__file__).parent / 'data'
     DATA_FOLDER.mkdir(parents=True, exist_ok=True)  # Create the data directory if it doesn't exist
     
-    # Function to calculate water interactions for the specified month
+    # Function to calculate water interactions for the specified month and aggregate stats
     def calculate_water_interactions_for_month(month, df):
-        """Calculates water interactions for the specified month."""
+        """Calculates water interactions for the specified month with mean and std."""
+        # Group by Month, Row, and Column and calculate mean and std
         monthly_stats = df[df['Month'] == month].groupby(['Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+        # Create a dictionary with mean values for the month
         water_interaction_dict = {(row['Row'], row['Column']): row['mean'] for _, row in monthly_stats.iterrows()}
         return water_interaction_dict
     
     # Function to save raster data
     def save_raster(file_name, data_dict, grid_gdf, transform):
+        # Initialize raster data with zeros instead of NaN
+        raster_data = np.zeros((grid_gdf['Row'].max(), grid_gdf['Column'].max()), dtype='float32')
+    
+        # Fill the raster with values from the water interaction dictionary
+        for (row, col), value in data_dict.items():
+            raster_data[int(row) - 1, int(col) - 1] = value  # Adjust for 0-indexing
+    
+        # Save the raster to a file
         with rasterio.open(
             str(file_name), 'w',
             driver='GTiff',
-            height=grid_gdf.shape[0],
-            width=grid_gdf.shape[1],
+            height=raster_data.shape[0],
+            width=raster_data.shape[1],
             count=1,
             dtype='float32',
             crs="EPSG:32610",
             transform=transform) as dst:
-            
-            raster_data = np.zeros((grid_gdf.shape[0], grid_gdf.shape[1]), dtype='float32')
-            for (row, col), value in data_dict.items():
-                raster_data[row, col] = value
             dst.write(raster_data, 1)
     
-    # Function to preprocess and save rasters
+    # Function to preprocess and save rasters for all months
     def preprocess_and_save_rasters(unique_months, df, grid_gdf):
-        x_origin, y_origin = grid_gdf.geometry.x.min(), grid_gdf.geometry.y.max()  # Example origin
-        pixel_size_x, pixel_size_y = 30, 30  # Example pixel size
+        # Example origin and pixel size (adjust to match your data)
+        x_origin, y_origin = grid_gdf.geometry.x.min(), grid_gdf.geometry.y.max()
+        pixel_size_x, pixel_size_y = 300, 300  # Adjusted for your grid
+    
+        # Create a transform for rasterio
         transform = from_origin(x_origin, y_origin, pixel_size_x, pixel_size_y)
     
         for month in unique_months:
@@ -368,25 +377,20 @@ elif selected_option == "Water interactions":
     # Streamlit app structure
     st.title("Water Interaction Preprocessing")
     
-    # Sample DataFrame creation (Replace this with your actual DataFrame)
-    data = {
-        'Month': [1, 1, 2, 2, 3, 3],
-        'Row': [0, 1, 0, 1, 0, 1],
-        'Column': [0, 0, 1, 1, 2, 2],
-        'Rate': [10, 20, 15, 25, 30, 5]
-    }
-    df = pd.DataFrame(data)
+    # Load your actual DataFrame here instead of the sample data
+    df = pd.read_csv('path_to_your_real_data.csv')
     
     # Step to trigger preprocessing
     if st.button("Preprocess and Save Rasters"):
         unique_months = df['Month'].unique()
-        grid_gdf = pd.DataFrame({'Row': df['Row'].unique(), 'Column': df['Column'].unique()})  # Example grid_gdf
+        # Example grid_gdf should match your real grid structure
+        grid_gdf = pd.DataFrame({'Row': df['Row'].unique(), 'Column': df['Column'].unique()})
         preprocess_and_save_rasters(unique_months, df, grid_gdf)
         st.success("Rasters have been processed and saved successfully!")
     
     # Step to load and display rasters
     st.subheader("Load Rasters for Visualization")
-    unique_months = df['Month'].unique().tolist()  # Unique months from your DataFrame
+    unique_months = df['Month'].unique().tolist()
     selected_month = st.selectbox("Select a Month", unique_months)
     
     if selected_month:
@@ -394,7 +398,7 @@ elif selected_option == "Water interactions":
         if raster_path.exists():
             with rasterio.open(str(raster_path)) as src:
                 raster_data = src.read(1)  # Reading the first band
-                
+    
                 # Create a Folium map centered on a specific location (Duncan as an example)
                 initial_location = [48.7787, -123.7034]  # Example coordinates for Duncan
                 m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
