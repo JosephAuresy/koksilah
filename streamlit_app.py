@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import logging
 import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
@@ -311,86 +310,46 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
         
-    # Initialize logging
-    logging.basicConfig(level=logging.INFO)
+    # Function to create a 4-cell raster and save it as a GeoTIFF
+    def create_raster():
+        # Create a 4x4 raster data with values for each cell (300m x 300m)
+        raster_data = np.array([[1, 2], [3, 4]], dtype=np.float32)  # Values for the raster cells
+        pixel_size = 300  # Size of each pixel in meters
     
-    # Define your initial location and pixel size
-    initial_location = (0, 0)  # Replace with actual values
-    pixel_size = 300  
-
-    @st.cache_data
-    def create_colored_raster():
-        # Create a specific 4x4 raster data with defined values
-        raster_data = np.array([[1, 2, 3, 4],
-                                 [5, 6, 7, 8],
-                                 [9, 10, 11, 12],
-                                 [13, 14, 15, 16]], dtype=np.float32)  # Example values
-        
-        # Define raster bounds (longitude and latitude)
-        x_start = initial_location[1]  # Bottom-left longitude
-        y_start = initial_location[0]   # Bottom-left latitude
-        x_end = x_start + (pixel_size * raster_data.shape[1] / 111320)  # Calculate top-right longitude
-        y_end = y_start + (pixel_size * raster_data.shape[0] / 111320)   # Calculate top-right latitude
+        # Define the transform (top-left corner coordinates)
+        transform = from_origin(0, 900, pixel_size, pixel_size)  # (top-left x, top-left y, pixel width, pixel height)
     
-        # Define the transform
-        transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
+        # Save raster data to a GeoTIFF file
+        output_raster_path = 'data/temp_raster.tif'
+        with rasterio.open(output_raster_path, 'w', driver='GTiff',
+                           height=raster_data.shape[0], width=raster_data.shape[1],
+                           count=1, dtype='float32', transform=transform) as dst:
+            dst.write(raster_data, 1)
     
-        # Create the output directory if it doesn't exist
-        data_folder = Path(__file__).parent / 'data'
-        data_folder.mkdir(parents=True, exist_ok=True)
+        return output_raster_path
     
-        # Write raster data to a file in the specified folder
-        output_raster_path = data_folder / 'temp_raster.tif'
-        
-        try:
-            with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                               height=raster_data.shape[0], width=raster_data.shape[1],
-                               count=1, dtype='float32', transform=transform) as dst:
-                dst.write(raster_data, 1)
-            logging.info(f"Raster saved successfully at {output_raster_path}")
-        except Exception as e:
-            logging.error(f"Error saving raster: {e}")
-        
-        # Using tips dataset for color mapping (placeholder)
-        df = px.data.tips()  
-        df['values'] = raster_data.flatten()
+    # Function to plot the raster on a Folium map
+    def plot_on_map(raster_path):
+        # Create a Folium map centered around the raster location
+        m = folium.Map(location=[450, 150], zoom_start=12)
     
-        # Create a colorized raster image
-        fig = px.imshow(raster_data, color_continuous_scale='plasma', 
-                        origin='lower', aspect='auto')
-        
-        # Save the colorized raster to the specified folder as an image
-        colorized_raster_path = data_folder / 'colored_raster.png'
-        
-        try:
-            fig.write_image(colorized_raster_path)
-            logging.info(f"Colored raster image saved at {colorized_raster_path}")
-        except Exception as e:
-            logging.error(f"Error saving colored raster image: {e}")
+        # Add the raster layer to the map
+        raster_layer = raster_layers.TileLayer(raster_path)
+        raster_layer.add_to(m)
     
-        return str(colorized_raster_path), x_start, y_start, x_end, y_end
+        return m
     
-    # Create the colorized raster and get its bounds
-    colored_raster_path, x_start, y_start, x_end, y_end = create_colored_raster()
+    # Streamlit app layout
+    st.title("4-Cell Raster on Street Map")
     
-    # Create a Folium map centered on the initial location
-    m = folium.Map(location=initial_location, zoom_start=11)
+    # Create the raster and get the file path
+    raster_path = create_raster()
     
-    # Add colored raster overlay to the map
-    folium.raster_layers.ImageOverlay(
-        image=colored_raster_path,
-        bounds=[[y_start, x_start], [y_end, x_end]],
-        opacity=0.9,
-        name="Colored Value Raster",
-        z_index=10  # High z-index to ensure it's on top
-    ).add_to(m)
+    # Plot the raster on a Folium map
+    m = plot_on_map(raster_path)
     
-    # Add Layer Control to switch between layers
-    folium.LayerControl().add_to(m)
-    
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map with Colored Raster")
-    st_folium(m, width=700, height=600)
+    # Display the map in the Streamlit app
+    folium_static(m)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
