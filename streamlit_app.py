@@ -311,7 +311,7 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
             
-    # Function to create a 300x300 m raster and save it
+    # Function to create a dummy raster and save it
     def create_raster():
         # Define raster size and resolution
         width = 2  # 2 pixels wide
@@ -341,38 +341,76 @@ elif selected_option == "Water interactions":
         
         return raster_path
     
-    # Function to plot the raster on a Folium map
-    def plot_on_map(raster_path):
-        # Create a Folium map centered on Duncan, BC
-        m = folium.Map(location=[48.67, -123.79], zoom_start=15, tiles="OpenStreetMap", width='100%', height='100%')
-        
-        # Add raster layer (Note: raster layer might not be shown correctly directly on the map; a custom tileset may be required)
-        folium.raster_layers.ImageOverlay(
-            image=raster_path,
-            bounds=[
-                [48.67, -123.79],                 # Bottom-left corner
-                [48.67 + (2 * 300 / 111320), -123.79 + (2 * 300 / (111320 * np.cos(np.radians(48.67))))]  # Top-right corner
-            ],
-            opacity=0.6,
-            name='Raster Layer'
-        ).add_to(m)
+    # Function to plot on the map
+    def plot_on_map(raster_path, subbasins_gdf, grid_gdf):
+        initial_location = [48.67, -123.79]  # Duncan, BC
+        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-        # Add layer control
+        # Add the subbasins layer to the map but keep it initially turned off
+        subbasins_layer = GeoJson(subbasins_gdf, 
+                                  name="Subbasins", 
+                                  style_function=lambda x: {'color': 'green', 'weight': 2},
+                                  show=False  # Keep the layer off initially
+                                  ).add_to(m)
+    
+        # Add the grid layer to the map but keep it initially turned off
+        grid_layer = GeoJson(grid_gdf, 
+                             name="Grid", 
+                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+                             show=False  # Keep the layer off initially
+                             ).add_to(m)
+    
+        # Add MousePosition to display coordinates
+        MousePosition().add_to(m)
+    
+        # Add raster overlay
+        raster_bounds = [
+            [48.67, -123.79],  # Bottom-left corner
+            [48.67 + (2 * 300 / 111320), -123.79 + (2 * 300 / (111320 * np.cos(np.radians(48.67))))]  # Top-right corner
+        ]
+        if os.path.exists(raster_path):
+            folium.raster_layers.ImageOverlay(
+                image=raster_path,
+                bounds=raster_bounds,
+                opacity=0.6,
+                name='Raster Layer'
+            ).add_to(m)
+    
+        # Add layer control to switch between the subbasins and grid layers
         folium.LayerControl().add_to(m)
     
         return m
     
+    # Load or create subbasins and grid GeoDataFrames
+    def load_geodataframes():
+        # Placeholder for your GeoDataFrames
+        # You should replace these with your actual data
+        subbasins_data = {
+            'geometry': [Point(-123.79, 48.67).buffer(0.01), Point(-123.78, 48.68).buffer(0.01)]
+        }
+        grid_data = {
+            'geometry': [Point(-123.79, 48.67).buffer(0.005), Point(-123.78, 48.68).buffer(0.005)]
+        }
+        
+        subbasins_gdf = gpd.GeoDataFrame(subbasins_data, crs="EPSG:4326")
+        grid_gdf = gpd.GeoDataFrame(grid_data, crs="EPSG:4326")
+        
+        return subbasins_gdf, grid_gdf
+    
     # Streamlit app layout
-    st.title("Folium Map with Raster in Streamlit")
+    st.title("Watershed Map with Raster Overlay")
     
     # Create and save the raster
     raster_path = create_raster()
     
-    # Create the map with the raster overlay
-    m = plot_on_map(raster_path)
+    # Load or create GeoDataFrames
+    subbasins_gdf, grid_gdf = load_geodataframes()
     
-    # Display the map in the Streamlit app
-    folium_static(m)
+    # Create the map with the raster overlay and layers
+    m = plot_on_map(raster_path, subbasins_gdf, grid_gdf)
+    
+    # Render the Folium map in Streamlit
+    folium_static(m, width=700, height=600)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
