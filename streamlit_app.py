@@ -146,7 +146,7 @@ def create_map(data, selected_month=None):
 
     return m
     
-Path to your data file
+#Path to your data file
 DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
 df = process_swatmf_data(DATA_FILENAME)
 
