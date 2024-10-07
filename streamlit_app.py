@@ -310,115 +310,55 @@ elif selected_option == "Water interactions":
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)  
     
-    # Check if the CRS is set for the grid shapefile, and set it manually if needed
-    if grid_gdf.crs is None:
-        grid_gdf.set_crs(epsg=32610, inplace=True)
-    
-    # Ensure the grid GeoDataFrame is in the correct CRS
-    grid_gdf = grid_gdf.to_crs(epsg=32610)
-    
-    # Define the initial location for the map
-    initial_location = [grid_gdf.geometry.centroid.y.mean(), grid_gdf.geometry.centroid.x.mean()]
-    
-        # Function to create raster from DataFrame
-    def create_raster_from_df(df, month, output_path):
-        # Find the max row and column to create an array for the raster
+    # Function to create raster from DataFrame
+    def create_raster_from_df(df):
+        # Assuming the raster dimensions based on the maximum Row and Column values in the DataFrame
         max_row = df['Row'].max()
-        max_col = df['Column'].max()
+        max_column = df['Column'].max()
         
-        # Create an empty array filled with NaN values
-        raster_data = np.full((max_row, max_col), np.nan)
-        
-        # Fill the raster data with values from the DataFrame
+        # Initialize the raster data array
+        raster_data = np.zeros((max_row, max_column), dtype=np.float32)  # Use float32 for rates
+    
+        # Populate the raster data
         for index, row in df.iterrows():
-            if row['Month'] == month:
-                raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
-        
-        # Create a transform for the raster
-        transform = from_origin(grid_gdf.bounds.minx.min(), grid_gdf.bounds.maxy.max(), 
-                                abs(grid_gdf.bounds.minx.max() - grid_gdf.bounds.minx.min()) / max_col, 
-                                abs(grid_gdf.bounds.maxy.min() - grid_gdf.bounds.miny.max()) / max_row)
-        
-        # Write the raster file
-        with rasterio.open(output_path, 'w', driver='GTiff', height=max_row, width=max_col, 
-                           count=1, dtype='float32', crs='EPSG:32610', transform=transform) as dst:
+            raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
+    
+        # Define raster file parameters
+        output_file = 'output_raster.tif'
+        transform = rasterio.transform.from_origin(0, max_row, 1, 1)  # Adjust based on your specific requirements
+    
+        # Write raster to a file
+        with rasterio.open(output_file, 'w', driver='GTiff',
+                           height=max_row, width=max_column, count=1,
+                           dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
     
-    # Create a raster paths dictionary
-    RASTER_PATHS = {
-        'std_dev': DATA_FOLDER / 'raster_std_dev.tif'  # Update to your standard deviation raster path
-    }
+        return output_file
     
-    # Add paths for monthly rasters
-    for month in range(1, 13):
-        monthly_raster_path = DATA_FOLDER / f'raster_month_{month}.tif'  # Update to your monthly raster filenames
-        RASTER_PATHS[month] = monthly_raster_path
-    
-    # Load and process the data
-    df = process_swatmf_data(DATA_FILENAME)
-    
-    # Check if the DataFrame is loaded
-    if df is not None and not df.empty:
-        st.write("SWAT-MODFLOW Data loaded successfully:")
-        st.write(df.head())  # Show the first few rows of the data
+    # Main Streamlit app
+    def main():
+        st.title("SWAT-MODFLOW Data Visualization and Raster Creation")
         
-        # Create rasters for each month
-        for month in range(1, 13):
-            create_raster_from_df(df, month, RASTER_PATHS[month])
+        # Upload CSV file
+        uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
+        
+        if uploaded_file is not None:
+            # Process the uploaded data
+            df = process_swatmf_data(uploaded_file)
+            
+            # Display the DataFrame in a table
+            st.write("Data Overview:")
+            st.dataframe(df)
     
-        # Create a Folium map
-        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+            # Show a button to create raster
+            if st.button("Create Raster"):
+                raster_file = create_raster_from_df(df)
+                st.success(f"Raster created successfully! You can download it [here](./{raster_file}).")
     
-        # Add the subbasins layer to the map but keep it initially turned off
-        subbasins_layer = folium.GeoJson(subbasins_gdf, 
-                                          name="Subbasins", 
-                                          style_function=lambda x: {'color': 'green', 'weight': 2},
-                                          ).add_to(m)
-    
-        # Add raster layers
-        for month in range(1, 13):
-            monthly_raster_path = RASTER_PATHS[month]
-            if monthly_raster_path.exists():
-                raster_layer = folium.raster_layers.ImageOverlay(
-                    image=monthly_raster_path,
-                    bounds=[[grid_gdf.bounds.miny.min(), grid_gdf.bounds.minx.min()], 
-                            [grid_gdf.bounds.maxy.max(), grid_gdf.bounds.maxx.max()]],  # Adjust bounds
-                    name=f'Month {month}',
-                    opacity=0.6,
-                )
-                raster_layer.add_to(m)
-    
-        # Add standard deviation raster
-        std_dev_raster_path = RASTER_PATHS['std_dev']
-        if std_dev_raster_path.exists():
-            std_dev_layer = folium.raster_layers.ImageOverlay(
-                image=std_dev_raster_path,
-                bounds=[[grid_gdf.bounds.miny.min(), grid_gdf.bounds.minx.min()], 
-                        [grid_gdf.bounds.maxy.max(), grid_gdf.bounds.maxx.max()]],  # Adjust bounds
-                name='Standard Deviation',
-                opacity=0.6,
-            )
-            std_dev_layer.add_to(m)
-    
-        # Add layer control
-        folium.LayerControl().add_to(m)
-    
-        # Render the Folium map in Streamlit
-        st.title("Watershed Map")
-        st_folium(m, width=700, height=600)
-    
-        # Optional: Histogram of raster values
-        st.subheader("Plotting Raster Values")
-        fig, ax = plt.subplots()
-        df['Rate'].dropna().hist(bins=20, ax=ax)
-        ax.set_title("Histogram of Raster Values")
-        ax.set_xlabel("Raster Value")
-        ax.set_ylabel("Frequency")
-        st.pyplot(fig)
-    
-    else:
-        st.error("The data could not be loaded. Please check the file path or file contents.")
-    
+        # Instructions for uploading and visualizing data
+        st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
+
+
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
