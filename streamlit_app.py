@@ -18,6 +18,7 @@ from folium import raster_layers, GeoJson, plugins
 from rasterio.plot import show
 import os 
 import tempfile
+import matplotlib.pyplot as plt
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
@@ -317,6 +318,9 @@ elif selected_option == "Water interactions":
     subbasins_shapefile_path = main_path / 'data/subs1.shp'
     grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
     raster_path = main_path / 'data/dem_clip_3.tif'
+
+    # Set the output PNG file path
+    output_png_path = main_path / 'data/raster_output.png'
     
     # Load the subbasins GeoDataFrame from the shapefile
     try:
@@ -349,34 +353,42 @@ elif selected_option == "Water interactions":
             image = src.read(1)  # Read the first band
             return bounds, image
     
-    # Function to convert raster data to a PNG file
-    def raster_to_png(raster_data):
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-            plt.imshow(raster_data, cmap='terrain')
-            plt.colorbar()
-            plt.axis('off')
-            plt.savefig(temp_file.name, bbox_inches='tight', pad_inches=0, dpi=300)
-            plt.close()
-            return temp_file.name
+    # Function to save raster data as a PNG
+    def save_raster_as_png(raster_data, output_path):
+        plt.imshow(raster_data, cmap='terrain')
+        plt.colorbar()
+        plt.axis('off')
+        plt.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=300)
+        plt.close()
     
-    # Load raster data
-    raster_bounds, raster_data = load_raster(raster_path)
+    # Streamlit app
+    st.title("Raster to PNG Converter and Map Viewer")
     
-    # Convert the raster to PNG format
-    png_path = raster_to_png(raster_data)
+    # Button to trigger PNG creation and save it in the data folder
+    if st.button("Generate and Save PNG"):
+        raster_bounds, raster_data = load_raster(raster_path)
+        save_raster_as_png(raster_data, output_png_path)
+        st.success(f"PNG file saved at {output_png_path}")
     
-    # Initialize the map centered on Duncan
-    initial_location = [48.67, -123.79]  # Duncan, BC
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+        # Show a message with the file path
+        st.write(f"Saved PNG at: {output_png_path}")
     
-    # Adding the raster to the map as an overlay using the bounds from the UTM coordinates
-    raster_layers.ImageOverlay(
-        image=png_path,
-        bounds=[[raster_bounds.bottom, raster_bounds.left], [raster_bounds.top, raster_bounds.right]],
-        opacity=0.6,
-        name='DEM Layer',
-    ).add_to(m)
+    # Check if the PNG exists before attempting to display it
+    if output_png_path.exists():
+        # Initialize the Folium map
+        initial_location = [48.67, -123.79]  # Example location (Duncan, BC)
+        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
+        # Add the PNG as an overlay
+        image_overlay = raster_layers.ImageOverlay(
+            image=str(output_png_path),  # PNG file path as string
+            bounds=[[raster_bounds.bottom, raster_bounds.left], [raster_bounds.top, raster_bounds.right]],
+            opacity=0.6,
+            interactive=True,
+            cross_origin=False,
+            zindex=1,
+        )
+        image_overlay.add_to(m)
     # Add the subbasins layer to the map but keep it initially turned off
     subbasins_layer = GeoJson(
         subbasins_gdf,
