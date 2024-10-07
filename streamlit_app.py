@@ -10,13 +10,11 @@ from streamlit_folium import st_folium
 import geopandas as gpd
 import rasterio
 from rasterio.transform import from_origin
-from folium import plugins
 from streamlit_folium import folium_static
-from folium import GeoJson  
 from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
-from folium import raster_layers, GeoJson
+from folium import raster_layers, GeoJson, plugins
 import os 
 
 # Set the title and favicon that appear in the browser's tab bar.
