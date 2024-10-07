@@ -310,30 +310,38 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
     
-    # Create a simple 4x4 raster data with random values
-    rows, cols = 4, 4
-    raster_data = np.random.rand(rows, cols)  # Random values for raster data
-    
     # Define pixel size (300m)
     pixel_size = 300  
     
-    # Define raster bounds (longitude and latitude)
-    x_start = initial_location[1]  # Bottom-left longitude
-    y_start = initial_location[0]    # Bottom-left latitude
-    x_end = x_start + (pixel_size * cols / 111320)  # Calculate top-right longitude
-    y_end = y_start + (pixel_size * rows / 111320)   # Calculate top-right latitude
+    # Define function to create raster data
+    @st.cache_data
+    def create_raster():
+        # Create a simple 4x4 raster data with random values
+        rows, cols = 4, 4
+        raster_data = np.random.rand(rows, cols)  # Random values for raster data
     
-    # Define the transform
-    transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
+        # Define raster bounds (longitude and latitude)
+        x_start = initial_location[1]  # Bottom-left longitude
+        y_start = initial_location[0]    # Bottom-left latitude
+        x_end = x_start + (pixel_size * cols / 111320)  # Calculate top-right longitude
+        y_end = y_start + (pixel_size * rows / 111320)   # Calculate top-right latitude
     
-    # Create a temporary raster file
-    output_raster_path = Path('temp_raster.tif')
+        # Define the transform
+        transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
     
-    # Write raster data to a file
-    with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                       height=rows, width=cols, count=1,
-                       dtype='float32', transform=transform) as dst:
-        dst.write(raster_data, 1)
+        # Create a temporary raster file
+        output_raster_path = Path('temp_raster.tif')
+    
+        # Write raster data to a file
+        with rasterio.open(output_raster_path, 'w', driver='GTiff',
+                           height=rows, width=cols, count=1,
+                           dtype='float32', transform=transform) as dst:
+            dst.write(raster_data, 1)
+    
+        return output_raster_path, x_start, y_start, x_end, y_end
+    
+    # Create raster and get its bounds
+    output_raster_path, x_start, y_start, x_end, y_end = create_raster()
     
     # Create a Folium map centered on the initial location
     m = folium.Map(location=initial_location, zoom_start=11)
@@ -352,7 +360,6 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)
-
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
