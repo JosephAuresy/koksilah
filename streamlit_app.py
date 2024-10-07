@@ -314,7 +314,6 @@ elif selected_option == "Water interactions":
     pixel_size = 300  
     
     # Define function to create and colorize raster data
-    @st.cache_data
     def create_colored_raster():
         # Create a specific 4x4 raster data with defined values
         raster_data = np.array([[1, 2, 3, 4],
@@ -346,10 +345,9 @@ elif selected_option == "Water interactions":
         
         df['values'] = raster_data.flatten()
         
-        # Create a color scale for the raster data using plasma
         fig = px.imshow(raster_data, color_continuous_scale='plasma', 
-                        origin='lower', aspect='auto')
-        
+                    origin='lower', aspect='auto')
+    
         # Save the colorized raster to the specified folder as an image
         colorized_raster_path = data_folder / 'colored_raster.png'
         fig.write_image(colorized_raster_path)
