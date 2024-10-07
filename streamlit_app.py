@@ -309,25 +309,20 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)  
-    
+        
     # Function to create raster from DataFrame
     def create_raster_from_df(df):
-        # Assuming the raster dimensions based on the maximum Row and Column values in the DataFrame
         max_row = df['Row'].max()
         max_column = df['Column'].max()
         
-        # Initialize the raster data array
         raster_data = np.zeros((max_row, max_column), dtype=np.float32)  # Use float32 for rates
     
-        # Populate the raster data
         for index, row in df.iterrows():
             raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
     
-        # Define raster file parameters
         output_file = 'output_raster.tif'
         transform = rasterio.transform.from_origin(0, max_row, 1, 1)  # Adjust based on your specific requirements
     
-        # Write raster to a file
         with rasterio.open(output_file, 'w', driver='GTiff',
                            height=max_row, width=max_column, count=1,
                            dtype='float32', transform=transform) as dst:
@@ -335,10 +330,35 @@ elif selected_option == "Water interactions":
     
         return output_file
     
+    # Function to create and display the Folium map
+    def create_map(subbasins_gdf, grid_gdf, initial_location):
+        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    
+        # Add the subbasins layer to the map but keep it initially turned off
+        folium.GeoJson(subbasins_gdf, 
+                       name="Subbasins", 
+                       style_function=lambda x: {'color': 'green', 'weight': 2}
+                      ).add_to(m)
+    
+        # Add the grid layer to the map but keep it initially turned off
+        folium.GeoJson(grid_gdf, 
+                       name="Grid", 
+                       style_function=lambda x: {'color': 'blue', 'weight': 1},
+                       show=False  # Keep the layer off initially
+                      ).add_to(m)
+    
+        # Add MousePosition to display coordinates
+        folium.plugins.MousePosition().add_to(m)
+    
+        # Add a layer control to switch between the subbasins and grid layers
+        folium.LayerControl().add_to(m)
+    
+        return m
+    
     # Main Streamlit app
     def main():
         st.title("SWAT-MODFLOW Data Visualization and Raster Creation")
-        
+    
         # Upload CSV file
         uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
         
@@ -357,6 +377,21 @@ elif selected_option == "Water interactions":
     
         # Instructions for uploading and visualizing data
         st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
+    
+        # Load your GeoDataFrames for subbasins and grid (adjust paths as necessary)
+        # Example GeoDataFrame loading (replace these with your actual loading logic)
+        # subbasins_gdf = gpd.read_file('path/to/subbasins.shp')
+        # grid_gdf = gpd.read_file('path/to/grid.shp')
+        
+        # Dummy variables for example
+        subbasins_gdf = None  # Replace with actual GeoDataFrame
+        grid_gdf = None  # Replace with actual GeoDataFrame
+        initial_location = [48.7785, -123.7092]  # Example initial location for Duncan
+    
+        # Create and display the map if GeoDataFrames are available
+        if subbasins_gdf is not None and grid_gdf is not None:
+            m = create_map(subbasins_gdf, grid_gdf, initial_location)
+            st_folium(m, width=700, height=600)
 
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
