@@ -436,7 +436,7 @@ elif selected_option == "Water interactions":
         st.subheader("Map Visualization")
         
         # Create a Folium map
-        folium_map = folium.Map(location=[YOUR_LATITUDE, YOUR_LONGITUDE], zoom_start=12)  # Set the starting location and zoom level
+        folium_map = folium.Map(location=initial_location, zoom_start=12)
     
         # Add raster layers
         for month in range(1, 13):
