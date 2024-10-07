@@ -308,7 +308,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     selected_month = unique_months[unique_month_names.index(selected_month_name)]
     stat_type = st.radio("Statistic Type", ['Average Rate', 'Standard Deviation'], index=0)
     
-    # Function to update heatmap
     def update_heatmap(selected_month, stat_type):
         # Filter data for the selected month
         df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
@@ -326,6 +325,11 @@ elif selected_option == "Groundwater / Surface water interactions":
             c = int(row['Column']) - 1
             if 0 <= r < grid.shape[0] and 0 <= c < grid.shape[1]:
                 grid[r, c] = row[stat_type]  # Fill the grid with Average Rate or Standard Deviation
+    
+        # Check if the grid is entirely NaN
+        if np.all(np.isnan(grid)):
+            st.warning("No data available for the selected month.")
+            return None  # Early exit if no data
     
         # Create annotations to highlight sign changes
         annotations = []
@@ -366,8 +370,8 @@ elif selected_option == "Groundwater / Surface water interactions":
         fig = go.Figure(data=go.Heatmap(
             z=grid,
             colorscale='RdYlGn',  # Color scale from Red (negative) to Green (positive)
-            zmin=-max(abs(grid.flatten()), 1),  # Set zmin to capture negative values
-            zmax=max(abs(grid.flatten()), 1),   # Set zmax to capture positive values
+            zmin=-np.nanmax(np.abs(grid)),  # Set zmin to capture negative values
+            zmax=np.nanmax(np.abs(grid)),    # Set zmax to capture positive values
             colorbar=dict(title=stat_type),
             hovertemplate='%{z:.2f}<extra></extra>',  # Only display actual values, no extra info for NaNs
             texttemplate='%{z:.2f}',  # Format the displayed value in hover
@@ -398,11 +402,10 @@ elif selected_option == "Groundwater / Surface water interactions":
         )
     
         return fig
-    
-    # Display the heatmap
-    fig = update_heatmap(selected_month, stat_type)
-    st.plotly_chart(fig)
-    
+        # Display the heatmap
+        fig = update_heatmap(selected_month, stat_type)
+        st.plotly_chart(fig)
+        
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
