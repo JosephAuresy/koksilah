@@ -315,6 +315,7 @@ elif selected_option == "Water interactions":
     pixel_size = 300  
     
     # Define function to create and colorize raster data
+    @st.cache_data
     def create_colored_raster():
         # Create a specific 4x4 raster data with defined values
         raster_data = np.array([[1, 2, 3, 4],
@@ -341,7 +342,10 @@ elif selected_option == "Water interactions":
             dst.write(raster_data, 1)
     
         # Generate a colorized version of the raster using the Viridis colormap
-        colored_raster = plt.get_cmap('viridis')(raster_data / np.max(raster_data))[:, :, :3]  # Normalize and apply colormap
+        normalized_data = raster_data / np.max(raster_data)  # Normalize data for color mapping
+        colored_raster = plt.get_cmap('viridis')(normalized_data)  # Apply colormap
+    
+        # Convert to uint8 format for saving
         colored_raster = (colored_raster[:, :, :3] * 255).astype(np.uint8)  # Convert to uint8
     
         # Save the colored raster to a temporary file
@@ -375,6 +379,7 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map with Colored Raster")
     st_folium(m, width=700, height=600)
+
         
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
