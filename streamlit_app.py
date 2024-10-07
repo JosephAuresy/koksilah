@@ -289,79 +289,49 @@ elif selected_option == "Groundwater / Surface water interactions":
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
 
-    # Initialize the map centered on Duncan
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-
-    # Add the subbasins layer to the map but keep it initially turned off
-    subbasins_layer = folium.GeoJson(subbasins_gdf, 
-                                    name="Subbasins", 
-                                    style_function=lambda x: {'color': 'green', 'weight': 2},
-                                    # show=False  # Keep the layer off initially
-                                    ).add_to(m)
-
-    # Add the grid layer to the map but keep it initially turned off
-    grid_layer = folium.GeoJson(grid_gdf, 
-                                name="Grid", 
-                                style_function=lambda x: {'color': 'blue', 'weight': 1},
-                                show=False  # Keep the layer off initially
-                            ).add_to(m)
-
-    # Add MousePosition to display coordinates
-    MousePosition().add_to(m)
-
-    # Add a layer control to switch between the subbasins and grid layers
-    folium.LayerControl().add_to(m)
-
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map")
-    st_folium(m, width=700, height=600)  
-        
+    # Group by Month, Row, and Column to compute average and standard deviation
     monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
-
-    global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
-    global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
-
-    unique_months = sorted(monthly_stats['Month'].unique())
-    unique_month_names = [month_names[m - 1] for m in unique_months]
-
-    selected_month_name = st.selectbox("Month", unique_month_names, index=0)
-    selected_month = unique_months[unique_month_names.index(selected_month_name)]
-    stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
-
-    df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
     
+    # Sort data by Row, Column, and Month to ensure we analyze time changes correctly
+    monthly_stats = monthly_stats.sort_values(by=['Row', 'Column', 'Month'])
+    
+    # Create a column with the sign of the Average Rate (+1, 0, -1)
+    monthly_stats['Sign'] = np.sign(monthly_stats['Average Rate'])
+    
+    # Detect sign changes (negative to positive or vice versa) for each (Row, Column)
+    monthly_stats['Sign Change'] = monthly_stats.groupby(['Row', 'Column'])['Sign'].diff().fillna(0).abs() > 1
+    
+    # Filter only the locations where a sign change occurred
+    df_filtered = monthly_stats[monthly_stats['Sign Change']]
+    
+    # Create a grid for the heatmap, but only with locations where sign changes occurred
     grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
-
+    
+    # Fill the grid with the Average Rate values where sign changes occurred
     for _, row in df_filtered.iterrows():
-        grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
-
-    # Define color scale and boundaries for heatmap
-    if stat_type == 'Standard Deviation':
-        zmin = 0
-        zmax = global_max
-    else:
-        zmin = global_min
-        zmax = global_max
-
-    colorbar_title = (
-        "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
-        if stat_type == 'Average Rate [m³/day]' 
-        else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
-    )
-
-    # Calculate the midpoint for the color bar (usually zero)
-    zmid = 0
-
-    # Create the heatmap figure
+        grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate']
+    
+    # Define color scale and boundaries for heatmap, focusing on blue for negative and brown for positive
+    colorscale = [
+        [0, 'rgb(0, 0, 255)'],    # Blue for negative values (to stream)
+        [0.5, 'rgb(255, 255, 255)'], # White at zero (transition point)
+        [1, 'rgb(165, 42, 42)']   # Brown for positive values (to aquifer)
+    ]
+    
+    # Set boundaries for the color scale based on the data
+    zmin = df_filtered['Average Rate'].min()
+    zmax = df_filtered['Average Rate'].max()
+    
+    # Create the heatmap figure with the custom color scale
     fig = go.Figure(data=go.Heatmap(
         z=grid,
-        colorscale='earth_r',
-        zmid=zmid,
+        colorscale=colorscale,  # Apply blue-brown colorscale
+        zmid=0,                 # Center the color scale at zero
         zmin=zmin,
         zmax=zmax,
         colorbar=dict(
-            title=colorbar_title, 
+            title="Rate<br>[m³/day]", 
             orientation='h', 
             x=0.5, 
             y=-0.1, 
@@ -372,9 +342,9 @@ elif selected_option == "Groundwater / Surface water interactions":
         ),
         hovertemplate='%{z:.2f}<extra></extra>',
     ))
-
+    
     fig.update_layout(
-        title=f'{stat_type} for Month {selected_month}',
+        title='Locations with Positive and Negative Changes',
         xaxis_title=None,
         yaxis_title=None,
         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
@@ -383,9 +353,107 @@ elif selected_option == "Groundwater / Surface water interactions":
         paper_bgcolor='white',
         font=dict(family='Arial, sans-serif', size=8, color='black')
     )
-
+    
     # Display the heatmap
     st.plotly_chart(fig)
+
+    # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+
+    # # Add the subbasins layer to the map but keep it initially turned off
+    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
+    #                                 name="Subbasins", 
+    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
+    #                                 # show=False  # Keep the layer off initially
+    #                                 ).add_to(m)
+
+    # # Add the grid layer to the map but keep it initially turned off
+    # grid_layer = folium.GeoJson(grid_gdf, 
+    #                             name="Grid", 
+    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #                             show=False  # Keep the layer off initially
+    #                         ).add_to(m)
+
+    # # Add MousePosition to display coordinates
+    # MousePosition().add_to(m)
+
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
+
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)  
+        
+    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+
+    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
+    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
+
+    # unique_months = sorted(monthly_stats['Month'].unique())
+    # unique_month_names = [month_names[m - 1] for m in unique_months]
+
+    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
+    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
+
+    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
+    
+    # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+
+    # for _, row in df_filtered.iterrows():
+    #     grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
+
+    # # Define color scale and boundaries for heatmap
+    # if stat_type == 'Standard Deviation':
+    #     zmin = 0
+    #     zmax = global_max
+    # else:
+    #     zmin = global_min
+    #     zmax = global_max
+
+    # colorbar_title = (
+    #     "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
+    #     if stat_type == 'Average Rate [m³/day]' 
+    #     else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
+    # )
+
+    # # Calculate the midpoint for the color bar (usually zero)
+    # zmid = 0
+
+    # # Create the heatmap figure
+    # fig = go.Figure(data=go.Heatmap(
+    #     z=grid,
+    #     colorscale='earth_r',
+    #     zmid=zmid,
+    #     zmin=zmin,
+    #     zmax=zmax,
+    #     colorbar=dict(
+    #         title=colorbar_title, 
+    #         orientation='h', 
+    #         x=0.5, 
+    #         y=-0.1, 
+    #         xanchor='center', 
+    #         yanchor='top',
+    #         tickvals=[zmin, 0, zmax],  # Specify tick positions
+    #         ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
+    #     ),
+    #     hovertemplate='%{z:.2f}<extra></extra>',
+    # ))
+
+    # fig.update_layout(
+    #     title=f'{stat_type} for Month {selected_month}',
+    #     xaxis_title=None,
+    #     yaxis_title=None,
+    #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+    #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #     paper_bgcolor='white',
+    #     font=dict(family='Arial, sans-serif', size=8, color='black')
+    # )
+
+    # # Display the heatmap
+    # st.plotly_chart(fig)
     
 elif selected_option == "Recharge":
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
