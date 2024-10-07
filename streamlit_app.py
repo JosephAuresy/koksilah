@@ -278,7 +278,7 @@ if selected_option == "Watershed models":
         st.write("Click on an image to see a larger view and explanation.")
 
         
-elif selected_option == "Water interactions":
+elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
     st.markdown("""
