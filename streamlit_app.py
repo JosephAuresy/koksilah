@@ -387,16 +387,16 @@ elif selected_option == "Water interactions":
         initial_location = [48.67, -123.79]  # Example location (Duncan, BC)
         m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-        # Add the PNG as an overlay
-        image_overlay = raster_layers.ImageOverlay(
-            image=str(output_png_path),  # PNG file path as string
-            bounds=[[raster_bounds.bottom, raster_bounds.left], [raster_bounds.top, raster_bounds.right]],
+        # Correctly access bounds as a tuple
+        image_overlay = folium.raster_layers.ImageOverlay(
+            image=str(output_png_path),  # Path to the saved PNG file
+            bounds=[[raster_bounds[1], raster_bounds[0]], [raster_bounds[3], raster_bounds[2]]],  # Corrected tuple access: (left, bottom, right, top)
             opacity=0.6,
             interactive=True,
             cross_origin=False,
             zindex=1,
         )
-        image_overlay.add_to(m)
+        
     # Add the subbasins layer to the map but keep it initially turned off
     subbasins_layer = GeoJson(
         subbasins_gdf,
