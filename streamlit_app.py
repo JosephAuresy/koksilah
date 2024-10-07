@@ -314,10 +314,25 @@ elif selected_option == "Water interactions":
     rows, cols = 4, 4
     raster_data = np.random.rand(rows, cols)  # Random values for raster data
     
-    # Define the extent of the raster based on the desired location
-    x_start, y_start = 0, 0  # Bottom left corner of the raster
-    x_end, y_end = 4, 4      # Top right corner of the raster
-    extent = [x_start, x_end, y_start, y_end]
+    # Define pixel size in meters
+    pixel_size_m = 300  # 300 meters
+    
+    # Convert pixel size to degrees
+    # Latitude conversion
+    degrees_lat = pixel_size_m / 111320  # 1 degree latitude in meters
+    
+    # Longitude conversion (approximate)
+    degrees_long = pixel_size_m / (76110 * np.cos(np.radians(initial_location[0])))  # 1 degree longitude in meters at this latitude
+    
+    # Define the extent of the raster based on the initial location
+    x_start = initial_location[1]  # Longitude for the bottom-left corner
+    y_start = initial_location[0]    # Latitude for the bottom-left corner
+    x_end = x_start + (degrees_long * cols)  # Top-right corner longitude
+    y_end = y_start + (degrees_lat * rows)    # Top-right corner latitude
+    
+    # Define the raster's transform and CRS
+    transform = from_origin(x_start, y_end, degrees_long, degrees_lat)  # Origin at (x_start, y_end)
+    crs = "EPSG:4326"  # WGS 84, which is commonly used for geographic coordinates
     
     # Create a Folium map centered on Duncan
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
@@ -329,23 +344,16 @@ elif selected_option == "Water interactions":
         style_function=lambda x: {'color': 'green', 'weight': 2}
     ).add_to(m)
     
-    # Add the grid layer to the map
-    grid_layer = folium.GeoJson(
-        grid_gdf,
-        name="Grid",
-        style_function=lambda x: {'color': 'blue', 'weight': 1}
-    ).add_to(m)
-    
     # Function to create and add raster overlay to the Folium map
-    def add_raster_to_map(raster_data, map_obj):
+    def add_raster_to_map(raster_data, transform, crs, map_obj):
         # Create a temporary raster file
         output_raster_path = Path(__file__).parent / 'temp_raster.tif'
-        transform = from_origin(0, 4, 1, 1)  # Adjust based on your specific requirements
-    
-        # Write raster to a temporary file
+        
+        # Write raster to a temporary file with specified CRS
         with rasterio.open(output_raster_path, 'w', driver='GTiff',
                            height=rows, width=cols, count=1,
-                           dtype='float32', transform=transform) as dst:
+                           dtype='float32', transform=transform,
+                           crs=crs) as dst:
             dst.write(raster_data, 1)
     
         # Add the raster overlay to the map
@@ -356,18 +364,18 @@ elif selected_option == "Water interactions":
             name="Raster Overlay"
         ).add_to(map_obj)
     
-    # Add raster overlay to the map
-    add_raster_to_map(raster_data, m)
+    # Add raster overlay to the map with projection
+    add_raster_to_map(raster_data, transform, crs, m)
     
     # Add MousePosition to display coordinates
     MousePosition().add_to(m)
     
-    # Add a layer control to switch between the subbasins, grid, and raster layers
+    # Add a layer control to switch between the subbasins and raster layers
     folium.LayerControl().add_to(m)
     
     # Render the Folium map in Streamlit
     st.title("Watershed Map")
-    st_folium(m, width=700, height=600)    
+    st_folium(m, width=700, height=600)
 
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
