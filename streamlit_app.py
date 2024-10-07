@@ -309,31 +309,8 @@ elif selected_option == "Water interactions":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-
-    # Upload CSV file
-    uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
     
-    if uploaded_file is not None:
-        # Process the uploaded data
-        df = process_swatmf_data(uploaded_file)
-        
-        # Display the DataFrame in a table
-        st.write("Data Overview:")
-        st.dataframe(df)
-
-        # Show a button to create raster
-        if st.button("Create Raster"):
-            raster_file = create_raster_from_df(df)
-            st.success(f"Raster created successfully! You can download it [here](./{raster_file}).")
-    
-    # Instructions for uploading and visualizing data
-    st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
-
-    # Create and display the map
-    map_object = create_map(df)
-    st_folium(map_object, width=700, height=600)
-
-    # Function to create raster from DataFrame
+        # Function to create raster from DataFrame
     def create_raster_from_df(df):
         max_row = df['Row'].max()
         max_column = df['Column'].max()
@@ -356,6 +333,29 @@ elif selected_option == "Water interactions":
             dst.write(raster_data, 1)
         
         return output_file
+    
+    # Upload CSV file
+    uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
+    
+    if uploaded_file is not None:
+        # Process the uploaded data
+        df = process_swatmf_data(uploaded_file)
+        
+        # Display the DataFrame in a table
+        st.write("Data Overview:")
+        st.dataframe(df)
+    
+        # Show a button to create raster
+        if st.button("Create Raster"):
+            raster_file = create_raster_from_df(df)
+            st.success(f"Raster created successfully! You can download it [here](./{raster_file.name}).")
+        
+    # Instructions for uploading and visualizing data
+    st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
+    
+    # Create and display the map
+    map_object = create_map(df)
+    st_folium(map_object, width=700, height=600)
     
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
