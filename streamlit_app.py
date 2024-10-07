@@ -39,38 +39,38 @@ month_names = [
 
 # Function to process SWAT-MF data
 @st.cache_data
-# def process_swatmf_data(file_path):
-#     data = []
-#     current_month = None
-#     current_year = None
+def process_swatmf_data(file_path):
+    data = []
+    current_month = None
+    current_year = None
 
-#     with open(file_path, 'r') as file:
-#         for line in file:
-#             if 'month:' in line:
-#                 parts = line.split()
-#                 try:
-#                     current_month = int(parts[1])
-#                     current_year = int(parts[3])
-#                 except (ValueError, IndexError):
-#                     continue  # Skip if there's an issue parsing month/year
-#             elif 'Layer' in line:
-#                 continue  # Skip header line
-#             elif line.strip() == '':
-#                 continue  # Skip empty line
-#             else:
-#                 parts = line.split()
-#                 if len(parts) == 4:
-#                     try:
-#                         layer = int(parts[0])
-#                         row = int(parts[1])
-#                         column = int(parts[2])
-#                         rate = float(parts[3])
-#                         data.append([current_year, current_month, layer, row, column, rate])
-#                     except ValueError:
-#                         continue  # Skip if there's an issue parsing the data
+    with open(file_path, 'r') as file:
+        for line in file:
+            if 'month:' in line:
+                parts = line.split()
+                try:
+                    current_month = int(parts[1])
+                    current_year = int(parts[3])
+                except (ValueError, IndexError):
+                    continue  # Skip if there's an issue parsing month/year
+            elif 'Layer' in line:
+                continue  # Skip header line
+            elif line.strip() == '':
+                continue  # Skip empty line
+            else:
+                parts = line.split()
+                if len(parts) == 4:
+                    try:
+                        layer = int(parts[0])
+                        row = int(parts[1])
+                        column = int(parts[2])
+                        rate = float(parts[3])
+                        data.append([current_year, current_month, layer, row, column, rate])
+                    except ValueError:
+                        continue  # Skip if there's an issue parsing the data
 
-#     df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
-#     return df
+    df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
+    return df
 
 # Function to read the recharge file
 def read_recharge_file(file_path):
@@ -214,33 +214,6 @@ if selected_option == "Watershed models":
     
     You can explore interactive maps showing how groundwater and surface water are connected, or view **groundwater recharge** across the watershed. Soon, we’ll add models from other decades in the past to expand our understanding.
     """)
-
-    # # Initialize the map centered on Duncan
-    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-
-    # # Add the subbasins layer to the map but keep it initially turned off
-    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
-    #                                 name="Subbasins", 
-    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
-    #                                 # show=False  # Keep the layer off initially
-    #                                 ).add_to(m)
-
-    # # Add the grid layer to the map but keep it initially turned off
-    # grid_layer = folium.GeoJson(grid_gdf, 
-    #                             name="Grid", 
-    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
-    #                             show=False  # Keep the layer off initially
-    #                         ).add_to(m)
-
-    # # Add MousePosition to display coordinates
-    # MousePosition().add_to(m)
-
-    # # Add a layer control to switch between the subbasins and grid layers
-    # folium.LayerControl().add_to(m)
-
-    # # Render the Folium map in Streamlit
-    # st.title("Watershed Map")
-    # st_folium(m, width=700, height=600)  
         
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
@@ -309,6 +282,34 @@ elif selected_option == "Water interactions":
     
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
+
+    # Initialize the map centered on Duncan
+    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+
+    # Add the subbasins layer to the map but keep it initially turned off
+    subbasins_layer = folium.GeoJson(subbasins_gdf, 
+                                    name="Subbasins", 
+                                    style_function=lambda x: {'color': 'green', 'weight': 2},
+                                    # show=False  # Keep the layer off initially
+                                    ).add_to(m)
+
+    # Add the grid layer to the map but keep it initially turned off
+    grid_layer = folium.GeoJson(grid_gdf, 
+                                name="Grid", 
+                                style_function=lambda x: {'color': 'blue', 'weight': 1},
+                                show=False  # Keep the layer off initially
+                            ).add_to(m)
+
+    # Add MousePosition to display coordinates
+    MousePosition().add_to(m)
+
+    # Add a layer control to switch between the subbasins and grid layers
+    folium.LayerControl().add_to(m)
+
+    # Render the Folium map in Streamlit
+    st.title("Watershed Map")
+    st_folium(m, width=700, height=600)  
+    
         
     # Set the paths to your shapefiles
     main_path = Path(__file__).parent
