@@ -311,71 +311,68 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
             
-    # Function to create a 4-cell raster and save it as a GeoTIFF
+    # Function to create a 300x300 m raster and save it
     def create_raster():
-        # Create a 2x2 raster data with values for each cell (300m x 300m)
-        raster_data = np.array([[1, 2], [3, 4]], dtype=np.float32)  # Values for the raster cells
-        pixel_size = 300  # Size of each pixel in meters
+        # Define raster size and resolution
+        width = 2  # 2 pixels wide
+        height = 2  # 2 pixels high
+        pixel_size = 300  # Each pixel is 300m x 300m
     
-        # Define the transform (top-left corner coordinates)
-        transform = from_origin(0, 900, pixel_size, pixel_size)  # (top-left x, top-left y, pixel width, pixel height)
+        # Create a dummy raster data (2x2)
+        data = np.array([[1, 2], [3, 4]], dtype=np.uint8)
     
-        # Save raster data to a GeoTIFF file
-        output_raster_path = 'temp_raster.tif'
-        with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                           height=raster_data.shape[0], width=raster_data.shape[1],
-                           count=1, dtype='float32', transform=transform) as dst:
-            dst.write(raster_data, 1)
+        # Define the transform for the raster (top-left corner)
+        transform = from_origin(-123.79, 48.67 + pixel_size, pixel_size, pixel_size)  # top-left corner (longitude, latitude)
     
-        return output_raster_path
+        # Create the raster file
+        raster_path = 'output_raster.tif'
+        with rasterio.open(
+            raster_path,
+            'w',
+            driver='GTiff',
+            height=height,
+            width=width,
+            count=1,
+            dtype='uint8',
+            crs='EPSG:4326',  # WGS 84
+            transform=transform,
+        ) as dst:
+            dst.write(data, 1)
+        
+        return raster_path
     
     # Function to plot the raster on a Folium map
     def plot_on_map(raster_path):
-        # Create a Folium map centered around the raster location
-        m = folium.Map(location=[450, 150], zoom_start=12)
-    
-        # Read the raster image and transform it to a format suitable for Folium
-        with rasterio.open(raster_path) as src:
-            image = src.read(1)  # Read the first band
-            # Get the bounds of the raster
-            bounds = src.bounds
-    
-        # Create a color map for the raster
-        cmap = {1: 'blue', 2: 'green', 3: 'yellow', 4: 'red'}  # Example color mapping
-    
-        # Create an image to overlay
-        img = np.zeros((image.shape[0], image.shape[1], 3), dtype=np.uint8)
-        for value, color in cmap.items():
-            img[image == value] = Image.new('RGB', (1, 1), color).getpixel((0, 0))
-    
-        # Save the colorized image as PNG to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
-            Image.fromarray(img).save(temp_file.name)
-            colorized_image_path = temp_file.name
-    
-        # Add the colorized image overlay to the map
+        # Create a Folium map centered on Duncan, BC
+        m = folium.Map(location=[48.67, -123.79], zoom_start=15, tiles="OpenStreetMap", width='100%', height='100%')
+        
+        # Add raster layer (Note: raster layer might not be shown correctly directly on the map; a custom tileset may be required)
         folium.raster_layers.ImageOverlay(
-            name='Raster Overlay',
-            image=colorized_image_path,
-            bounds=[[bounds.bottom, bounds.left], [bounds.top, bounds.right]],
-            opacity=0.5,
-            interactive=True,
-            cross_origin=False,
+            image=raster_path,
+            bounds=[
+                [48.67, -123.79],                 # Bottom-left corner
+                [48.67 + (2 * 300 / 111320), -123.79 + (2 * 300 / (111320 * np.cos(np.radians(48.67))))]  # Top-right corner
+            ],
+            opacity=0.6,
+            name='Raster Layer'
         ).add_to(m)
+    
+        # Add layer control
+        folium.LayerControl().add_to(m)
     
         return m
     
     # Streamlit app layout
-    st.title("4-Cell Raster on Street Map")
+    st.title("Folium Map with Raster in Streamlit")
     
-    # Create the raster and get the file path
+    # Create and save the raster
     raster_path = create_raster()
     
-    # Plot the raster on a Folium map
+    # Create the map with the raster overlay
     m = plot_on_map(raster_path)
     
     # Display the map in the Streamlit app
-    st.write(m)
+    folium_static(m)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
