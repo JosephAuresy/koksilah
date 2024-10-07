@@ -361,26 +361,26 @@ elif selected_option == "Water interactions":
             
             return bounds_geo, image
     
-    # Function to save raster data as a PNG
-    def save_raster_as_png(raster_data, output_path):
+    # Function to convert raster data to a PNG file
+    def raster_to_png(raster_data, output_path):
         plt.imshow(raster_data, cmap='terrain')
         plt.colorbar()
         plt.axis('off')
         plt.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=300)
         plt.close()
+        return output_path
     
-    # Streamlit app
-    st.title("Raster to PNG Converter and Map Viewer")
+    # Load raster data and get bounds
+    raster_bounds, raster_data = load_raster(raster_path)
     
-    # Button to trigger PNG creation and save it in the data folder
-    if st.button("Generate and Save PNG"):
-        raster_bounds, raster_data = load_raster(raster_path)
-        save_raster_as_png(raster_data, output_png_path)
-        st.success(f"PNG file saved at {output_png_path}")
+    # Save raster data to a PNG file
+    output_png_path = raster_to_png(raster_data, str(output_png_path))  # Save directly to the specified output path
     
-        # Show a message with the file path
-        st.write(f"Saved PNG at: {output_png_path}")
-    
+    # Check if the PNG file was created successfully
+    if output_png_path.exists():
+        st.success("Image saved successfully.")
+    else:
+        st.error("Failed to save the image.")
     # Check if the PNG exists before attempting to display it
     if output_png_path.exists():
         # Initialize the Folium map
