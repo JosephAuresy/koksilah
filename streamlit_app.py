@@ -16,7 +16,7 @@ from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
 from folium import raster_layers
-from folium import ImageOverlay
+import tempfile
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
@@ -310,8 +310,8 @@ elif selected_option == "Water interactions":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-        
-   # Function to create a 4-cell raster and save it as a GeoTIFF
+            
+    # Function to create a 4-cell raster and save it as a GeoTIFF
     def create_raster():
         # Create a 2x2 raster data with values for each cell (300m x 300m)
         raster_data = np.array([[1, 2], [3, 4]], dtype=np.float32)  # Values for the raster cells
@@ -321,7 +321,7 @@ elif selected_option == "Water interactions":
         transform = from_origin(0, 900, pixel_size, pixel_size)  # (top-left x, top-left y, pixel width, pixel height)
     
         # Save raster data to a GeoTIFF file
-        output_raster_path = 'data/temp_raster.tif'
+        output_raster_path = 'temp_raster.tif'
         with rasterio.open(output_raster_path, 'w', driver='GTiff',
                            height=raster_data.shape[0], width=raster_data.shape[1],
                            count=1, dtype='float32', transform=transform) as dst:
@@ -348,19 +348,20 @@ elif selected_option == "Water interactions":
         for value, color in cmap.items():
             img[image == value] = Image.new('RGB', (1, 1), color).getpixel((0, 0))
     
-        # Save the colorized image as PNG
-        colorized_image_path = 'data/colorized_raster.png'
-        Image.fromarray(img).save(colorized_image_path)
+        # Save the colorized image as PNG to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
+            Image.fromarray(img).save(temp_file.name)
+            colorized_image_path = temp_file.name
     
         # Add the colorized image overlay to the map
-        overlay = ImageOverlay(
+        folium.raster_layers.ImageOverlay(
+            name='Raster Overlay',
             image=colorized_image_path,
             bounds=[[bounds.bottom, bounds.left], [bounds.top, bounds.right]],
             opacity=0.5,
             interactive=True,
             cross_origin=False,
-        )
-        overlay.add_to(m)
+        ).add_to(m)
     
         return m
     
