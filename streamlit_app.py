@@ -311,7 +311,37 @@ elif selected_option == "Water interactions":
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
-                    
+
+    # Set paths to your data files
+    main_path = Path(__file__).parent
+    subbasins_shapefile_path = main_path / 'data/subs1.shp'
+    grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
+    raster_path = main_path / 'data/dem_clip_3.tif'
+    
+    # Load the subbasins GeoDataFrame from the shapefile
+    try:
+        subbasins_gdf = gpd.read_file(subbasins_shapefile_path)
+    except Exception as e:
+        st.error(f"Error loading subbasins shapefile: {e}")
+        st.stop()  # Stop execution if there's an error
+    
+    # Ensure the GeoDataFrame is in the correct CRS
+    subbasins_gdf = subbasins_gdf.to_crs(epsg=32610)
+    
+    # Load the grid GeoDataFrame from the shapefile
+    try:
+        grid_gdf = gpd.read_file(grid_shapefile_path)
+    except Exception as e:
+        st.error(f"Error loading grid shapefile: {e}")
+        st.stop()  # Stop execution if there's an error
+    
+    # Check if the CRS is set for the grid shapefile, and set it manually if needed
+    if grid_gdf.crs is None:
+        grid_gdf.set_crs(epsg=32610, inplace=True)
+    
+    # Ensure the grid GeoDataFrame is in the correct CRS
+    grid_gdf = grid_gdf.to_crs(epsg=32610)
+
     # Load the raster and get bounds
     def load_raster(file_path):
         with rasterio.open(file_path) as src:
