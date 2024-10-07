@@ -386,7 +386,7 @@ elif selected_option == "Water interactions":
         # Initialize the Folium map
         initial_location = [48.67, -123.79]  # Example location (Duncan, BC)
         m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-    
+        
         # Correctly access bounds as a tuple
         image_overlay = folium.raster_layers.ImageOverlay(
             image=str(output_png_path),  # Path to the saved PNG file
@@ -398,32 +398,35 @@ elif selected_option == "Water interactions":
         )
         # Add the overlay to the map
         image_overlay.add_to(m)
+    
+        # Add the subbasins layer to the map but keep it initially turned off
+        subbasins_layer = GeoJson(
+            subbasins_gdf,
+            name="Subbasins",
+            style_function=lambda x: {'color': 'green', 'weight': 2},
+            show=False  # Keep the layer off initially
+        ).add_to(m)
+        
+        # Add the grid layer to the map but keep it initially turned off
+        grid_layer = GeoJson(
+            grid_gdf,
+            name="Grid",
+            style_function=lambda x: {'color': 'blue', 'weight': 1},
+            show=False  # Keep the layer off initially
+        ).add_to(m)
+        
+        # Add MousePosition to display coordinates
+        MousePosition().add_to(m)
+        
+        # Add a layer control to switch between the subbasins and grid layers
+        folium.LayerControl().add_to(m)
+        
+        # Render the Folium map in Streamlit
+        st.title("Watershed Map with DEM Overlay and Layers")
+        st_folium(m, width=700, height=600)
+    else:
+        st.error("PNG file does not exist.")
 
-    # Add the subbasins layer to the map but keep it initially turned off
-    subbasins_layer = GeoJson(
-        subbasins_gdf,
-        name="Subbasins",
-        style_function=lambda x: {'color': 'green', 'weight': 2},
-        show=False  # Keep the layer off initially
-    ).add_to(m)
-    
-    # Add the grid layer to the map but keep it initially turned off
-    grid_layer = GeoJson(
-        grid_gdf,
-        name="Grid",
-        style_function=lambda x: {'color': 'blue', 'weight': 1},
-        show=False  # Keep the layer off initially
-    ).add_to(m)
-    
-    # Add MousePosition to display coordinates
-    MousePosition().add_to(m)
-    
-    # Add a layer control to switch between the subbasins and grid layers
-    folium.LayerControl().add_to(m)
-    
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map with DEM Overlay and Layers")
-    st_folium(m, width=700, height=600)
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
