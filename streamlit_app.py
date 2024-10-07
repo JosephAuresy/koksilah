@@ -316,40 +316,11 @@ elif selected_option == "Water interactions":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
     
-    # Function to save file to GitHub
-    def save_file_to_github(repo, path, content, token):
-        url = f"https://api.github.com/repos/{repo}/contents/{path}"
-    
-        # Get the SHA of the file if it already exists
-        response = requests.get(url, headers={"Authorization": f"token {token}"})
-        sha = response.json().get('sha') if response.status_code == 200 else None
-    
-        # Prepare the payload
-        message = "Upload raster output from Streamlit app"
-        encoded_content = base64.b64encode(content.encode()).decode()
-    
-        payload = {
-            "message": message,
-            "content": encoded_content,
-        }
-    
-        if sha:
-            # If the file exists, include the SHA in the payload to update it
-            payload["sha"] = sha
-    
-        # Send the request to create/update the file
-        response = requests.put(url, headers={"Authorization": f"token {token}"}, data=json.dumps(payload))
-    
-        return response.status_code, response.json()
-    
     # Set paths to your data files
     main_path = Path(__file__).parent
     subbasins_shapefile_path = main_path / 'data/subs1.shp'
     grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
-    raster_path = main_path / 'data/dem_clip_3.tif'
-    
-    # Set the output PNG file path
-    output_png_path = main_path / 'data/raster_output.png'
+    raster_image_path = main_path / 'data/ras_image.png'  # Path to the already saved PNG image
     
     # Load the subbasins GeoDataFrame from the shapefile
     try:
@@ -375,51 +346,26 @@ elif selected_option == "Water interactions":
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
     
-    # Load raster and get bounds
-    def load_raster(file_path):
-        with rasterio.open(file_path) as src:
-            bounds = src.bounds  # Get bounds of the raster
-            crs = src.crs  # Get CRS (Coordinate Reference System)
-            # Just read the first band of raster data
-            image = src.read(1)
-    
-            return bounds, image  # Return the original bounds
-    
-    # Function to convert raster data to a PNG file
-    def raster_to_png(raster_data, output_path):
-        plt.imshow(raster_data, cmap='terrain')
-        plt.colorbar()
-        plt.axis('off')
-        plt.savefig(output_path, bbox_inches='tight', pad_inches=0, dpi=300)
-        plt.close()
-        return output_path
-    
-    # Load raster data and get bounds
-    raster_bounds, raster_data = load_raster(raster_path)
-    
-    # Save raster data to a PNG file
-    output_png_path = raster_to_png(raster_data, str(output_png_path))  # Save directly to the specified output path
-    
     # Check if the PNG exists before attempting to display it
-    if output_png_path.exists():
+    if raster_image_path.exists():
         # Initialize the Folium map
         initial_location = [48.67, -123.79]  # Example location (Duncan, BC)
         m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-        
-        # Correctly access bounds as a tuple
-        image_overlay = folium.raster_layers.ImageOverlay(
-            image=str(output_png_path),  # Path to the saved PNG file
-            bounds=[[raster_bounds[1], raster_bounds[0]], [raster_bounds[3], raster_bounds[2]]],  # Corrected tuple access: (left, bottom, right, top)
+    
+        # Add the raster image as an overlay
+        raster_overlay = folium.raster_layers.ImageOverlay(
+            image=str(raster_image_path),  # Path to the saved PNG file
+            bounds=[[subbasins_gdf.bounds.miny.min(), subbasins_gdf.bounds.minx.min()],
+                    [subbasins_gdf.bounds.maxy.max(), subbasins_gdf.bounds.maxx.max()]],  # Using subbasin bounds
             opacity=0.6,
             interactive=True,
             cross_origin=False,
             zindex=1,
         )
-        # Add the overlay to the map
-        image_overlay.add_to(m)
+        raster_overlay.add_to(m)
     
         # Add the subbasins layer to the map but keep it initially turned off
-        subbasins_layer = folium.GeoJson(
+        subbasins_layer = GeoJson(
             subbasins_gdf,
             name="Subbasins",
             style_function=lambda x: {'color': 'green', 'weight': 2},
@@ -427,7 +373,7 @@ elif selected_option == "Water interactions":
         ).add_to(m)
     
         # Add the grid layer to the map but keep it initially turned off
-        grid_layer = folium.GeoJson(
+        grid_layer = GeoJson(
             grid_gdf,
             name="Grid",
             style_function=lambda x: {'color': 'blue', 'weight': 1},
@@ -435,39 +381,17 @@ elif selected_option == "Water interactions":
         ).add_to(m)
     
         # Add MousePosition to display coordinates
+        from folium.plugins import MousePosition
         MousePosition().add_to(m)
     
         # Add a layer control to switch between the subbasins and grid layers
         folium.LayerControl().add_to(m)
     
         # Render the Folium map in Streamlit
-        st.title("Watershed Map with DEM Overlay and Layers")
+        st.title("Watershed Map with Raster Overlay, Subbasins, and Grid Layers")
         st_folium(m, width=700, height=600)
-        
-        # Get GitHub repository information
-        st.subheader("Save Output to GitHub")
-        repo = st.text_input("Enter GitHub repository (username/repo):")
-        path = st.text_input("Enter path to save file (e.g., folder/raster_output.png):", value="data/raster_output.png")
-        token = st.text_input("Enter your GitHub Personal Access Token:", type="password")
-    
-        if st.button("Save to GitHub"):
-            if repo and path and token:
-                # Read the PNG file content as binary
-                with open(output_png_path, "rb") as f:
-                    content = f.read().decode('latin1')  # Decode using latin1 for binary files
-                
-                # Save to GitHub
-                status_code, response = save_file_to_github(repo, path, content, token)
-                if status_code == 201:
-                    st.success("File created successfully on GitHub!")
-                elif status_code == 200:
-                    st.success("File updated successfully on GitHub!")
-                else:
-                    st.error(f"Error: {response.get('message')}")
-            else:
-                st.warning("Please fill in all fields.")
     else:
-        st.error("PNG file does not exist.")
+        st.error("Raster image file does not exist.")
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
