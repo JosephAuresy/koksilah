@@ -283,117 +283,80 @@ elif selected_option == "Water interactions":
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
 
-    # Initialize the map centered on Duncan
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
-    # Add the subbasins layer to the map but keep it initially turned off
-    subbasins_layer = folium.GeoJson(subbasins_gdf, 
-                                    name="Subbasins", 
-                                    style_function=lambda x: {'color': 'green', 'weight': 2},
-                                    # show=False  # Keep the layer off initially
-                                    ).add_to(m)
+    # # Add the subbasins layer to the map but keep it initially turned off
+    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
+    #                                 name="Subbasins", 
+    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
+    #                                 # show=False  # Keep the layer off initially
+    #                                 ).add_to(m)
 
-    # Add the grid layer to the map but keep it initially turned off
-    grid_layer = folium.GeoJson(grid_gdf, 
-                                name="Grid", 
-                                style_function=lambda x: {'color': 'blue', 'weight': 1},
-                                show=False  # Keep the layer off initially
-                            ).add_to(m)
+    # # Add the grid layer to the map but keep it initially turned off
+    # grid_layer = folium.GeoJson(grid_gdf, 
+    #                             name="Grid", 
+    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #                             show=False  # Keep the layer off initially
+    #                         ).add_to(m)
 
-    # Add MousePosition to display coordinates
-    MousePosition().add_to(m)
+    # # Add MousePosition to display coordinates
+    # MousePosition().add_to(m)
 
-    # Add a layer control to switch between the subbasins and grid layers
-    folium.LayerControl().add_to(m)
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
 
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map")
-    st_folium(m, width=700, height=600)  
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)  
+
+    # Upload CSV file
+    uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
+    
+    if uploaded_file is not None:
+        # Process the uploaded data
+        df = process_swatmf_data(uploaded_file)
         
+        # Display the DataFrame in a table
+        st.write("Data Overview:")
+        st.dataframe(df)
+
+        # Show a button to create raster
+        if st.button("Create Raster"):
+            raster_file = create_raster_from_df(df)
+            st.success(f"Raster created successfully! You can download it [here](./{raster_file}).")
+    
+    # Instructions for uploading and visualizing data
+    st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
+
+    # Create and display the map
+    map_object = create_map(df)
+    st_folium(map_object, width=700, height=600)
+
     # Function to create raster from DataFrame
     def create_raster_from_df(df):
         max_row = df['Row'].max()
         max_column = df['Column'].max()
         
-        raster_data = np.zeros((max_row, max_column), dtype=np.float32)  # Use float32 for rates
-    
+        # Initialize the raster data array
+        raster_data = np.zeros((max_row, max_column), dtype=np.float32)
+        
+        # Populate the raster data
         for index, row in df.iterrows():
             raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
-    
-        output_file = 'output_raster.tif'
+        
+        # Define raster file parameters
+        output_file = DATA_DIRECTORY / 'output_raster.tif'
         transform = rasterio.transform.from_origin(0, max_row, 1, 1)  # Adjust based on your specific requirements
-    
+        
+        # Write raster to a file
         with rasterio.open(output_file, 'w', driver='GTiff',
                            height=max_row, width=max_column, count=1,
                            dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
-    
+        
         return output_file
     
-    # Function to create and display the Folium map
-    def create_map(subbasins_gdf, grid_gdf, initial_location):
-        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-    
-        # Add the subbasins layer to the map but keep it initially turned off
-        folium.GeoJson(subbasins_gdf, 
-                       name="Subbasins", 
-                       style_function=lambda x: {'color': 'green', 'weight': 2}
-                      ).add_to(m)
-    
-        # Add the grid layer to the map but keep it initially turned off
-        folium.GeoJson(grid_gdf, 
-                       name="Grid", 
-                       style_function=lambda x: {'color': 'blue', 'weight': 1},
-                       show=False  # Keep the layer off initially
-                      ).add_to(m)
-    
-        # Add MousePosition to display coordinates
-        folium.plugins.MousePosition().add_to(m)
-    
-        # Add a layer control to switch between the subbasins and grid layers
-        folium.LayerControl().add_to(m)
-    
-        return m
-    
-    # Main Streamlit app
-    def main():
-        st.title("SWAT-MODFLOW Data Visualization and Raster Creation")
-    
-        # Upload CSV file
-        uploaded_file = st.file_uploader("Upload a SWAT-MODFLOW data file", type=["txt", "csv"])
-        
-        if uploaded_file is not None:
-            # Process the uploaded data
-            df = process_swatmf_data(uploaded_file)
-            
-            # Display the DataFrame in a table
-            st.write("Data Overview:")
-            st.dataframe(df)
-    
-            # Show a button to create raster
-            if st.button("Create Raster"):
-                raster_file = create_raster_from_df(df)
-                st.success(f"Raster created successfully! You can download it [here](./{raster_file}).")
-    
-        # Instructions for uploading and visualizing data
-        st.info("Upload a SWAT-MODFLOW data file to visualize the data and create raster.")
-    
-        # Load your GeoDataFrames for subbasins and grid (adjust paths as necessary)
-        # Example GeoDataFrame loading (replace these with your actual loading logic)
-        # subbasins_gdf = gpd.read_file('path/to/subbasins.shp')
-        # grid_gdf = gpd.read_file('path/to/grid.shp')
-        
-        # Dummy variables for example
-        subbasins_gdf = None  # Replace with actual GeoDataFrame
-        grid_gdf = None  # Replace with actual GeoDataFrame
-        initial_location = [48.7785, -123.7092]  # Example initial location for Duncan
-    
-        # Create and display the map if GeoDataFrames are available
-        if subbasins_gdf is not None and grid_gdf is not None:
-            m = create_map(subbasins_gdf, grid_gdf, initial_location)
-            st_folium(m, width=700, height=600)
-
-
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
