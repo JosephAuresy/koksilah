@@ -320,7 +320,6 @@ elif selected_option == "Water interactions":
     # Convert pixel size to degrees
     # Latitude conversion
     degrees_lat = pixel_size_m / 111320  # 1 degree latitude in meters
-    
     # Longitude conversion (approximate)
     degrees_long = pixel_size_m / (76110 * np.cos(np.radians(initial_location[0])))  # 1 degree longitude in meters at this latitude
     
@@ -332,7 +331,7 @@ elif selected_option == "Water interactions":
     
     # Define the raster's transform and CRS
     transform = from_origin(x_start, y_end, degrees_long, degrees_lat)  # Origin at (x_start, y_end)
-    crs = "EPSG:4326"  # WGS 84, which is commonly used for geographic coordinates
+    crs = "EPSG:4326"  # WGS 84
     
     # Create a Folium map centered on Duncan
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
@@ -364,8 +363,13 @@ elif selected_option == "Water interactions":
             name="Raster Overlay"
         ).add_to(map_obj)
     
-    # Add raster overlay to the map with projection
-    add_raster_to_map(raster_data, transform, crs, m)
+    # Use session state to manage raster creation
+    if 'raster_added' not in st.session_state:
+        st.session_state.raster_added = False
+    
+    if st.button("Add Raster Overlay") and not st.session_state.raster_added:
+        add_raster_to_map(raster_data, transform, crs, m)
+        st.session_state.raster_added = True
     
     # Add MousePosition to display coordinates
     MousePosition().add_to(m)
@@ -376,7 +380,6 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)
-
 
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
