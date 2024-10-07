@@ -146,9 +146,9 @@ def create_map(data, selected_month=None):
 
     return m
     
-# Path to your data file
-# DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
-# df = process_swatmf_data(DATA_FILENAME)
+Path to your data file
+DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
+df = process_swatmf_data(DATA_FILENAME)
 
 # Path to recharge data
 RECHARGE_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_recharge_monthly.txt'
@@ -310,20 +310,6 @@ elif selected_option == "Water interactions":
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)  
     
-        
-    # Set the paths to your shapefiles
-    main_path = Path(__file__).parent
-    subbasins_shapefile_path = main_path / 'data/subs1.shp'
-    grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
-    
-    # Define the path to your data file
-    DATA_FOLDER = main_path / 'data'
-    DATA_FILENAME = DATA_FOLDER / 'swatmf_out_MF_gwsw_monthly.csv'
-    
-    # Load shapefiles for subbasins and grid
-    subbasins_gdf = gpd.read_file(subbasins_shapefile_path)
-    grid_gdf = gpd.read_file(grid_shapefile_path)
-    
     # Check if the CRS is set for the grid shapefile, and set it manually if needed
     if grid_gdf.crs is None:
         grid_gdf.set_crs(epsg=32610, inplace=True)
@@ -334,48 +320,7 @@ elif selected_option == "Water interactions":
     # Define the initial location for the map
     initial_location = [grid_gdf.geometry.centroid.y.mean(), grid_gdf.geometry.centroid.x.mean()]
     
-    # Function to process the SWAT-MODFLOW data
-    def process_swatmf_data(file_path):
-        data = []
-        current_month = None
-        current_year = None
-        
-        try:
-            with open(file_path, 'r') as file:
-                for line in file:
-                    if 'month:' in line:
-                        parts = line.split()
-                        try:
-                            current_month = int(parts[1])
-                            current_year = int(parts[3])
-                        except (ValueError, IndexError):
-                            continue  # Skip if there's an issue parsing month/year
-                    elif 'Layer' in line:
-                        continue  # Skip header line
-                    elif line.strip() == '':
-                        continue  # Skip empty line
-                    else:
-                        parts = line.split()
-                        if len(parts) == 4:
-                            try:
-                                layer = int(parts[0])
-                                row = int(parts[1])
-                                column = int(parts[2])
-                                rate = float(parts[3])
-                                data.append([current_year, current_month, layer, row, column, rate])
-                            except ValueError:
-                                continue  # Skip if there's an issue parsing the data
-        except FileNotFoundError:
-            st.error(f"File not found: {file_path}")
-            return None
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-            return None
-        
-        df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
-        return df
-    
-    # Function to create raster from DataFrame
+        # Function to create raster from DataFrame
     def create_raster_from_df(df, month, output_path):
         # Find the max row and column to create an array for the raster
         max_row = df['Row'].max()
