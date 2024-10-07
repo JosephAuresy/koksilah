@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 from pathlib import Path
 import base64
-import tempfile
 import folium
 from streamlit_folium import st_folium
 from folium import raster_layers
@@ -16,7 +16,6 @@ from folium import GeoJson
 from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
@@ -343,20 +342,19 @@ elif selected_option == "Water interactions":
                            dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
     
-        # Generate a colorized version of the raster
-        colored_raster = plt.get_cmap('viridis')(raster_data / np.max(raster_data))[:, :, :3]  # Normalize and apply colormap
-        colored_raster = (colored_raster[:, :, :3] * 255).astype(np.uint8)  # Convert to uint8
+        df = px.data.tips()  # Using tips dataset for color mapping (placeholder)
+        
+        df['values'] = raster_data.flatten()
+        
+        # Create a color scale for the raster data using plasma
+        fig = px.imshow(raster_data, color_continuous_scale='plasma', 
+                        origin='lower', aspect='auto')
+        
+        # Save the colorized raster to the specified folder as an image
+        colorized_raster_path = data_folder / 'colored_raster.png'
+        fig.write_image(colorized_raster_path)
     
-        # Save the colored raster to the specified folder
-        colored_raster_path = data_folder / 'colored_raster.tif'
-        with rasterio.open(colored_raster_path, 'w', driver='GTiff',
-                           height=colored_raster.shape[0], width=colored_raster.shape[1], count=3,
-                           dtype='uint8', transform=transform) as dst:
-            dst.write(colored_raster[:, :, 0], 1)  # Red
-            dst.write(colored_raster[:, :, 1], 2)  # Green
-            dst.write(colored_raster[:, :, 2], 3)  # Blue
-    
-        return colored_raster_path, x_start, y_start, x_end, y_end
+        return str(colorized_raster_path), x_start, y_start, x_end, y_end
     
     # Create the colorized raster and get its bounds
     colored_raster_path, x_start, y_start, x_end, y_end = create_colored_raster()
@@ -366,7 +364,7 @@ elif selected_option == "Water interactions":
     
     # Add colored raster overlay to the map
     folium.raster_layers.ImageOverlay(
-        image=str(colored_raster_path),
+        image=colored_raster_path,
         bounds=[[y_start, x_start], [y_end, x_end]],
         opacity=0.9,
         name="Colored Value Raster",
@@ -379,7 +377,7 @@ elif selected_option == "Water interactions":
     # Render the Folium map in Streamlit
     st.title("Watershed Map with Colored Raster")
     st_folium(m, width=700, height=600)
-        
+
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
