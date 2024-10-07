@@ -17,6 +17,7 @@ from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
 from folium import raster_layers
 import tempfile
+import os 
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
