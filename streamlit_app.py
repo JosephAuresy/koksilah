@@ -36,25 +36,6 @@ month_names = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ]
-# # Decade Selection for each feature
-# st.sidebar.title("Model selection")
-# st.sidebar.subheader("Climate")
-# selected_decade_climate = st.sidebar.selectbox(
-#     "Choose a decade for Climate:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
-
-# st.sidebar.subheader("Land Use")
-# selected_decade_land_use = st.sidebar.selectbox(
-#     "Choose a decade for Land Use:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
-
-# st.sidebar.subheader("Water Use")
-# selected_decade_water_use = st.sidebar.selectbox(
-#     "Choose a decade for Water Use:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
 
 # Function to process SWAT-MF data
 @st.cache_data
@@ -328,26 +309,36 @@ elif selected_option == "Water interactions":
     
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
+        
+    # Set the paths to your shapefiles
+    main_path = Path(__file__).parent
+    subbasins_shapefile_path = main_path / 'data/subs1.shp'
+    grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
     
     # Define the path to your data file
-    DATA_FOLDER = Path(__file__).parent / 'data'
+    DATA_FOLDER = main_path / 'data'
     DATA_FILENAME = DATA_FOLDER / 'swatmf_out_MF_gwsw_monthly.csv'
     
-    # Assuming you have raster files named 'raster_month_1.tif', 'raster_month_2.tif', ..., 'raster_std_dev.tif'
-    RASTER_PATHS = {
-        'std_dev': DATA_FOLDER / 'raster_std_dev.tif'  # Update to your standard deviation raster path
-    }
+    # Load shapefiles for subbasins and grid
+    subbasins_gdf = gpd.read_file(subbasins_shapefile_path)
+    grid_gdf = gpd.read_file(grid_shapefile_path)
     
-    # Add paths for monthly rasters
-    for month in range(1, 13):
-        RASTER_PATHS[month] = DATA_FOLDER / f'raster_month_{month}.tif'  # Update to your monthly raster filenames
+    # Check if the CRS is set for the grid shapefile, and set it manually if needed
+    if grid_gdf.crs is None:
+        grid_gdf.set_crs(epsg=32610, inplace=True)
+    
+    # Ensure the grid GeoDataFrame is in the correct CRS
+    grid_gdf = grid_gdf.to_crs(epsg=32610)
+    
+    # Define the initial location for the map
+    initial_location = [grid_gdf.geometry.centroid.y.mean(), grid_gdf.geometry.centroid.x.mean()]
     
     # Function to process the SWAT-MODFLOW data
     def process_swatmf_data(file_path):
         data = []
         current_month = None
         current_year = None
-    
+        
         try:
             with open(file_path, 'r') as file:
                 for line in file:
@@ -379,44 +370,43 @@ elif selected_option == "Water interactions":
         except Exception as e:
             st.error(f"An error occurred: {e}")
             return None
-    
+        
         df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
         return df
     
-    # Function to extract raster values based on row/column coordinates
-    def extract_raster_values(raster_paths, df):
-        # Prepare an array for storing extracted values
-        df['Raster Value'] = np.nan
-        df['Std Dev Value'] = np.nan
-    
+    # Function to create raster from DataFrame
+    def create_raster_from_df(df, month, output_path):
+        # Find the max row and column to create an array for the raster
+        max_row = df['Row'].max()
+        max_col = df['Column'].max()
+        
+        # Create an empty array filled with NaN values
+        raster_data = np.full((max_row, max_col), np.nan)
+        
+        # Fill the raster data with values from the DataFrame
         for index, row in df.iterrows():
-            month = row['Month']
-            row_coord = row['Row'] - 1  # Convert to zero-index
-            col_coord = row['Column'] - 1  # Convert to zero-index
-            
-            # Extract monthly raster value
-            monthly_raster_path = raster_paths.get(month)
-            if monthly_raster_path and Path(monthly_raster_path).exists():
-                with rasterio.open(monthly_raster_path) as src:
-                    raster_data = src.read(1)  # Assuming the first band contains the data
+            if row['Month'] == month:
+                raster_data[row['Row'] - 1, row['Column'] - 1] = row['Rate']  # Convert to zero index
+        
+        # Create a transform for the raster
+        transform = from_origin(grid_gdf.bounds.minx.min(), grid_gdf.bounds.maxy.max(), 
+                                abs(grid_gdf.bounds.minx.max() - grid_gdf.bounds.minx.min()) / max_col, 
+                                abs(grid_gdf.bounds.maxy.min() - grid_gdf.bounds.miny.max()) / max_row)
+        
+        # Write the raster file
+        with rasterio.open(output_path, 'w', driver='GTiff', height=max_row, width=max_col, 
+                           count=1, dtype='float32', crs='EPSG:32610', transform=transform) as dst:
+            dst.write(raster_data, 1)
     
-                    if 0 <= row_coord < raster_data.shape[0] and 0 <= col_coord < raster_data.shape[1]:
-                        df.at[index, 'Raster Value'] = raster_data[row_coord, col_coord]
-                    else:
-                        st.warning(f"Coordinates ({row_coord}, {col_coord}) are out of bounds for raster month {month}.")
+    # Create a raster paths dictionary
+    RASTER_PATHS = {
+        'std_dev': DATA_FOLDER / 'raster_std_dev.tif'  # Update to your standard deviation raster path
+    }
     
-            # Extract standard deviation raster value
-            std_dev_raster_path = raster_paths.get('std_dev')
-            if std_dev_raster_path and Path(std_dev_raster_path).exists():
-                with rasterio.open(std_dev_raster_path) as src:
-                    raster_data = src.read(1)  # Assuming the first band contains the data
-    
-                    if 0 <= row_coord < raster_data.shape[0] and 0 <= col_coord < raster_data.shape[1]:
-                        df.at[index, 'Std Dev Value'] = raster_data[row_coord, col_coord]
-                    else:
-                        st.warning(f"Coordinates ({row_coord}, {col_coord}) are out of bounds for standard deviation raster.")
-    
-        return df
+    # Add paths for monthly rasters
+    for month in range(1, 13):
+        monthly_raster_path = DATA_FOLDER / f'raster_month_{month}.tif'  # Update to your monthly raster filenames
+        RASTER_PATHS[month] = monthly_raster_path
     
     # Load and process the data
     df = process_swatmf_data(DATA_FILENAME)
@@ -425,65 +415,61 @@ elif selected_option == "Water interactions":
     if df is not None and not df.empty:
         st.write("SWAT-MODFLOW Data loaded successfully:")
         st.write(df.head())  # Show the first few rows of the data
-    
-        # Extract raster values
-        df_with_raster = extract_raster_values(RASTER_PATHS, df)
         
-        st.write("Data with Raster Values:")
-        st.write(df_with_raster.head())  # Display the data with raster values
+        # Create rasters for each month
+        for month in range(1, 13):
+            create_raster_from_df(df, month, RASTER_PATHS[month])
     
-        # Map Visualization
-        st.subheader("Map Visualization")
-        
         # Create a Folium map
-        folium_map = folium.Map(location=initial_location, zoom_start=12)
+        m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    
+        # Add the subbasins layer to the map but keep it initially turned off
+        subbasins_layer = folium.GeoJson(subbasins_gdf, 
+                                          name="Subbasins", 
+                                          style_function=lambda x: {'color': 'green', 'weight': 2},
+                                          ).add_to(m)
     
         # Add raster layers
         for month in range(1, 13):
-            monthly_raster_path = RASTER_PATHS.get(month)
+            monthly_raster_path = RASTER_PATHS[month]
             if monthly_raster_path.exists():
-                raster_layer = raster_layers.ImageOverlay(
+                raster_layer = folium.raster_layers.ImageOverlay(
                     image=monthly_raster_path,
-                    bounds=[[MIN_LATITUDE, MIN_LONGITUDE], [MAX_LATITUDE, MAX_LONGITUDE]],  # Adjust bounds
+                    bounds=[[grid_gdf.bounds.miny.min(), grid_gdf.bounds.minx.min()], 
+                            [grid_gdf.bounds.maxy.max(), grid_gdf.bounds.maxx.max()]],  # Adjust bounds
                     name=f'Month {month}',
                     opacity=0.6,
                 )
-                raster_layer.add_to(folium_map)
+                raster_layer.add_to(m)
     
         # Add standard deviation raster
-        std_dev_raster_path = RASTER_PATHS.get('std_dev')
+        std_dev_raster_path = RASTER_PATHS['std_dev']
         if std_dev_raster_path.exists():
-            std_dev_layer = raster_layers.ImageOverlay(
+            std_dev_layer = folium.raster_layers.ImageOverlay(
                 image=std_dev_raster_path,
-                bounds=[[MIN_LATITUDE, MIN_LONGITUDE], [MAX_LATITUDE, MAX_LONGITUDE]],  # Adjust bounds
+                bounds=[[grid_gdf.bounds.miny.min(), grid_gdf.bounds.minx.min()], 
+                        [grid_gdf.bounds.maxy.max(), grid_gdf.bounds.maxx.max()]],  # Adjust bounds
                 name='Standard Deviation',
                 opacity=0.6,
             )
-            std_dev_layer.add_to(folium_map)
+            std_dev_layer.add_to(m)
     
         # Add layer control
-        folium.LayerControl().add_to(folium_map)
+        folium.LayerControl().add_to(m)
     
-        # Render the Folium map
-        st_folium(folium_map, width=700)
+        # Render the Folium map in Streamlit
+        st.title("Watershed Map")
+        st_folium(m, width=700, height=600)
     
-        # Plotting
+        # Optional: Histogram of raster values
         st.subheader("Plotting Raster Values")
         fig, ax = plt.subplots()
-        df_with_raster['Raster Value'].dropna().hist(bins=20, ax=ax)
+        df['Rate'].dropna().hist(bins=20, ax=ax)
         ax.set_title("Histogram of Raster Values")
         ax.set_xlabel("Raster Value")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
     
-        # Optional: Plot standard deviation values as well
-        st.subheader("Plotting Standard Deviation Values")
-        fig_std_dev, ax_std_dev = plt.subplots()
-        df_with_raster['Std Dev Value'].dropna().hist(bins=20, ax=ax_std_dev)
-        ax_std_dev.set_title("Histogram of Standard Deviation Values")
-        ax_std_dev.set_xlabel("Standard Deviation Value")
-        ax_std_dev.set_ylabel("Frequency")
-        st.pyplot(fig_std_dev)
     else:
         st.error("The data could not be loaded. Please check the file path or file contents.")
     
