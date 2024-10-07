@@ -364,15 +364,18 @@ elif selected_option == "Water interactions":
     
     # Create a Folium map centered on the initial location
     m = folium.Map(location=initial_location, zoom_start=11)
-    
-    # Add colored raster overlay to the map
+        
+    # Add colored raster overlay to the map with corrected settings
     folium.raster_layers.ImageOverlay(
         image=str(colored_raster_path),
         bounds=[[y_start, x_start], [y_end, x_end]],
-        opacity=0.7,
+        opacity=0.9,  # Adjust opacity
         name="Colored Value Raster",
-        z_index=10  # Ensure this layer is on top
+        z_index=10  # Set high z-index
     ).add_to(m)
+    
+    # Debugging output to check bounds
+    st.write(f"Raster bounds: [[{y_start}, {x_start}], [{y_end}, {x_end}]]")
     
     # Add Layer Control to switch between layers
     folium.LayerControl().add_to(m)
