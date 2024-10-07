@@ -369,8 +369,9 @@ elif selected_option == "Water interactions":
     folium.raster_layers.ImageOverlay(
         image=str(colored_raster_path),
         bounds=[[y_start, x_start], [y_end, x_end]],
-        opacity=0.5,
-        name="Colored Value Raster"
+        opacity=0.7,
+        name="Colored Value Raster",
+        z_index=10  # Ensure this layer is on top
     ).add_to(m)
     
     # Add Layer Control to switch between layers
