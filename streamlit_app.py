@@ -313,18 +313,19 @@ elif selected_option == "Water interactions":
     # Define pixel size (300m)
     pixel_size = 300  
     
-    # Define function to create raster data
-    @st.cache_data
-    def create_raster():
-        # Create a simple 4x4 raster data with random values
-        rows, cols = 4, 4
-        raster_data = np.random.rand(rows, cols)  # Random values for raster data
-    
+    # Define function to create and colorize raster data
+    def create_colored_raster():
+        # Create a specific 4x4 raster data with defined values
+        raster_data = np.array([[1, 2, 3, 4],
+                                 [5, 6, 7, 8],
+                                 [9, 10, 11, 12],
+                                 [13, 14, 15, 16]], dtype=np.float32)  # Example values
+        
         # Define raster bounds (longitude and latitude)
         x_start = initial_location[1]  # Bottom-left longitude
         y_start = initial_location[0]    # Bottom-left latitude
-        x_end = x_start + (pixel_size * cols / 111320)  # Calculate top-right longitude
-        y_end = y_start + (pixel_size * rows / 111320)   # Calculate top-right latitude
+        x_end = x_start + (pixel_size * raster_data.shape[1] / 111320)  # Calculate top-right longitude
+        y_end = y_start + (pixel_size * raster_data.shape[0] / 111320)   # Calculate top-right latitude
     
         # Define the transform
         transform = from_origin(x_start, y_end, pixel_size / 111320, pixel_size / 111320)
@@ -334,32 +335,46 @@ elif selected_option == "Water interactions":
     
         # Write raster data to a file
         with rasterio.open(output_raster_path, 'w', driver='GTiff',
-                           height=rows, width=cols, count=1,
+                           height=raster_data.shape[0], width=raster_data.shape[1], count=1,
                            dtype='float32', transform=transform) as dst:
             dst.write(raster_data, 1)
     
-        return output_raster_path, x_start, y_start, x_end, y_end
+        # Generate a colorized version of the raster using the Viridis colormap
+        colored_raster = plt.get_cmap('viridis')(raster_data / np.max(raster_data))[:, :, :3]  # Normalize and apply colormap
+        colored_raster = (colored_raster[:, :, :3] * 255).astype(np.uint8)  # Convert to uint8
     
-    # Create raster and get its bounds
-    output_raster_path, x_start, y_start, x_end, y_end = create_raster()
+        # Save the colored raster to a temporary file
+        colored_raster_path = Path(tempfile.gettempdir()) / 'colored_raster.tif'
+        with rasterio.open(colored_raster_path, 'w', driver='GTiff',
+                           height=colored_raster.shape[0], width=colored_raster.shape[1], count=3,
+                           dtype='uint8', transform=transform) as dst:
+            dst.write(colored_raster[:, :, 0], 1)  # Red
+            dst.write(colored_raster[:, :, 1], 2)  # Green
+            dst.write(colored_raster[:, :, 2], 3)  # Blue
+    
+        return colored_raster_path, x_start, y_start, x_end, y_end
+    
+    # Create the colorized raster and get its bounds
+    colored_raster_path, x_start, y_start, x_end, y_end = create_colored_raster()
     
     # Create a Folium map centered on the initial location
     m = folium.Map(location=initial_location, zoom_start=11)
     
-    # Add raster overlay to the map
+    # Add colored raster overlay to the map
     folium.raster_layers.ImageOverlay(
-        image=str(output_raster_path),
+        image=str(colored_raster_path),
         bounds=[[y_start, x_start], [y_end, x_end]],
         opacity=0.5,
-        name="Random Raster"
+        name="Colored Value Raster"
     ).add_to(m)
     
     # Add Layer Control to switch between layers
     folium.LayerControl().add_to(m)
     
     # Render the Folium map in Streamlit
-    st.title("Watershed Map")
+    st.title("Watershed Map with Colored Raster")
     st_folium(m, width=700, height=600)
+        
     # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
     # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
 
