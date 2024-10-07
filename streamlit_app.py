@@ -346,13 +346,16 @@ elif selected_option == "Water interactions":
     # Ensure the grid GeoDataFrame is in the correct CRS
     grid_gdf = grid_gdf.to_crs(epsg=32610)
         
-     # Check if the PNG exists before attempting to display it
+    # Set coordinates for centering the map (replace with your desired coordinates)
+    center_coordinates = [48.67, -123.79]  # Example coordinates for Duncan, BC
+    
+    # Check if the PNG exists before attempting to display it
     if raster_image_path.exists():
+        # Initialize the Folium map using the specified center coordinates
+        m = folium.Map(location=center_coordinates, zoom_start=11, control_scale=True)
+    
         # Calculate the bounds from the grid's bounding box
         minx, miny, maxx, maxy = grid_gdf.total_bounds  # Extract bounds from the grid
-    
-        # Initialize the Folium map using a calculated center based on bounds
-        m = folium.Map(location=[(miny + maxy) / 2, (minx + maxx) / 2], zoom_start=11, control_scale=True)
     
         # Add the raster image as an overlay using the grid's bounds
         try:
@@ -375,7 +378,6 @@ elif selected_option == "Water interactions":
                 subbasins_gdf,
                 name="Subbasins",
                 style_function=lambda x: {'color': 'green', 'weight': 2},
-                show=False  # Keep the layer off initially
             ).add_to(m)
         except Exception as e:
             st.error(f"Error adding the subbasins layer: {e}")
@@ -387,7 +389,6 @@ elif selected_option == "Water interactions":
                 grid_gdf,
                 name="Grid",
                 style_function=lambda x: {'color': 'blue', 'weight': 1},
-                show=False  # Keep the layer off initially
             ).add_to(m)
         except Exception as e:
             st.error(f"Error adding the grid layer: {e}")
