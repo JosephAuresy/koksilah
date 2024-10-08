@@ -404,7 +404,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     for color, count in counts_sorted:
         if count > 0:
             st.markdown(f"- **{color}**: **{count}** cells, which means... [insert detailed explanation here]")
-
+            
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
