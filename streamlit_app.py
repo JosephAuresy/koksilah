@@ -347,7 +347,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
         [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
         [0.8, 'limegreen'],  # Shiny green for positive to negative change
-        [1.0, 'purple']       # Green for negative to positive change
+        [1.0, 'lightpink']       # Green for negative to positive change
     ]
     
     # Step 7: Create the heatmap for the selected month
@@ -384,7 +384,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
     - **Brown**: Positive interaction (groundwater going into aquifer, >1)
     - **Shiny Green**: Change from positive to negative interaction
-    - **Purple**: Change from negative to positive interaction
+    - **Light Pink**: Change from negative to positive interaction
     """)
     
     # Create a function to count cells per color
@@ -394,7 +394,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             'light_blue': np.sum((grid < -10) & (grid >= -50)),
             'yellow': np.sum((grid >= -10) & (grid <= 1)),
             'brown': np.sum((grid > 1) & (grid <= 50)),
-            'purple': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
+            'lightpink': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
         }
         return color_counts
     
