@@ -347,7 +347,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
         [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
         [0.8, 'limegreen'],  # Shiny green for positive to negative change
-        [1.0, 'green']       # Green for negative to positive change
+        [1.0, 'lavander']       # Green for negative to positive change
     ]
     
     # Step 7: Create the heatmap for the selected month
@@ -387,24 +387,35 @@ elif selected_option == "Groundwater / Surface water interactions":
     - **Green**: Change from negative to positive interaction
     """)
     
-    # Step 11: Display counts for each color category
-    st.markdown("### Color Counts for Selected Month:")
-    color_summary = pd.DataFrame.from_dict(color_counts, orient='index', columns=['Count']).reset_index()
-    color_summary.columns = ['Color', 'Count']
-    color_summary['Count'] = color_summary['Count'].astype(int)  # Convert counts to integers
+    # Create a function to count cells per color
+    def count_cells_per_color(grid):
+        color_counts = {
+            'dark_blue': np.sum((grid < -50) & (grid >= -1000)),
+            'light_blue': np.sum((grid < -10) & (grid >= -50)),
+            'yellow': np.sum((grid >= -10) & (grid <= 1)),
+            'brown': np.sum((grid > 1) & (grid <= 50)),
+            'lavender': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
+        }
+        return color_counts
     
-    # Display the color counts as an interactive table
-    st.dataframe(color_summary)
+    # Count the colors for the selected month
+    color_counts = count_cells_per_color(grid)
     
-    # Step 12: Dynamic explanation pyramid
-    st.markdown(f"### Explanation of Counts for {selected_month_name}:")
-    counts_sorted = sorted(color_counts.items(), key=lambda x: x[1], reverse=True)
+    # Prepare data for pie chart
+    color_names = list(color_counts.keys())
+    color_values = list(color_counts.values())
+    total_cells = sum(color_values)
+    percentages = [count / total_cells * 100 for count in color_values]
     
-    # Creating a pyramid-like explanation
-    for color, count in counts_sorted:
-        if count > 0:
-            st.markdown(f"- **{color}**: **{count}** cells, which means... [insert detailed explanation here]")
-            
+    # Create a pie chart
+    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3)])
+    
+    # Update pie chart layout
+    fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
+    
+    # Display pie chart and percentage counts
+    st.plotly_chart(fig)
+         
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
