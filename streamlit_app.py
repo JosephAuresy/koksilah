@@ -288,29 +288,39 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
     """)
-
-    # Step 1: Group data by Month, Row, and Column, and calculate mean for each location
+    
+    # Step 1: Group data by Month, Row, and Column, and calculate the mean for each location across all years
     monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].mean().reset_index()
     
-    # Step 2: Pivot the data to have months as columns, allowing easy month-to-month comparison
+    # Step 2: Pivot the data to make it easier to compare months
     pivoted = monthly_stats.pivot_table(index=['Row', 'Column'], columns='Month', values='Rate').reset_index()
     
-    # Step 3: Create a grid to store color codes
+    # Step 3: Allow user to select a specific month for analysis
+    unique_months = sorted(monthly_stats['Month'].unique())
+    month_names = ['January', 'February', 'March', 'April', 'May', 'June', 
+                   'July', 'August', 'September', 'October', 'November', 'December']
+    unique_month_names = [month_names[m - 1] for m in unique_months]
+    
+    # Dropdown to select the month
+    selected_month_name = st.selectbox("Select a Month", unique_month_names, index=0)
+    selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    
+    # Step 4: Create a grid to store color codes
     grid = np.full((int(df['Row'].max()), int(df['Column'].max())), np.nan)
     
-    # Step 4: Analyze each row (location) for changes
+    # Step 5: Analyze each location (Row, Column) for changes
     for _, row in pivoted.iterrows():
         row_vals = row.drop(['Row', 'Column']).values  # Extract monthly values for this location
         
-        # Detect month-to-month changes
-        month_to_month_changes = np.diff(np.sign(row_vals))  # +2 or -2 indicate sign changes between months
+        # Detect month-to-month changes (e.g., -1 to 1 or 1 to -1 indicates a change)
+        month_to_month_changes = np.diff(np.sign(row_vals))
         
-        # Check if any value changes from positive to negative (or vice versa) at least once in the year
+        # Check if any value changes from positive to negative (or vice versa) at least once
         if np.any(np.diff(np.sign(row_vals)) != 0):
             grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Green: Changed at least once
             
         # Check if there are continuous changes month-to-month
-        if np.any(month_to_month_changes != 0):  # If any month changes sign compared to the previous month
+        if np.any(month_to_month_changes != 0):
             grid[int(row['Row']) - 1, int(row['Column']) - 1] = 3  # Yellow: Monthly fluctuations
         
         # Check if all values are positive (water going to aquifer)
@@ -321,25 +331,31 @@ elif selected_option == "Groundwater / Surface water interactions":
         elif np.all(row_vals < 0):
             grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Blue: Negative all year
     
-    # Step 5: Define a custom color scale for the 4 categories
+    # Step 6: Define a custom color scale (with blue for negatives, brown for positives, green and yellow for changes)
     colorscale = [
         [0.0, 'blue'],   # Gaining stream (water to river)
-        [0.33, 'green'], # Green for transition zones
+        [0.33, 'green'], # Green for transition zones (changing from negative to positive at least once)
         [0.66, 'yellow'], # Yellow for frequent month-to-month changes
         [1.0, 'brown']   # Losing stream (water to aquifer)
     ]
     
-    # Step 6: Create the heatmap
+    # Step 7: Create the heatmap for the selected month
+    df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
+    for _, row in df_filtered.iterrows():
+        grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Rate']
+    
+    # Step 8: Create the heatmap figure
     fig = go.Figure(data=go.Heatmap(
         z=grid,
         colorscale=colorscale,
+        zmid=0,  # Midpoint at zero
         showscale=False,  # Hide scale since colors represent categories
-        hovertemplate='Row: %{y}, Column: %{x}<extra></extra>',
+        hovertemplate='Row: %{y}, Column: %{x}, Rate: %{z:.2f} <extra></extra>',
     ))
     
-    # Step 7: Update layout and display the figure
+    # Step 9: Update the layout of the heatmap
     fig.update_layout(
-        title='Monthly Groundwater-Surface Water Interactions',
+        title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
         xaxis_title='Column',
         yaxis_title='Row',
         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
@@ -349,8 +365,9 @@ elif selected_option == "Groundwater / Surface water interactions":
         font=dict(family='Arial, sans-serif', size=8, color='black')
     )
     
-    # Display the figure
-    st.plotly_chart(fig)    
+    # Step 10: Display the heatmap
+    st.plotly_chart(fig)
+
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
