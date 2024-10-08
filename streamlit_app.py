@@ -746,7 +746,6 @@ elif selected_option == "Recharge":
     #     except KeyError:
     #         st.error("Subbasin number not found.")
 
-  
     # Parsing data from file
     def parse_data(file_path):
         try:
@@ -767,18 +766,16 @@ elif selected_option == "Recharge":
                 continue
     
             if "Watershed" in line:
-                # Skip the header line and focus on numeric data
+                # Process watershed level data
                 parts = line.split()
-                if parts[-1].replace('.', '', 1).isdigit():  # Check if the last part is a number
+                if parts[-1].replace('.', '', 1).isdigit():  # Ensure the last part is numeric
                     try:
-                        watershed_data['area'] = float(parts[-1])  # Ensure valid conversion
+                        watershed_data['area'] = float(parts[-1])  # Convert area to float
                     except ValueError:
                         st.warning(f"Skipping non-numeric watershed area: {line}")
-                else:
-                    st.warning(f"Skipping header line in watershed data: {line}")
     
             elif "Subbasin" in line:
-                # When a new subbasin is detected, initialize a new dictionary for its data
+                # Initialize a new dictionary for each subbasin's data
                 current_subbasin = line.strip()
                 subbasin_data[current_subbasin] = {'landuse': {}, 'soil': {}, 'slope': {}}
     
@@ -791,51 +788,38 @@ elif selected_option == "Recharge":
     
     def process_subbasin_data(line, subbasin_info, watershed_data):
         """
-        Processes the land use, soil, and slope data for a given subbasin.
-        This assumes the line contains either land use, soil, or slope data.
+        Processes land use, soil, and slope data for a subbasin.
         """
         try:
             # Handle land use types
             if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
                 parts = line.split()
-                if len(parts) > 1 and parts[1].replace('.', '', 1).isdigit():  # Check if second part is a valid number
+                if len(parts) > 1 and parts[1].replace('.', '', 1).isdigit():
                     landuse_type = parts[0]
-                    area = float(parts[1])  # Ensure valid conversion
+                    area = float(parts[1])
                     subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
-                    
-                    # Accumulate land use area for watershed
                     watershed_data['landuse'].setdefault(landuse_type, 0)
                     watershed_data['landuse'][landuse_type] += area
-                else:
-                    st.warning(f"Skipping invalid landuse data: {line}")
     
             # Handle soil types
             elif "Soil" in line:
                 parts = line.split()
-                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():  # Check if last part is a valid number
+                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():
                     soil_type = parts[1]
                     area = float(parts[-1])
                     subbasin_info['soil'].setdefault(soil_type, []).append(area)
-                    
-                    # Accumulate soil area for watershed
                     watershed_data['soil'].setdefault(soil_type, 0)
                     watershed_data['soil'][soil_type] += area
-                else:
-                    st.warning(f"Skipping invalid soil data: {line}")
     
             # Handle slope types
             elif "Slope" in line:
                 parts = line.split()
-                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():  # Check if last part is a valid number
+                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():
                     slope_class = parts[1]
                     area = float(parts[-1])
                     subbasin_info['slope'].setdefault(slope_class, []).append(area)
-    
-                    # Accumulate slope area for watershed
                     watershed_data['slope'].setdefault(slope_class, 0)
                     watershed_data['slope'][slope_class] += area
-                else:
-                    st.warning(f"Skipping invalid slope data: {line}")
     
         except (ValueError, IndexError) as e:
             st.error(f"Error parsing subbasin data: {line}")
@@ -865,7 +849,7 @@ elif selected_option == "Recharge":
     
     # Watershed Level Overview
     st.subheader("Watershed Overview")
-    st.write(f"Total Area: {watershed_data['area']} ha")
+    st.write(f"Total Area: {watershed_data.get('area', 'N/A')} ha")
     st.write("Land Use Distribution:")
     landuse_df = pd.DataFrame.from_dict(watershed_data['landuse'], orient='index', columns=['Area [ha]'])
     landuse_df.index.name = 'Land Use Type'
