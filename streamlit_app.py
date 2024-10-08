@@ -459,13 +459,13 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Identify significant clusters based on z-scores
         significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
     
-        # Plot histogram of the Rate values
+        # Plot histogram of the Rate values for the selected month
         plt.figure(figsize=(10, 6))  # Set figure size
         plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
         plt.axvline(data['Rate'].mean(), color='red', linestyle='dashed', linewidth=1, label='Mean')  # Add mean line
         plt.axvline(data['Rate'].mean() + 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
         plt.axvline(data['Rate'].mean() - 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
-        plt.title('Histogram of Rate Values')  # Title for the histogram
+        plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
         plt.xlabel('Rate')  # X-axis label
         plt.ylabel('Frequency')  # Y-axis label
         plt.legend()  # Show legend
@@ -476,19 +476,21 @@ elif selected_option == "Groundwater / Surface water interactions":
     
         return significant_hotspots
     
+    # Hotspot Analysis Button
+    if st.button('Run Hotspot Analysis'):
+        hotspots = hotspot_analysis(selected_month_data)  # Call the hotspot analysis function with filtered data
+        st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
+    
     # Distance Analysis Function
     def distance_analysis(data):
         """
         This function calculates the distance of each location in the dataset to key features.
         Key features are defined as specific coordinates of interest (e.g., facilities, landmarks).
         """
-        # Assuming the key features are provided as a set of coordinates
         key_features = np.array([[1, 1], [2, 2]])  # Example coordinates of key features
         locations = data[['Row', 'Column']].values  # Extracting the location coordinates
-        # Calculate the pairwise distances from each location to the key features
-        distances = pairwise_distances(locations, key_features)
-        # Store the minimum distance to the nearest key feature for each location
-        data['distance_to_key_feature'] = distances.min(axis=1)
+        distances = pairwise_distances(locations, key_features)  # Calculate pairwise distances
+        data['distance_to_key_feature'] = distances.min(axis=1)  # Store minimum distance to nearest key feature
         return data
     
     # Change Detection Function
@@ -498,35 +500,19 @@ elif selected_option == "Groundwater / Surface water interactions":
         It calculates the difference in the 'Rate' between consecutive entries 
         to detect any significant changes.
         """
-        # Calculate the change in the 'Rate' column compared to the previous entry
-        data['change'] = data['Rate'].diff().fillna(0)  # Fill NA values with 0
-        # Filter the dataset to only include rows where a change is detected
-        changes = data[data['change'] != 0]
+        data['change'] = data['Rate'].diff().fillna(0)  # Calculate change over previous entry
+        changes = data[data['change'] != 0]  # Filter rows with changes detected
         return changes
     
-    # Streamlit Interface
-    st.title('Spatial Analysis App')  # Title of the Streamlit app
+    # Distance Analysis Button
+    if st.button('Run Distance Analysis'):
+        distances = distance_analysis(selected_month_data)  # Call the distance analysis function
+        st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
     
-    # Upload CSV file
-    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)  # Load the data into a DataFrame
-        st.write('Data Loaded:', df.head())  # Display the first few rows of the data
-    
-        # Hotspot Analysis Button
-        if st.button('Run Hotspot Analysis'):
-            hotspots = hotspot_analysis(df)  # Call the hotspot analysis function
-            st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
-    
-        # Distance Analysis Button
-        if st.button('Run Distance Analysis'):
-            distances = distance_analysis(df)  # Call the distance analysis function
-            st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
-    
-        # Change Detection Button
-        if st.button('Run Change Detection'):
-            changes = change_detection(df)  # Call the change detection function
-            st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
+    # Change Detection Button
+    if st.button('Run Change Detection'):
+        changes = change_detection(selected_month_data)  # Call the change detection function
+        st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
     
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
