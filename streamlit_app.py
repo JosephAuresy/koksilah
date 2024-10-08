@@ -341,14 +341,14 @@ elif selected_option == "Groundwater / Surface water interactions":
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
         
         def create_heatmap(grid, selected_month_name):
-        # Step 6: Define a custom color scale with shiny green and green for sign changes
+        # Step 6: Define a custom color scale
         colorscale = [
-            [0.0, 'darkblue'],   # -50 to -1000 (dark blue for strong groundwater to river)
-            [0.2, 'lightblue'],  # -10 to -50 (light blue for moderate groundwater to river)
-            [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
-            [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
-            [0.8, 'limegreen'],  # Shiny green for positive to negative change
-            [1.0, 'lightpink']   # Green for negative to positive change
+            [0.0, 'darkblue'],   # Strong groundwater to river
+            [0.2, 'lightblue'],  # Moderate groundwater to river
+            [0.4, 'yellow'],     # Near-zero fluctuation
+            [0.6, 'brown'],      # Groundwater going into aquifer
+            [0.8, 'limegreen'],  # Change from positive to negative interaction
+            [1.0, 'lightpink']   # Change from negative to positive interaction
         ]
         
         # Step 7: Create the heatmap for the selected month
@@ -356,7 +356,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             z=grid,
             colorscale=colorscale,
             zmin=0,  # Minimum category (dark blue)
-            zmax=5,  # Maximum category (green for changes)
+            zmax=5,  # Maximum category (light pink)
             showscale=False,  # Hide scale since colors represent categories
             hoverinfo='text',  # Show real values in hover
             text=hover_text  # Hover text with real values
@@ -395,8 +395,8 @@ elif selected_option == "Groundwater / Surface water interactions":
                 'light_blue': np.sum((grid < -10) & (grid >= -50)),
                 'yellow': np.sum((grid >= -10) & (grid <= 1)),
                 'brown': np.sum((grid > 1) & (grid <= 50)),
-                'limegreen': np.sum((grid < 0) & (grid > -10)),  # Adjusted for shiny green
-                'lightpink': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
+                'limegreen': np.sum((grid > 0) & (grid <= 1)),  # Corrected to count positive changes
+                'lightpink': np.sum((grid > 0)),  # Corrected for light pink
             }
             return color_counts
         
@@ -407,17 +407,14 @@ elif selected_option == "Groundwater / Surface water interactions":
         color_names = ['Dark Blue', 'Light Blue', 'Yellow', 'Brown', 'Shiny Green', 'Light Pink']
         color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'], 
                         color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
+        
         total_cells = sum(color_values)
         
         # Avoid division by zero
-        if total_cells > 0:
-            percentages = [count / total_cells * 100 for count in color_values]
-        else:
-            percentages = [0] * len(color_values)
+        percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
     
         # Create a pie chart with formatted percentages
         pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
-        formatted_percentages = [f"{percent:.2f}%" for percent in percentages]  # Format percentages to two decimal places
         
         fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='label+percent')])
         
@@ -427,7 +424,6 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         # Display pie chart
         st.plotly_chart(fig)
-        
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
