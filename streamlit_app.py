@@ -725,14 +725,18 @@ elif selected_option == "Recharge":
                 continue
     
             if "Watershed" in line:
+                # Skip the header line and focus on numeric data
                 parts = line.split()
-                try:
-                    watershed_data['area'] = float(parts[-1])  # Ensure valid conversion
-                except (ValueError, IndexError) as e:
-                    st.error(f"Error parsing watershed area: {line}")
-                    continue  # Skip problematic lines
+                if parts[-1].replace('.', '', 1).isdigit():  # Check if the last part is a number
+                    try:
+                        watershed_data['area'] = float(parts[-1])  # Ensure valid conversion
+                    except ValueError:
+                        st.warning(f"Skipping non-numeric watershed area: {line}")
+                else:
+                    st.warning(f"Skipping header line in watershed data: {line}")
                 
             elif "Subbasin" in line:
+                # When a new subbasin is detected, initialize a new dictionary for its data
                 current_subbasin = line.strip()
                 subbasin_data[current_subbasin] = {'landuse': {}, 'soil': {}, 'slope': {}}
             
@@ -752,27 +756,36 @@ elif selected_option == "Recharge":
             # Handle land use types
             if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
                 parts = line.split()
-                landuse_type = parts[0]
-                area = float(parts[1])  # Ensure valid conversion
-                subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
+                if len(parts) > 1 and parts[1].replace('.', '', 1).isdigit():  # Check if second part is a valid number
+                    landuse_type = parts[0]
+                    area = float(parts[1])  # Ensure valid conversion
+                    subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
+                else:
+                    st.warning(f"Skipping invalid landuse data: {line}")
     
-            # Handle soil types (this is just an example structure; modify according to actual format)
+            # Handle soil types
             elif "Soil" in line:
                 parts = line.split()
-                soil_type = parts[1]
-                area = float(parts[-1])
-                subbasin_info['soil'].setdefault(soil_type, []).append(area)
+                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():  # Check if last part is a valid number
+                    soil_type = parts[1]
+                    area = float(parts[-1])
+                    subbasin_info['soil'].setdefault(soil_type, []).append(area)
+                else:
+                    st.warning(f"Skipping invalid soil data: {line}")
     
-            # Handle slope types (again, modify this according to your data format)
+            # Handle slope types
             elif "Slope" in line:
                 parts = line.split()
-                slope_class = parts[1]
-                area = float(parts[-1])
-                subbasin_info['slope'].setdefault(slope_class, []).append(area)
+                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():  # Check if last part is a valid number
+                    slope_class = parts[1]
+                    area = float(parts[-1])
+                    subbasin_info['slope'].setdefault(slope_class, []).append(area)
+                else:
+                    st.warning(f"Skipping invalid slope data: {line}")
     
         except (ValueError, IndexError) as e:
             st.error(f"Error parsing subbasin data: {line}")
-            
+        
     # Load and parse data
     file_path = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt'
     watershed_data, subbasin_data = parse_data(file_path)
