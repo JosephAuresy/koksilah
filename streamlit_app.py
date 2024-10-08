@@ -606,6 +606,33 @@ elif selected_option == "Recharge":
         height=600,
     )
 
+    # Initialize the map centered on Duncan
+    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+
+    # Add the subbasins layer to the map but keep it initially turned off
+    subbasins_layer = folium.GeoJson(subbasins_gdf, 
+                                    name="Subbasins", 
+                                    style_function=lambda x: {'color': 'green', 'weight': 2},
+                                    # show=False  # Keep the layer off initially
+                                    ).add_to(m)
+
+    # Add the grid layer to the map but keep it initially turned off
+    grid_layer = folium.GeoJson(grid_gdf, 
+                                name="Grid", 
+                                style_function=lambda x: {'color': 'blue', 'weight': 1},
+                                show=False  # Keep the layer off initially
+                            ).add_to(m)
+
+    # Add MousePosition to display coordinates
+    MousePosition().add_to(m)
+
+    # Add a layer control to switch between the subbasins and grid layers
+    folium.LayerControl().add_to(m)
+
+    # Render the Folium map in Streamlit
+    st.title("Watershed Map")
+    st_folium(m, width=700, height=600)  
+    
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
 
