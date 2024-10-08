@@ -705,46 +705,46 @@ elif selected_option == "Recharge":
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
 
-    # Initialize the map centered on Duncan
-    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-    # Add the subbasins layer to the map with tooltips for subbasin numbers
-    subbasins_layer = folium.GeoJson(
-        subbasins_gdf,
-        name="Subbasins",
-        style_function=lambda x: {'color': 'green', 'weight': 2},
-        tooltip=folium.GeoJsonTooltip(fields=['subbasin_number'],  # Change 'subbasin_number' to your actual field name
-                                       aliases=['Subbasin: '],
-                                       localize=True)
-    ).add_to(m)
+    # # Add the subbasins layer to the map with tooltips for subbasin numbers
+    # subbasins_layer = folium.GeoJson(
+    #     subbasins_gdf,
+    #     name="Subbasins",
+    #     style_function=lambda x: {'color': 'green', 'weight': 2},
+    #     tooltip=folium.GeoJsonTooltip(fields=['subbasin_number'],  # Change 'subbasin_number' to your actual field name
+    #                                    aliases=['Subbasin: '],
+    #                                    localize=True)
+    # ).add_to(m)
     
-    # Add the grid layer to the map
-    grid_layer = folium.GeoJson(
-        grid_gdf,
-        name="Grid",
-        style_function=lambda x: {'color': 'blue', 'weight': 1},
-        show=False
-    ).add_to(m)
+    # # Add the grid layer to the map
+    # grid_layer = folium.GeoJson(
+    #     grid_gdf,
+    #     name="Grid",
+    #     style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #     show=False
+    # ).add_to(m)
     
-    # Add MousePosition to display coordinates
-    from folium.plugins import MousePosition
-    MousePosition().add_to(m)
+    # # Add MousePosition to display coordinates
+    # from folium.plugins import MousePosition
+    # MousePosition().add_to(m)
     
-    # Add a layer control to switch between the subbasins and grid layers
-    folium.LayerControl().add_to(m)
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
     
-    # Render the Folium map in Streamlit
-    st.title("Watershed Map")
-    st_folium(m, width=700, height=600)
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)
     
-    # Optionally, add additional functionality to display data for the selected subbasin
-    selected_subbasin = st.sidebar.text_input("Enter Subbasin Number:")
-    if selected_subbasin:
-        try:
-            selected_data = subbasins_gdf[subbasins_gdf['subbasin_number'] == selected_subbasin]  # Adjust field name
-            st.write(selected_data)
-        except KeyError:
-            st.error("Subbasin number not found.")
+    # # Optionally, add additional functionality to display data for the selected subbasin
+    # selected_subbasin = st.sidebar.text_input("Enter Subbasin Number:")
+    # if selected_subbasin:
+    #     try:
+    #         selected_data = subbasins_gdf[subbasins_gdf['subbasin_number'] == selected_subbasin]  # Adjust field name
+    #         st.write(selected_data)
+    #     except KeyError:
+    #         st.error("Subbasin number not found.")
 
   
     # Parsing data from file
