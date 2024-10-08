@@ -376,6 +376,17 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Step 9: Display the heatmap
     st.plotly_chart(fig)
 
+    # Step 10: Add a legend to explain the color coding
+    st.markdown("""
+    ### Color Legend:
+    - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
+    - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
+    - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
+    - **Brown**: Positive interaction (groundwater going into aquifer, >1)
+    - **Shiny Green**: Change from positive to negative interaction
+    - **Green**: Change from negative to positive interaction
+    """)
+
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
