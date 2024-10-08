@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 from rasterio.warp import transform_bounds
 import requests
 import json
+from scipy.stats import zscore
+from sklearn.metrics import pairwise_distances
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
