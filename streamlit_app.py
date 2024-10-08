@@ -636,6 +636,7 @@ elif selected_option == "Recharge":
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
 
+
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
