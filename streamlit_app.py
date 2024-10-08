@@ -704,7 +704,7 @@ elif selected_option == "Recharge":
 
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
-    
+  
     # Parsing data from file
     def parse_data(file_path):
         try:
@@ -715,7 +715,7 @@ elif selected_option == "Recharge":
             return {}, {}
     
         # Initialize dictionaries
-        watershed_data = {}
+        watershed_data = {'landuse': {}, 'soil': {}, 'slope': {}}
         subbasin_data = {}
         current_subbasin = None
     
@@ -734,20 +734,20 @@ elif selected_option == "Recharge":
                         st.warning(f"Skipping non-numeric watershed area: {line}")
                 else:
                     st.warning(f"Skipping header line in watershed data: {line}")
-                
+    
             elif "Subbasin" in line:
                 # When a new subbasin is detected, initialize a new dictionary for its data
                 current_subbasin = line.strip()
                 subbasin_data[current_subbasin] = {'landuse': {}, 'soil': {}, 'slope': {}}
-            
+    
             # Process information for current subbasin
             elif current_subbasin:
-                process_subbasin_data(line, subbasin_data[current_subbasin])
+                process_subbasin_data(line, subbasin_data[current_subbasin], watershed_data)
     
         return watershed_data, subbasin_data
     
     
-    def process_subbasin_data(line, subbasin_info):
+    def process_subbasin_data(line, subbasin_info, watershed_data):
         """
         Processes the land use, soil, and slope data for a given subbasin.
         This assumes the line contains either land use, soil, or slope data.
@@ -760,6 +760,10 @@ elif selected_option == "Recharge":
                     landuse_type = parts[0]
                     area = float(parts[1])  # Ensure valid conversion
                     subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
+                    
+                    # Accumulate land use area for watershed
+                    watershed_data['landuse'].setdefault(landuse_type, 0)
+                    watershed_data['landuse'][landuse_type] += area
                 else:
                     st.warning(f"Skipping invalid landuse data: {line}")
     
@@ -770,6 +774,10 @@ elif selected_option == "Recharge":
                     soil_type = parts[1]
                     area = float(parts[-1])
                     subbasin_info['soil'].setdefault(soil_type, []).append(area)
+                    
+                    # Accumulate soil area for watershed
+                    watershed_data['soil'].setdefault(soil_type, 0)
+                    watershed_data['soil'][soil_type] += area
                 else:
                     st.warning(f"Skipping invalid soil data: {line}")
     
@@ -780,12 +788,17 @@ elif selected_option == "Recharge":
                     slope_class = parts[1]
                     area = float(parts[-1])
                     subbasin_info['slope'].setdefault(slope_class, []).append(area)
+    
+                    # Accumulate slope area for watershed
+                    watershed_data['slope'].setdefault(slope_class, 0)
+                    watershed_data['slope'][slope_class] += area
                 else:
                     st.warning(f"Skipping invalid slope data: {line}")
     
         except (ValueError, IndexError) as e:
             st.error(f"Error parsing subbasin data: {line}")
-        
+    
+    
     # Load and parse data
     file_path = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt'
     watershed_data, subbasin_data = parse_data(file_path)
@@ -852,7 +865,7 @@ elif selected_option == "Recharge":
         landuse_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Landuse'].values[0], orient='index', columns=['Area [ha]'])
         soil_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Soil'].values[0], orient='index', columns=['Area [ha]'])
         slope_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Slope'].values[0], orient='index', columns=['Area [ha]'])
-        
+    
         # Land Use Visualization for Selected Subbasin
         st.subheader(f"Land Use Distribution for {subbasin_selection}")
         st.write(landuse_df_subbasin)
@@ -870,9 +883,7 @@ elif selected_option == "Recharge":
         st.write(soil_df_subbasin)
         fig6 = px.bar(soil_df_subbasin, x=soil_df_subbasin.index, y='Area [ha]', title="Soil Distribution in Selected Subbasin")
         st.plotly_chart(fig6)
-    
-    # Additional information or interactions
-    st.write("Explore the various characteristics of the watershed and individual subbasins using the selections above.")
+
     
 elif selected_option == "View Report":
     st.title("Model Validation Report")
