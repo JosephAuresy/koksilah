@@ -430,6 +430,16 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Create the heatmap and pass in the grid and hover text
     create_heatmap(grid, selected_month_name, hover_text)
 
+    # Define the main path and image path
+    main_path = Path(__file__).parent
+    ground = main_path / 'data/riv_groundwater.png'
+    
+    # Check if the image exists before displaying
+    if ground.is_file():
+        st.image(ground, caption='Groundwater and River Interaction', use_column_width=True)
+    else:
+        st.warning("Image 'riv_groundwater.png' not found in the data folder.")
+
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
