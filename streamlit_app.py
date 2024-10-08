@@ -719,12 +719,11 @@ elif selected_option == "Recharge":
         subbasin_data = {}
         current_subbasin = None
     
-        # Initial settings
         for line in lines:
             line = line.strip()  # Remove leading/trailing spaces
             if not line:  # Skip empty lines
                 continue
-            
+    
             if "Watershed" in line:
                 parts = line.split()
                 try:
@@ -733,47 +732,47 @@ elif selected_option == "Recharge":
                     st.error(f"Error parsing watershed area: {line}")
                     continue  # Skip problematic lines
                 
-            elif "Landuse" in line:
-                current_subbasin = 'Watershed'
-                watershed_data['landuse'] = {}
-            elif "Soil" in line:
-                current_subbasin = 'Watershed'
-                watershed_data['soil'] = {}
-            elif "Slope" in line:
-                current_subbasin = 'Watershed'
-                watershed_data['slope'] = {}
             elif "Subbasin" in line:
                 current_subbasin = line.strip()
                 subbasin_data[current_subbasin] = {'landuse': {}, 'soil': {}, 'slope': {}}
-            else:
-                # Process land use data for watershed or subbasin
-                if current_subbasin == 'Watershed':
-                    process_landuse_data(line, watershed_data)
-                elif current_subbasin.startswith("Subbasin"):
-                    process_subbasin_data(line, subbasin_data, current_subbasin)
+            
+            # Process information for current subbasin
+            elif current_subbasin:
+                process_subbasin_data(line, subbasin_data[current_subbasin])
     
         return watershed_data, subbasin_data
     
-    def process_landuse_data(line, watershed_data):
-        try:
-            if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
-                parts = line.split()
-                landuse_type = parts[0]
-                area = float(parts[1])  # Ensure conversion to float
-                watershed_data['landuse'][landuse_type] = area
-        except (ValueError, IndexError) as e:
-            st.error(f"Error parsing landuse data: {line}")
     
-    def process_subbasin_data(line, subbasin_data, current_subbasin):
+    def process_subbasin_data(line, subbasin_info):
+        """
+        Processes the land use, soil, and slope data for a given subbasin.
+        This assumes the line contains either land use, soil, or slope data.
+        """
         try:
+            # Handle land use types
             if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
                 parts = line.split()
                 landuse_type = parts[0]
-                area = float(parts[1])  # Ensure conversion to float
-                subbasin_data[current_subbasin]['landuse'][landuse_type] = area
+                area = float(parts[1])  # Ensure valid conversion
+                subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
+    
+            # Handle soil types (this is just an example structure; modify according to actual format)
+            elif "Soil" in line:
+                parts = line.split()
+                soil_type = parts[1]
+                area = float(parts[-1])
+                subbasin_info['soil'].setdefault(soil_type, []).append(area)
+    
+            # Handle slope types (again, modify this according to your data format)
+            elif "Slope" in line:
+                parts = line.split()
+                slope_class = parts[1]
+                area = float(parts[-1])
+                subbasin_info['slope'].setdefault(slope_class, []).append(area)
+    
         except (ValueError, IndexError) as e:
             st.error(f"Error parsing subbasin data: {line}")
-    
+            
     # Load and parse data
     file_path = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt'
     watershed_data, subbasin_data = parse_data(file_path)
