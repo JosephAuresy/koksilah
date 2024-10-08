@@ -784,46 +784,71 @@ elif selected_option == "Recharge":
                 process_subbasin_data(line, subbasin_data[current_subbasin], watershed_data)
     
         return watershed_data, subbasin_data
-    
-    
-    def process_subbasin_data(line, subbasin_info, watershed_data):
-        """
-        Processes land use, soil, and slope data for a subbasin.
-        """
-        try:
-            # Handle land use types
-            if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
-                parts = line.split()
-                if len(parts) > 1 and parts[1].replace('.', '', 1).isdigit():
+        
+        def read_subbasin_data(file_path):
+        subbasin_data = {}
+        current_subbasin = None
+        
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            # Detect a new subbasin
+            if line.startswith("Subbasin"):
+                current_subbasin = line.split()[1]
+                subbasin_data[current_subbasin] = {"landuse": {}, "soil": {}, "slope": {}}
+                i += 1  # Skip the header line
+                continue
+            
+            # Detect land use section
+            if line.startswith("Landuse"):
+                i += 1
+                while lines[i].strip() and not lines[i].startswith("Soil"):
+                    parts = lines[i].strip().split()
                     landuse_type = parts[0]
                     area = float(parts[1])
-                    subbasin_info['landuse'].setdefault(landuse_type, []).append(area)
-                    watershed_data['landuse'].setdefault(landuse_type, 0)
-                    watershed_data['landuse'][landuse_type] += area
+                    percent_subbasin = float(parts[3])
+                    subbasin_data[current_subbasin]["landuse"][landuse_type] = {
+                        "area": area, 
+                        "percent_subbasin": percent_subbasin
+                    }
+                    i += 1
+            
+            # Detect soil section
+            if line.startswith("Soil"):
+                i += 1
+                while lines[i].strip() and not lines[i].startswith("Slope"):
+                    parts = lines[i].strip().split()
+                    soil_type = parts[0]
+                    area = float(parts[1])
+                    percent_subbasin = float(parts[3])
+                    subbasin_data[current_subbasin]["soil"][soil_type] = {
+                        "area": area, 
+                        "percent_subbasin": percent_subbasin
+                    }
+                    i += 1
+            
+            # Detect slope section
+            if line.startswith("Slope"):
+                i += 1
+                while i < len(lines) and lines[i].strip() and not lines[i].startswith("Subbasin"):
+                    parts = lines[i].strip().split()
+                    slope_range = parts[0]
+                    area = float(parts[1])
+                    percent_subbasin = float(parts[3])
+                    subbasin_data[current_subbasin]["slope"][slope_range] = {
+                        "area": area, 
+                        "percent_subbasin": percent_subbasin
+                    }
+                    i += 1
+            
+            i += 1  # Move to the next line
     
-            # Handle soil types
-            elif "Soil" in line:
-                parts = line.split()
-                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():
-                    soil_type = parts[1]
-                    area = float(parts[-1])
-                    subbasin_info['soil'].setdefault(soil_type, []).append(area)
-                    watershed_data['soil'].setdefault(soil_type, 0)
-                    watershed_data['soil'][soil_type] += area
-    
-            # Handle slope types
-            elif "Slope" in line:
-                parts = line.split()
-                if len(parts) > 1 and parts[-1].replace('.', '', 1).isdigit():
-                    slope_class = parts[1]
-                    area = float(parts[-1])
-                    subbasin_info['slope'].setdefault(slope_class, []).append(area)
-                    watershed_data['slope'].setdefault(slope_class, 0)
-                    watershed_data['slope'][slope_class] += area
-    
-        except (ValueError, IndexError) as e:
-            st.error(f"Error parsing subbasin data: {line}")
-    
+        return subbasin_data
+
     
     # Load and parse data
     file_path = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt'
