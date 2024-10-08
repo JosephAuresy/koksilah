@@ -339,83 +339,95 @@ elif selected_option == "Groundwater / Surface water interactions":
     
         # Create hover text for the real values
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
+        
+        def create_heatmap(grid, selected_month_name):
+        # Step 6: Define a custom color scale with shiny green and green for sign changes
+        colorscale = [
+            [0.0, 'darkblue'],   # -50 to -1000 (dark blue for strong groundwater to river)
+            [0.2, 'lightblue'],  # -10 to -50 (light blue for moderate groundwater to river)
+            [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
+            [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
+            [0.8, 'limegreen'],  # Shiny green for positive to negative change
+            [1.0, 'lightpink']   # Green for negative to positive change
+        ]
+        
+        # Step 7: Create the heatmap for the selected month
+        fig = go.Figure(data=go.Heatmap(
+            z=grid,
+            colorscale=colorscale,
+            zmin=0,  # Minimum category (dark blue)
+            zmax=5,  # Maximum category (green for changes)
+            showscale=False,  # Hide scale since colors represent categories
+            hoverinfo='text',  # Show real values in hover
+            text=hover_text  # Hover text with real values
+        ))
+        
+        # Step 8: Update the layout of the heatmap
+        fig.update_layout(
+            title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+            xaxis_title='Column',
+            yaxis_title='Row',
+            xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            paper_bgcolor='white',
+            font=dict(family='Arial, sans-serif', size=8, color='black')
+        )
+        
+        # Step 9: Display the heatmap
+        st.plotly_chart(fig)
     
-    # Step 6: Define a custom color scale with shiny green and green for sign changes
-    colorscale = [
-        [0.0, 'darkblue'],   # -50 to -1000 (dark blue for strong groundwater to river)
-        [0.2, 'lightblue'],  # -10 to -50 (light blue for moderate groundwater to river)
-        [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
-        [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
-        [0.8, 'limegreen'],  # Shiny green for positive to negative change
-        [1.0, 'lightpink']       # Green for negative to positive change
-    ]
+        # Step 10: Add a legend to explain the color coding
+        st.markdown("""
+        ### Color Legend:
+        - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
+        - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
+        - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
+        - **Brown**: Positive interaction (groundwater going into aquifer, >1)
+        - **Shiny Green**: Change from positive to negative interaction
+        - **Light Pink**: Change from negative to positive interaction
+        """)
     
-    # Step 7: Create the heatmap for the selected month
-    fig = go.Figure(data=go.Heatmap(
-        z=grid,
-        colorscale=colorscale,
-        zmin=0,  # Minimum category (dark blue)
-        zmax=5,  # Maximum category (green for changes)
-        showscale=False,  # Hide scale since colors represent categories
-        hoverinfo='text',  # Show real values in hover
-        text=hover_text  # Hover text with real values
-    ))
+        # Create a function to count cells per color
+        def count_cells_per_color(grid):
+            color_counts = {
+                'dark_blue': np.sum((grid < -50) & (grid >= -1000)),
+                'light_blue': np.sum((grid < -10) & (grid >= -50)),
+                'yellow': np.sum((grid >= -10) & (grid <= 1)),
+                'brown': np.sum((grid > 1) & (grid <= 50)),
+                'limegreen': np.sum((grid < 0) & (grid > -10)),  # Adjusted for shiny green
+                'lightpink': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
+            }
+            return color_counts
+        
+        # Count the colors for the selected month
+        color_counts = count_cells_per_color(grid)
+        
+        # Prepare data for pie chart
+        color_names = ['Dark Blue', 'Light Blue', 'Yellow', 'Brown', 'Shiny Green', 'Light Pink']
+        color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'], 
+                        color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
+        total_cells = sum(color_values)
+        
+        # Avoid division by zero
+        if total_cells > 0:
+            percentages = [count / total_cells * 100 for count in color_values]
+        else:
+            percentages = [0] * len(color_values)
     
-    # Step 8: Update the layout of the heatmap
-    fig.update_layout(
-        title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-        xaxis_title='Column',
-        yaxis_title='Row',
-        xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-        yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-        plot_bgcolor='rgba(240, 240, 240, 0.8)',
-        paper_bgcolor='white',
-        font=dict(family='Arial, sans-serif', size=8, color='black')
-    )
-    
-    # Step 9: Display the heatmap
-    st.plotly_chart(fig)
-
-    # Step 10: Add a legend to explain the color coding
-    st.markdown("""
-    ### Color Legend:
-    - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
-    - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
-    - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
-    - **Brown**: Positive interaction (groundwater going into aquifer, >1)
-    - **Shiny Green**: Change from positive to negative interaction
-    - **Light Pink**: Change from negative to positive interaction
-    """)
-    
-    # Create a function to count cells per color
-    def count_cells_per_color(grid):
-        color_counts = {
-            'dark_blue': np.sum((grid < -50) & (grid >= -1000)),
-            'light_blue': np.sum((grid < -10) & (grid >= -50)),
-            'yellow': np.sum((grid >= -10) & (grid <= 1)),
-            'brown': np.sum((grid > 1) & (grid <= 50)),
-            'lightpink': np.sum((grid < 0) & (grid > -10)),  # Adjusted for lavender
-        }
-        return color_counts
-    
-    # Count the colors for the selected month
-    color_counts = count_cells_per_color(grid)
-    
-    # Prepare data for pie chart
-    color_names = list(color_counts.keys())
-    color_values = list(color_counts.values())
-    total_cells = sum(color_values)
-    percentages = [count / total_cells * 100 for count in color_values]
-    
-    # Create a pie chart
-    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3)])
-    
-    # Update pie chart layout
-    fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
-    
-    # Display pie chart and percentage counts
-    st.plotly_chart(fig)
-         
+        # Create a pie chart with formatted percentages
+        pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
+        formatted_percentages = [f"{percent:.2f}%" for percent in percentages]  # Format percentages to two decimal places
+        
+        fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='label+percent')])
+        
+        # Update pie chart layout with formatted percentages
+        fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
+        fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
+        
+        # Display pie chart
+        st.plotly_chart(fig)
+        
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
