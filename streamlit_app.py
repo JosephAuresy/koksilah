@@ -704,6 +704,155 @@ elif selected_option == "Recharge":
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
     
+    # Parsing data from file
+    def parse_data(file_path):
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+    
+        # Initialize dictionaries
+        watershed_data = {}
+        subbasin_data = {}
+        current_subbasin = None
+    
+        # Initial settings
+        for line in lines:
+            if "Watershed" in line:
+                parts = line.split()
+                watershed_data['area'] = float(parts[-1])
+            elif "Landuse" in line:
+                current_subbasin = 'Watershed'
+                watershed_data['landuse'] = {}
+            elif "Soil" in line:
+                current_subbasin = 'Watershed'
+                watershed_data['soil'] = {}
+            elif "Slope" in line:
+                current_subbasin = 'Watershed'
+                watershed_data['slope'] = {}
+            elif "Subbasin" in line:
+                current_subbasin = line.strip()
+                subbasin_data[current_subbasin] = {'landuse': {}, 'soil': {}, 'slope': {}}
+            else:
+                # Process land use data
+                if current_subbasin == 'Watershed':
+                    if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
+                        parts = line.split()
+                        landuse_type = parts[0]
+                        area = float(parts[1])
+                        watershed_data['landuse'][landuse_type] = area
+                elif current_subbasin.startswith("Subbasin"):
+                    # Process subbasin land use data
+                    if any(landuse in line for landuse in ["DFSF", "URLD", "DFSP", "URMD", "AGRL", "GRAS", "UTRN", "DFST", "WETF", "PAST", "URHD", "DFSS", "WATR"]):
+                        parts = line.split()
+                        landuse_type = parts[0]
+                        area = float(parts[1])
+                        subbasin_data[current_subbasin]['landuse'][landuse_type] = area
+                    # Process soil data
+                    elif "Soil" in line:
+                        current_subbasin = line.strip()
+                    elif any(soil in line for soil in ["BCFBG", "BCQUC", "BCMET", "BCHIB", "BCBDS", "BC$ER", "BCCWH", "BCFWE", "BCMIL", "BCAWS", "BCCSY", "BCSWG", "BC$GP", "BCCMS", "BCCMR", "BCCFT", "BCCOA", "BCMEX", "BCPIG", "BCQIM", "BCRTE", "BCAVL", "BCREE", "BCSRA", "BCKUE", "BCSNA", "BCQUM", "BC$GD", "BCGAI", "BC$UR", "BCQUN", "BCRSW", "BCRUY", "BCSAL", "BCZZZ", "BCKAP", "BCBGT", "BCDWO", "BCHLN", "BCKOK", "BC$AN", "BCD"]):
+                        parts = line.split()
+                        soil_type = parts[0]
+                        area = float(parts[1])
+                        subbasin_data[current_subbasin]['soil'][soil_type] = area
+                    # Process slope data
+                    elif "Slope" in line:
+                        current_subbasin = line.strip()
+                    elif any(slope in line for slope in ["0-15.0", "15.0-30.0", "30.0-60.0", "60.0-9999"]):
+                        parts = line.split()
+                        slope_category = parts[0]
+                        area = float(parts[1])
+                        subbasin_data[current_subbasin]['slope'][slope_category] = area
+    
+        return watershed_data, subbasin_data
+    
+    # Load and parse data
+    file_path = DATA_FILENAME = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt
+    watershed_data, subbasin_data = parse_data(file_path)
+    
+    # Convert data into DataFrames
+    def create_dataframe(data_dict):
+        df_list = []
+        for subbasin, details in data_dict.items():
+            data = {
+                'Subbasin': subbasin,
+                'Landuse': details['landuse'],
+                'Soil': details['soil'],
+                'Slope': details['slope']
+            }
+            df_list.append(data)
+        return pd.DataFrame(df_list)
+    
+    df_subbasins = create_dataframe(subbasin_data)
+    
+    # Streamlit App Layout
+    st.title("Watershed and Subbasin Analysis")
+    
+    # Watershed Level Overview
+    st.subheader("Watershed Overview")
+    st.write(f"Total Area: {watershed_data['area']} ha")
+    st.write("Land Use Distribution:")
+    landuse_df = pd.DataFrame.from_dict(watershed_data['landuse'], orient='index', columns=['Area [ha]'])
+    landuse_df.index.name = 'Land Use Type'
+    st.write(landuse_df)
+    
+    # Land Use Visualization
+    st.subheader("Land Use Distribution")
+    fig1 = px.pie(landuse_df, values='Area [ha]', names=landuse_df.index, title="Land Use Distribution")
+    st.plotly_chart(fig1)
+    
+    # Slope Distribution
+    st.subheader("Slope Distribution in Watershed")
+    slope_df = pd.DataFrame.from_dict(watershed_data['slope'], orient='index', columns=['Area [ha]'])
+    slope_df.index.name = 'Slope Category'
+    st.write(slope_df)
+    fig2 = px.bar(slope_df, x=slope_df.index, y='Area [ha]', title="Slope Distribution")
+    st.plotly_chart(fig2)
+    
+    # Soil Distribution
+    st.subheader("Soil Distribution in Watershed")
+    soil_df = pd.DataFrame.from_dict(watershed_data['soil'], orient='index', columns=['Area [ha]'])
+    soil_df.index.name = 'Soil Type'
+    st.write(soil_df)
+    fig3 = px.bar(soil_df, x=soil_df.index, y='Area [ha]', title="Soil Distribution")
+    st.plotly_chart(fig3)
+    
+    # Subbasin Level Analysis
+    st.subheader("Subbasin Analysis")
+    subbasin_selection = st.selectbox('Select Subbasin:', df_subbasins['Subbasin'].unique())
+    
+    selected_subbasin = df_subbasins[df_subbasins['Subbasin'] == subbasin_selection]
+    
+    # Display selected subbasin details
+    st.write(f"Details for {subbasin_selection}:")
+    st.write(selected_subbasin)
+    
+    # Visualize land use, soil, and slope for the selected subbasin
+    if not selected_subbasin.empty:
+        landuse_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Landuse'].values[0], orient='index', columns=['Area [ha]'])
+        soil_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Soil'].values[0], orient='index', columns=['Area [ha]'])
+        slope_df_subbasin = pd.DataFrame.from_dict(selected_subbasin['Slope'].values[0], orient='index', columns=['Area [ha]'])
+        
+        # Land Use Visualization for Selected Subbasin
+        st.subheader(f"Land Use Distribution for {subbasin_selection}")
+        st.write(landuse_df_subbasin)
+        fig4 = px.pie(landuse_df_subbasin, values='Area [ha]', names=landuse_df_subbasin.index, title="Land Use Distribution in Selected Subbasin")
+        st.plotly_chart(fig4)
+    
+        # Slope Visualization for Selected Subbasin
+        st.subheader(f"Slope Distribution for {subbasin_selection}")
+        st.write(slope_df_subbasin)
+        fig5 = px.bar(slope_df_subbasin, x=slope_df_subbasin.index, y='Area [ha]', title="Slope Distribution in Selected Subbasin")
+        st.plotly_chart(fig5)
+    
+        # Soil Visualization for Selected Subbasin
+        st.subheader(f"Soil Distribution for {subbasin_selection}")
+        st.write(soil_df_subbasin)
+        fig6 = px.bar(soil_df_subbasin, x=soil_df_subbasin.index, y='Area [ha]', title="Soil Distribution in Selected Subbasin")
+        st.plotly_chart(fig6)
+    
+    # Additional information or interactions
+    st.write("Explore the various characteristics of the watershed and individual subbasins using the selections above.")
+    
 elif selected_option == "View Report":
     st.title("Model Validation Report")
 
