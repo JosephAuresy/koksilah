@@ -767,7 +767,7 @@ elif selected_option == "Recharge":
         return watershed_data, subbasin_data
     
     # Load and parse data
-    file_path = DATA_FILENAME = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt
+    file_path = Path(__file__).parent / 'data/LanduseSoilSlopeRepSwat.txt'
     watershed_data, subbasin_data = parse_data(file_path)
     
     # Convert data into DataFrames
