@@ -386,6 +386,24 @@ elif selected_option == "Groundwater / Surface water interactions":
     - **Shiny Green**: Change from positive to negative interaction
     - **Green**: Change from negative to positive interaction
     """)
+    
+    # Step 11: Display counts for each color category
+    st.markdown("### Color Counts for Selected Month:")
+    color_summary = pd.DataFrame.from_dict(color_counts, orient='index', columns=['Count']).reset_index()
+    color_summary.columns = ['Color', 'Count']
+    color_summary['Count'] = color_summary['Count'].astype(int)  # Convert counts to integers
+    
+    # Display the color counts as an interactive table
+    st.dataframe(color_summary)
+    
+    # Step 12: Dynamic explanation pyramid
+    st.markdown(f"### Explanation of Counts for {selected_month_name}:")
+    counts_sorted = sorted(color_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    # Creating a pyramid-like explanation
+    for color, count in counts_sorted:
+        if count > 0:
+            st.markdown(f"- **{color}**: **{count}** cells, which means... [insert detailed explanation here]")
 
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
