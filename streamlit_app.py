@@ -312,25 +312,28 @@ elif selected_option == "Groundwater / Surface water interactions":
     for _, row in pivoted.iterrows():
         row_vals = row.drop(['Row', 'Column']).values  # Extract monthly values for this location
         
-        # Detect month-to-month changes (e.g., -1 to 1 or 1 to -1 indicates a change)
-        month_to_month_changes = np.diff(np.sign(row_vals))
+        # Compare each month to the previous one, wrapping December with January
+        sign_changes = np.sign(row_vals) != np.roll(np.sign(row_vals), 1)
         
-        # Check if there are continuous changes month-to-month
-        if np.any(month_to_month_changes != 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow: Monthly fluctuations
+        # Ignore the first comparison (wrap-around with December)
+        sign_changes[0] = False  
         
-        # Check if all values are positive (water going to aquifer)
+        # If there is any change from positive to negative or vice versa, mark as yellow
+        if np.any(sign_changes):
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow: Sign change detected
+        
+        # If all values are positive, it's consistently positive (water to aquifer)
         elif np.all(row_vals > 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Brown: Positive all year
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Brown: Always positive
         
-        # Check if all values are negative (water going to river)
+        # If all values are negative, it's consistently negative (water to river)
         elif np.all(row_vals < 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Blue: Negative all year
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Blue: Always negative
     
-    # Step 6: Define a custom color scale (with blue for negatives, brown for positives, and yellow for frequent changes)
+    # Step 6: Define a custom color scale (blue for negatives, yellow for sign changes, brown for positives)
     colorscale = [
         [0.0, 'blue'],   # Gaining stream (water to river)
-        [0.5, 'yellow'], # Yellow for frequent month-to-month changes
+        [0.5, 'yellow'], # Yellow for sign change (from positive to negative or vice versa)
         [1.0, 'brown']   # Losing stream (water to aquifer)
     ]
     
