@@ -445,23 +445,23 @@ elif selected_option == "Groundwater / Surface water interactions":
     else:
         st.warning("Image 'riv_groundwater.png' not found in the data folder.")
 
-# Hotspot Analysis Function
-def hotspot_analysis(data):
-    # Compute the z-scores of the Rate values
-    data['z_score'] = zscore(data['Rate'])
-    # Identify significant clusters
-    significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
-    return significant_hotspots
-
-# Distance Analysis Function
-def distance_analysis(data):
-    # Calculate distances to key features (assuming they are provided)
-    key_features = np.array([[1, 1], [2, 2]])  # Example coordinates of key features
-    locations = data[['Row', 'Column']].values
-    distances = pairwise_distances(locations, key_features)
-    data['distance_to_key_feature'] = distances.min(axis=1)
-    return data
+    # Hotspot Analysis Function
+    def hotspot_analysis(data):
+        # Compute the z-scores of the Rate values
+        data['z_score'] = zscore(data['Rate'])
+        # Identify significant clusters
+        significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
+        return significant_hotspots
     
+    # Distance Analysis Function
+    def distance_analysis(data):
+        # Calculate distances to key features (assuming they are provided)
+        key_features = np.array([[1, 1], [2, 2]])  # Example coordinates of key features
+        locations = data[['Row', 'Column']].values
+        distances = pairwise_distances(locations, key_features)
+        data['distance_to_key_feature'] = distances.min(axis=1)
+        return data
+        
     # Change Detection Function
     def change_detection(data):
         # Identify changes over time
