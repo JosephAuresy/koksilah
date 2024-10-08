@@ -449,43 +449,74 @@ elif selected_option == "Groundwater / Surface water interactions":
 
     # Hotspot Analysis Function
     def hotspot_analysis(data):
+        """
+        This function identifies significant hotspots in the dataset based on z-scores.
+        A hotspot is defined as a location where the 'Rate' is significantly higher or lower 
+        than the mean value of the dataset, determined by z-scores.
+        """
         # Compute the z-scores of the Rate values
         data['z_score'] = zscore(data['Rate'])
-        # Identify significant clusters
-        significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
+        # Identify significant clusters based on z-scores
+        # Using a threshold of 1.96 to identify hotspots, corresponding to a 95% confidence interval
+        significant_hotspots = data[np.abs(data['z_score']) > 1.96]
+        
+        # Plot histogram of the Rate values
+        plt.figure(figsize=(10, 6))  # Set figure size
+        plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
+        plt.axvline(data['Rate'].mean(), color='red', linestyle='dashed', linewidth=1, label='Mean')  # Add mean line
+        plt.axvline(data['Rate'].mean() + 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
+        plt.axvline(data['Rate'].mean() - 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
+        plt.title('Histogram of Rate Values')  # Title for the histogram
+        plt.xlabel('Rate')  # X-axis label
+        plt.ylabel('Frequency')  # Y-axis label
+        plt.legend()  # Show legend
+        plt.show()  # Display histogram
+        
         return significant_hotspots
     
     # Distance Analysis Function
     def distance_analysis(data):
-        # Calculate distances to key features (assuming they are provided)
+        """
+        This function calculates the distance of each location in the dataset to key features.
+        Key features are defined as specific coordinates of interest (e.g., facilities, landmarks).
+        """
+        # Assuming the key features are provided as a set of coordinates
         key_features = np.array([[1, 1], [2, 2]])  # Example coordinates of key features
-        locations = data[['Row', 'Column']].values
+        locations = data[['Row', 'Column']].values  # Extracting the location coordinates
+        # Calculate the pairwise distances from each location to the key features
         distances = pairwise_distances(locations, key_features)
+        # Store the minimum distance to the nearest key feature for each location
         data['distance_to_key_feature'] = distances.min(axis=1)
         return data
-        
+    
     # Change Detection Function
     def change_detection(data):
-        # Identify changes over time
-        data['change'] = data['Rate'].diff().fillna(0)  # Change over the previous entry
+        """
+        This function identifies changes in the 'Rate' values over time.
+        It calculates the difference in the 'Rate' between consecutive entries 
+        to detect any significant changes.
+        """
+        # Calculate the change in the 'Rate' column compared to the previous entry
+        data['change'] = data['Rate'].diff().fillna(0)  # Fill NA values with 0
+        # Filter the dataset to only include rows where a change is detected
         changes = data[data['change'] != 0]
         return changes
     
     # Hotspot Analysis Button
     if st.button('Run Hotspot Analysis'):
-        hotspots = hotspot_analysis(df)
-        st.write('Hotspots Identified:', hotspots)
+        hotspots = hotspot_analysis(df)  # Call the hotspot analysis function
+        st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
     
     # Distance Analysis Button
     if st.button('Run Distance Analysis'):
-        distances = distance_analysis(df)
-        st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])
+        distances = distance_analysis(df)  # Call the distance analysis function
+        st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
     
     # Change Detection Button
     if st.button('Run Change Detection'):
-        changes = change_detection(df)
-        st.write('Changes Detected:', changes[['Row', 'Column', 'change']])
-
+        changes = change_detection(df)  # Call the change detection function
+        st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
+    
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
