@@ -421,7 +421,9 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Create a pie chart with formatted percentages
     pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
     
-    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
+    #fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
+    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors))])
+
     
     # Update pie chart layout with formatted percentages
     # fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
