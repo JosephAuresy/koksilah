@@ -449,6 +449,49 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Filter data for the selected month
     selected_month_data = monthly_stats[monthly_stats['Month'] == selected_month]
+
+    # Definitions and Formulas Section
+    st.header('Spatial Analysis Definitions and Formulas')
+    
+    # Hotspot Analysis Definition
+    st.subheader('Hotspot Analysis')
+    st.write("""
+    This analysis identifies significant hotspots in the dataset based on z-scores. 
+    A hotspot is defined as a location where the 'Rate' is significantly higher or lower than the mean value of the dataset.
+    """)
+    st.write("**Formula:**")
+    st.latex(r'z = \frac{(X - \mu)}{\sigma}')
+    st.write("""
+    Where:
+    - \(X\) = individual observation
+    - \(\mu\) = mean of the dataset
+    - \(\sigma\) = standard deviation of the dataset
+    """)
+    
+    # Distance Analysis Definition
+    st.subheader('Distance Analysis')
+    st.write("""
+    This analysis calculates the distance of each location in the dataset to key features.
+    Key features may include specific coordinates of interest such as facilities or landmarks.
+    """)
+    st.write("**Formula:**")
+    st.write("For two points \((x_1, y_1)\) and \((x_2, y_2)\), the distance \(d\) is calculated as:")
+    st.latex(r'd = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}')
+    
+    # Change Detection Definition
+    st.subheader('Change Detection')
+    st.write("""
+    This analysis identifies changes in the 'Rate' values over time. 
+    It calculates the difference in the 'Rate' between consecutive entries to detect any significant changes.
+    """)
+    st.write("**Formula:**")
+    st.write("The change \(C\) is calculated as:")
+    st.latex(r'C = R_t - R_{t-1}')
+    st.write("""
+    Where:
+    - \(R_t\) = Rate at time \(t\)
+    - \(R_{t-1}\) = Rate at the previous time step
+    """)
     
     # Hotspot Analysis Function
     def hotspot_analysis(data):
