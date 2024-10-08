@@ -446,7 +446,17 @@ elif selected_option == "Groundwater / Surface water interactions":
             st.error(f"Failed to load image: {e}")
     else:
         st.warning("Image 'riv_groundwater.png' not found in the data folder.")
+
+    # Streamlit Interface
+    st.title('Spatial Analysis App')  # Title of the Streamlit app
     
+    # Dropdown to select the month
+    selected_month_name = st.selectbox("Select a Month", unique_month_names, index=0)
+    selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    
+    # Filter data for the selected month
+    selected_month_data = monthly_stats[monthly_stats['Month'] == selected_month]
+        
     # Hotspot Analysis Function
     def hotspot_analysis(data):
         """
