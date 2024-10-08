@@ -704,23 +704,18 @@ elif selected_option == "Recharge":
 
     # Display the plotly heatmap in Streamlit
     st.plotly_chart(fig_recharge, use_container_width=True)
-    
-    # Load your subbasin and grid data (GeoDataFrames)
-    subbasins_gdf = gpd.read_file('path_to_your_subbasin_shapefile.shp')  # Replace with your path
-    grid_gdf = gpd.read_file('path_to_your_grid_shapefile.shp')  # Replace with your path
-    
+
     # Initialize the map centered on Duncan
-    initial_location = [48.778, -123.700]  # Adjust based on your location
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-    # Add the subbasins layer to the map
+    # Add the subbasins layer to the map with tooltips for subbasin numbers
     subbasins_layer = folium.GeoJson(
         subbasins_gdf,
         name="Subbasins",
         style_function=lambda x: {'color': 'green', 'weight': 2},
-        tooltip=folium.GeoJsonTooltip(fields=['subbasin_number'],  # Adjust to your subbasin identifier
+        tooltip=folium.GeoJsonTooltip(fields=['subbasin_number'],  # Change 'subbasin_number' to your actual field name
                                        aliases=['Subbasin: '],
-                                       localize=True),
+                                       localize=True)
     ).add_to(m)
     
     # Add the grid layer to the map
@@ -742,14 +737,14 @@ elif selected_option == "Recharge":
     st.title("Watershed Map")
     st_folium(m, width=700, height=600)
     
-    # Optional: Show subbasin data in a sidebar or main area when selected
-    if st.sidebar.button('Show Selected Subbasin Data'):
-        # Get the selected subbasin number (you'll need to implement a method to capture this)
-        selected_subbasin_number = st.sidebar.text_input("Enter Subbasin Number:")
-        if selected_subbasin_number:
-            # Filter and display information for the selected subbasin
-            selected_data = subbasins_gdf[subbasins_gdf['subbasin_number'] == selected_subbasin_number]  # Adjust field name
+    # Optionally, add additional functionality to display data for the selected subbasin
+    selected_subbasin = st.sidebar.text_input("Enter Subbasin Number:")
+    if selected_subbasin:
+        try:
+            selected_data = subbasins_gdf[subbasins_gdf['subbasin_number'] == selected_subbasin]  # Adjust field name
             st.write(selected_data)
+        except KeyError:
+            st.error("Subbasin number not found.")
 
   
     # Parsing data from file
