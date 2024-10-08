@@ -436,7 +436,12 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Check if the image exists before displaying
     if ground.is_file():
-        st.image(ground, caption='Groundwater and River Interaction', use_column_width=True)
+        try:
+            # Try to open the image using PIL
+            image = Image.open(ground)
+            st.image(image, caption='Groundwater and River Interaction', use_column_width=True)
+        except Exception as e:
+            st.error(f"Failed to load image: {e}")
     else:
         st.warning("Image 'riv_groundwater.png' not found in the data folder.")
 
