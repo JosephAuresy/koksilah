@@ -409,7 +409,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     color_counts = count_cells_per_color(grid)
     
     # Prepare data for pie chart
-    color_names = ['Dark Blue', 'Light Blue', 'Yellow', 'Brown', 'Shiny Green', 'Light Pink']
+    color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
     color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
                     color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
     
@@ -424,8 +424,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='label+percent')])
     
     # Update pie chart layout with formatted percentages
-    fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
-    fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
+    # fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
+    # fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
     
     # Display pie chart
     st.plotly_chart(fig)
@@ -540,105 +540,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Button to plot histogram
     if st.button('Plot Histogram'):
         plot_histogram(selected_month_data)  # Call the histogram plotting function
-    
-    # # Initialize the map centered on Duncan
-    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-
-    # # Add the subbasins layer to the map but keep it initially turned off
-    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
-    #                                 name="Subbasins", 
-    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
-    #                                 # show=False  # Keep the layer off initially
-    #                                 ).add_to(m)
-
-    # # Add the grid layer to the map but keep it initially turned off
-    # grid_layer = folium.GeoJson(grid_gdf, 
-    #                             name="Grid", 
-    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
-    #                             show=False  # Keep the layer off initially
-    #                         ).add_to(m)
-
-    # # Add MousePosition to display coordinates
-    # MousePosition().add_to(m)
-
-    # # Add a layer control to switch between the subbasins and grid layers
-    # folium.LayerControl().add_to(m)
-
-    # # Render the Folium map in Streamlit
-    # st.title("Watershed Map")
-    # st_folium(m, width=700, height=600)  
         
-    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
-    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
-
-    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
-    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
-
-    # unique_months = sorted(monthly_stats['Month'].unique())
-    # unique_month_names = [month_names[m - 1] for m in unique_months]
-
-    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
-    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
-    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
-
-    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
-    
-    # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
-
-    # for _, row in df_filtered.iterrows():
-    #     grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
-
-    # # Define color scale and boundaries for heatmap
-    # if stat_type == 'Standard Deviation':
-    #     zmin = 0
-    #     zmax = global_max
-    # else:
-    #     zmin = global_min
-    #     zmax = global_max
-
-    # colorbar_title = (
-    #     "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
-    #     if stat_type == 'Average Rate [m³/day]' 
-    #     else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
-    # )
-
-    # # Calculate the midpoint for the color bar (usually zero)
-    # zmid = 0
-
-    # # Create the heatmap figure
-    # fig = go.Figure(data=go.Heatmap(
-    #     z=grid,
-    #     colorscale='earth_r',
-    #     zmid=zmid,
-    #     zmin=zmin,
-    #     zmax=zmax,
-    #     colorbar=dict(
-    #         title=colorbar_title, 
-    #         orientation='h', 
-    #         x=0.5, 
-    #         y=-0.1, 
-    #         xanchor='center', 
-    #         yanchor='top',
-    #         tickvals=[zmin, 0, zmax],  # Specify tick positions
-    #         ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
-    #     ),
-    #     hovertemplate='%{z:.2f}<extra></extra>',
-    # ))
-
-    # fig.update_layout(
-    #     title=f'{stat_type} for Month {selected_month}',
-    #     xaxis_title=None,
-    #     yaxis_title=None,
-    #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-    #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #     paper_bgcolor='white',
-    #     font=dict(family='Arial, sans-serif', size=8, color='black')
-    # )
-
-    # # Display the heatmap
-    # st.plotly_chart(fig)
-    
 elif selected_option == "Recharge":
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
 
@@ -961,3 +863,104 @@ elif selected_option == "View Report":
     
     # iframe_width, iframe_height = get_iframe_dimensions()
     # st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
+
+#Extra comments ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+
+    # # Add the subbasins layer to the map but keep it initially turned off
+    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
+    #                                 name="Subbasins", 
+    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
+    #                                 # show=False  # Keep the layer off initially
+    #                                 ).add_to(m)
+
+    # # Add the grid layer to the map but keep it initially turned off
+    # grid_layer = folium.GeoJson(grid_gdf, 
+    #                             name="Grid", 
+    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #                             show=False  # Keep the layer off initially
+    #                         ).add_to(m)
+
+    # # Add MousePosition to display coordinates
+    # MousePosition().add_to(m)
+
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
+
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)  
+        
+    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+
+    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
+    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
+
+    # unique_months = sorted(monthly_stats['Month'].unique())
+    # unique_month_names = [month_names[m - 1] for m in unique_months]
+
+    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
+    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
+
+    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
+    
+    # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+
+    # for _, row in df_filtered.iterrows():
+    #     grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
+
+    # # Define color scale and boundaries for heatmap
+    # if stat_type == 'Standard Deviation':
+    #     zmin = 0
+    #     zmax = global_max
+    # else:
+    #     zmin = global_min
+    #     zmax = global_max
+
+    # colorbar_title = (
+    #     "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
+    #     if stat_type == 'Average Rate [m³/day]' 
+    #     else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
+    # )
+
+    # # Calculate the midpoint for the color bar (usually zero)
+    # zmid = 0
+
+    # # Create the heatmap figure
+    # fig = go.Figure(data=go.Heatmap(
+    #     z=grid,
+    #     colorscale='earth_r',
+    #     zmid=zmid,
+    #     zmin=zmin,
+    #     zmax=zmax,
+    #     colorbar=dict(
+    #         title=colorbar_title, 
+    #         orientation='h', 
+    #         x=0.5, 
+    #         y=-0.1, 
+    #         xanchor='center', 
+    #         yanchor='top',
+    #         tickvals=[zmin, 0, zmax],  # Specify tick positions
+    #         ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
+    #     ),
+    #     hovertemplate='%{z:.2f}<extra></extra>',
+    # ))
+
+    # fig.update_layout(
+    #     title=f'{stat_type} for Month {selected_month}',
+    #     xaxis_title=None,
+    #     yaxis_title=None,
+    #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+    #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #     paper_bgcolor='white',
+    #     font=dict(family='Arial, sans-serif', size=8, color='black')
+    # )
+
+    # # Display the heatmap
+    # st.plotly_chart(fig)
+
