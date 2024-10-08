@@ -446,7 +446,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             st.error(f"Failed to load image: {e}")
     else:
         st.warning("Image 'riv_groundwater.png' not found in the data folder.")
-
+    
     # Hotspot Analysis Function
     def hotspot_analysis(data):
         """
@@ -457,9 +457,8 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Compute the z-scores of the Rate values
         data['z_score'] = zscore(data['Rate'])
         # Identify significant clusters based on z-scores
-        # Using a threshold of 1.96 to identify hotspots, corresponding to a 95% confidence interval
-        significant_hotspots = data[np.abs(data['z_score']) > 1.96]
-        
+        significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
+    
         # Plot histogram of the Rate values
         plt.figure(figsize=(10, 6))  # Set figure size
         plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
@@ -470,8 +469,11 @@ elif selected_option == "Groundwater / Surface water interactions":
         plt.xlabel('Rate')  # X-axis label
         plt.ylabel('Frequency')  # Y-axis label
         plt.legend()  # Show legend
-        plt.show()  # Display histogram
-        
+    
+        # Show the plot in Streamlit
+        st.pyplot(plt)  # Render the plot within the Streamlit app
+        plt.clf()  # Clear the current figure to avoid overlapping plots
+    
         return significant_hotspots
     
     # Distance Analysis Function
@@ -502,20 +504,29 @@ elif selected_option == "Groundwater / Surface water interactions":
         changes = data[data['change'] != 0]
         return changes
     
-    # Hotspot Analysis Button
-    if st.button('Run Hotspot Analysis'):
-        hotspots = hotspot_analysis(df)  # Call the hotspot analysis function
-        st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
+    # Streamlit Interface
+    st.title('Spatial Analysis App')  # Title of the Streamlit app
     
-    # Distance Analysis Button
-    if st.button('Run Distance Analysis'):
-        distances = distance_analysis(df)  # Call the distance analysis function
-        st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
+    # Upload CSV file
+    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)  # Load the data into a DataFrame
+        st.write('Data Loaded:', df.head())  # Display the first few rows of the data
     
-    # Change Detection Button
-    if st.button('Run Change Detection'):
-        changes = change_detection(df)  # Call the change detection function
-        st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
+        # Hotspot Analysis Button
+        if st.button('Run Hotspot Analysis'):
+            hotspots = hotspot_analysis(df)  # Call the hotspot analysis function
+            st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
+    
+        # Distance Analysis Button
+        if st.button('Run Distance Analysis'):
+            distances = distance_analysis(df)  # Call the distance analysis function
+            st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
+    
+        # Change Detection Button
+        if st.button('Run Change Detection'):
+            changes = change_detection(df)  # Call the change detection function
+            st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
     
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
