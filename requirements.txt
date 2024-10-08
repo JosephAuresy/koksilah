@@ -15,3 +15,5 @@ point
 pillow
 rasterio
 matplotlib
+scikit-learn
+scipy
