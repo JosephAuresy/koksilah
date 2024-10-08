@@ -382,16 +382,16 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Step 9: Display the heatmap
         st.plotly_chart(fig)
     
-        # Step 10: Add a legend to explain the color coding
-        st.markdown("""
-        ### Color Legend:
-        - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
-        - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
-        - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
-        - **Brown**: Positive interaction (groundwater going into aquifer, >1)
-        - **Shiny Green**: Change from positive to negative interaction
-        - **Light Pink**: Change from negative to positive interaction
-        """)
+        # # Step 10: Add a legend to explain the color coding
+        # st.markdown("""
+        # ### Color Legend:
+        # - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
+        # - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
+        # - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
+        # - **Brown**: Positive interaction (groundwater going into aquifer, >1)
+        # - **Shiny Green**: Change from positive to negative interaction
+        # - **Light Pink**: Change from negative to positive interaction
+        # """)
     
     # Create a function to count cells per color
     def count_cells_per_color(grid):
@@ -421,7 +421,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Create a pie chart with formatted percentages
     pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
     
-    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='label+percent')])
+    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
     
     # Update pie chart layout with formatted percentages
     # fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
