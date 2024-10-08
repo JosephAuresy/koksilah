@@ -313,23 +313,33 @@ elif selected_option == "Groundwater / Surface water interactions":
         row_vals = row.drop(['Row', 'Column']).values  # Extract monthly values for this location
         # Get the value for the selected month
         value = row_vals[selected_month - 1]
-        
-        # Classify based on the value ranges:
-        if value < -50:
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Dark Blue
-        elif -50 <= value < -10:
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Light Blue
-        elif -10 <= value <= 1:
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow
-        elif value > 1:
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 3  # Brown
+        # Get the previous month value (December if January)
+        prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
     
-    # Step 6: Define a custom color scale
+        # Classify based on the value ranges and changes between months:
+        if value < -50:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Dark Blue (strong negative)
+        elif -50 <= value < -10:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Light Blue (moderate negative)
+        elif -10 <= value <= 1:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow (near-zero)
+        elif value > 1:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 3  # Brown (positive, to aquifer)
+    
+        # Check for changes in sign between months and assign green colors
+        if prev_month_value > 0 and value < 0:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 4  # Shiny Green (positive to negative)
+        elif prev_month_value < 0 and value > 0:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 5  # Green (negative to positive)
+    
+    # Step 6: Define a custom color scale with shiny green and green for sign changes
     colorscale = [
         [0.0, 'darkblue'],   # -50 to -1000 (dark blue for strong groundwater to river)
-        [0.33, 'lightblue'], # -10 to -50 (light blue for moderate groundwater to river)
-        [0.66, 'yellow'],    # -10 to 1 (yellow for near-zero fluctuation)
-        [1.0, 'brown']       # >1 (brown for groundwater going into aquifer)
+        [0.2, 'lightblue'],  # -10 to -50 (light blue for moderate groundwater to river)
+        [0.4, 'yellow'],     # -10 to 1 (yellow for near-zero fluctuation)
+        [0.6, 'brown'],      # >1 (brown for groundwater going into aquifer)
+        [0.8, 'limegreen'],  # Shiny green for positive to negative change
+        [1.0, 'green']       # Green for negative to positive change
     ]
     
     # Step 7: Create the heatmap for the selected month
@@ -337,9 +347,12 @@ elif selected_option == "Groundwater / Surface water interactions":
         z=grid,
         colorscale=colorscale,
         zmin=0,  # Minimum category (dark blue)
-        zmax=3,  # Maximum category (brown)
+        zmax=5,  # Maximum category (green for changes)
         showscale=False,  # Hide scale since colors represent categories
-        hovertemplate='Row: %{y}, Column: %{x}, Rate: %{z:.2f} <extra></extra>',
+        hoverinfo='text',  # Show real values in hover
+        text=[['Row: {}, Column: {}, Value: {:.2f}'.format(int(row['Row']), int(row['Column']), row_vals[selected_month - 1]) 
+               for row in pivoted.itertuples()] 
+               for _ in range(int(df['Row'].max()))],  # Generate hover text with real values
     ))
     
     # Step 8: Update the layout of the heatmap
@@ -356,7 +369,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Step 9: Display the heatmap
     st.plotly_chart(fig)
-
     # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
 
