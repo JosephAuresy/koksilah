@@ -308,50 +308,41 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Step 4: Create a grid to store color codes
     grid = np.full((int(df['Row'].max()), int(df['Column'].max())), np.nan)
     
-    # Step 5: Analyze each location (Row, Column) for changes
+    # Step 5: Analyze each location (Row, Column) for changes and classify values
     for _, row in pivoted.iterrows():
         row_vals = row.drop(['Row', 'Column']).values  # Extract monthly values for this location
+        # Get the value for the selected month
+        value = row_vals[selected_month - 1]
         
-        # Compare each month to the previous one, wrapping December with January
-        sign_changes = np.sign(row_vals) != np.roll(np.sign(row_vals), 1)
-        
-        # Ignore the first comparison (wrap-around with December)
-        sign_changes[0] = False  
-        
-        # If there is any change from positive to negative or vice versa, mark as yellow
-        if np.any(sign_changes):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow: Sign change detected
-        
-        # If all values are positive, it's consistently positive (water to aquifer)
-        elif np.all(row_vals > 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Brown: Always positive
-        
-        # If all values are negative, it's consistently negative (water to river)
-        elif np.all(row_vals < 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Blue: Always negative
+        # Classify based on the value ranges:
+        if value < -50:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Dark Blue
+        elif -50 <= value < -10:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 1  # Light Blue
+        elif -10 <= value <= 1:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow
+        elif value > 1:
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 3  # Brown
     
-    # Step 6: Define a custom color scale (blue for negatives, yellow for sign changes, brown for positives)
+    # Step 6: Define a custom color scale
     colorscale = [
-        [0.0, 'blue'],   # Gaining stream (water to river)
-        [0.5, 'yellow'], # Yellow for sign change (from positive to negative or vice versa)
-        [1.0, 'brown']   # Losing stream (water to aquifer)
+        [0.0, 'darkblue'],   # -50 to -1000 (dark blue for strong groundwater to river)
+        [0.33, 'lightblue'], # -10 to -50 (light blue for moderate groundwater to river)
+        [0.66, 'yellow'],    # -10 to 1 (yellow for near-zero fluctuation)
+        [1.0, 'brown']       # >1 (brown for groundwater going into aquifer)
     ]
     
     # Step 7: Create the heatmap for the selected month
-    df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
-    for _, row in df_filtered.iterrows():
-        grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Rate']
-    
-    # Step 8: Create the heatmap figure
     fig = go.Figure(data=go.Heatmap(
         z=grid,
         colorscale=colorscale,
-        zmid=0,  # Midpoint at zero
+        zmin=0,  # Minimum category (dark blue)
+        zmax=3,  # Maximum category (brown)
         showscale=False,  # Hide scale since colors represent categories
         hovertemplate='Row: %{y}, Column: %{x}, Rate: %{z:.2f} <extra></extra>',
     ))
     
-    # Step 9: Update the layout of the heatmap
+    # Step 8: Update the layout of the heatmap
     fig.update_layout(
         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
         xaxis_title='Column',
@@ -363,7 +354,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         font=dict(family='Arial, sans-serif', size=8, color='black')
     )
     
-    # Step 10: Display the heatmap
+    # Step 9: Display the heatmap
     st.plotly_chart(fig)
 
     # # Initialize the map centered on Duncan
