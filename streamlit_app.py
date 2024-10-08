@@ -315,13 +315,9 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Detect month-to-month changes (e.g., -1 to 1 or 1 to -1 indicates a change)
         month_to_month_changes = np.diff(np.sign(row_vals))
         
-        # Check if any value changes from positive to negative (or vice versa) at least once
-        if np.any(np.diff(np.sign(row_vals)) != 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Green: Changed at least once
-            
         # Check if there are continuous changes month-to-month
         if np.any(month_to_month_changes != 0):
-            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 3  # Yellow: Monthly fluctuations
+            grid[int(row['Row']) - 1, int(row['Column']) - 1] = 2  # Yellow: Monthly fluctuations
         
         # Check if all values are positive (water going to aquifer)
         elif np.all(row_vals > 0):
@@ -331,11 +327,10 @@ elif selected_option == "Groundwater / Surface water interactions":
         elif np.all(row_vals < 0):
             grid[int(row['Row']) - 1, int(row['Column']) - 1] = 0  # Blue: Negative all year
     
-    # Step 6: Define a custom color scale (with blue for negatives, brown for positives, green and yellow for changes)
+    # Step 6: Define a custom color scale (with blue for negatives, brown for positives, and yellow for frequent changes)
     colorscale = [
         [0.0, 'blue'],   # Gaining stream (water to river)
-        [0.33, 'green'], # Green for transition zones (changing from negative to positive at least once)
-        [0.66, 'yellow'], # Yellow for frequent month-to-month changes
+        [0.5, 'yellow'], # Yellow for frequent month-to-month changes
         [1.0, 'brown']   # Losing stream (water to aquifer)
     ]
     
