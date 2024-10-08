@@ -468,16 +468,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     - \(\sigma\) = standard deviation of the dataset
     """)
     
-    # Distance Analysis Definition
-    st.subheader('Distance Analysis')
-    st.write("""
-    This analysis calculates the distance of each location in the dataset to key features.
-    Key features may include specific coordinates of interest such as facilities or landmarks.
-    """)
-    st.write("**Formula:**")
-    st.write("For two points \((x_1, y_1)\) and \((x_2, y_2)\), the distance \(d\) is calculated as:")
-    st.latex(r'd = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}')
-    
     # Change Detection Definition
     st.subheader('Change Detection')
     st.write("""
@@ -505,22 +495,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Identify significant clusters based on z-scores
         significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
         return significant_hotspots
-    
-    # Distance Analysis Function
-    def distance_analysis(data):
-        """
-        This function calculates the distance of each location in the dataset to key features.
-        Key features are defined as specific coordinates of interest (e.g., facilities, landmarks).
-        """
-        # Assuming the key features are provided as a set of coordinates
-        key_features = np.array([[1, 1], [2, 2]])  # Example coordinates of key features
-        locations = data[['Row', 'Column']].values  # Extracting the location coordinates
-        # Calculate the pairwise distances from each location to the key features
-        distances = pairwise_distances(locations, key_features)
-        # Store the minimum distance to the nearest key feature for each location
-        data['distance_to_key_feature'] = distances.min(axis=1)
-        return data
-    
+
     # Change Detection Function
     def change_detection(data):
         """
@@ -538,11 +513,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     if st.button('Run Hotspot Analysis'):
         hotspots = hotspot_analysis(selected_month_data)  # Call the hotspot analysis function
         st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
-    
-    # Distance Analysis Button
-    if st.button('Run Distance Analysis'):
-        distances = distance_analysis(selected_month_data)  # Call the distance analysis function
-        st.write('Distances to Key Features:', distances[['Row', 'Column', 'distance_to_key_feature']])  # Display distances
     
     # Change Detection Button
     if st.button('Run Change Detection'):
