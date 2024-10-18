@@ -1015,23 +1015,73 @@ elif selected_option == "Forest hydrology":
     ### Evapotranspiration Dynamics
     Analyze the ET dynamics based on your selected parameters.
     """)
-    et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
-    et = et_factor * area  # Total ET for the selected HRU area
+    # Function to calculate ET, SWS, Root Biomass, and Recharge
+    def calculate_hydrology(BLAI, stage1_fraction, stage2_fraction, LAIMX1, LAIMX2, PET, SWS_max, SWS, runoff):
+        # Calculate LAI for both stages
+        LAI_stage1 = BLAI * stage1_fraction
+        LAI_stage2 = BLAI * stage2_fraction
     
-    # Display ET result
-    st.subheader("Evapotranspiration Result")
-    st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+        # Calculate Actual ET for both stages
+        ET_stage1 = PET * (SWS / SWS_max) * stage1_fraction
+        ET_stage2 = PET * (SWS / SWS_max) * stage2_fraction
     
-    # Create Plotly visualization for ET
-    et_fig = go.Figure()
-    et_fig.add_trace(go.Indicator(
-        mode="number+gauge+delta",
-        value=et,
-        title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
-        gauge={'axis': {'range': [0, 3000]}}
-    ))
-    st.plotly_chart(et_fig)
-
+        # Calculate new SWS after ET
+        SWS_after_ET = SWS - ET_stage1 - ET_stage2
+    
+        # Calculate Root Biomass (example k value can be adjusted based on plant type)
+        k = 1  # Adjust this based on specific plant characteristics
+        Root_Biomass = k * (BLAI**2 / SWS_max)
+    
+        # Calculate Recharge
+        Recharge = SWS_after_ET - runoff
+    
+        return ET_stage1, ET_stage2, SWS_after_ET, Root_Biomass, Recharge
+    
+    # Streamlit UI
+    st.title("Hydrology Calculator")
+    
+    # User Inputs for Hydrology
+    st.markdown("""
+    ### Evapotranspiration Dynamics
+    Analyze the ET dynamics based on your selected parameters.
+    """)
+    BLAI = st.number_input("Enter Biomass Leaf Area Index (BLAI):", value=2.5)
+    stage1_fraction = st.number_input("Fraction of Growing Season (Stage 1):", value=0.5)
+    stage2_fraction = st.number_input("Fraction of Growing Season (Stage 2):", value=0.5)
+    LAIMX1 = st.number_input("Maximum LAI for Stage 1 (LAIMX1):", value=3.0)
+    LAIMX2 = st.number_input("Maximum LAI for Stage 2 (LAIMX2):", value=2.5)
+    PET = st.number_input("Enter Potential Evapotranspiration (PET) (mm):", value=100.0)
+    SWS_max = st.number_input("Enter Maximum Soil Water Storage (SWS_max) (mm):", value=200.0)
+    SWS = st.number_input("Enter Current Soil Water Storage (SWS) (mm):", value=120.0)
+    runoff = st.number_input("Enter Runoff (mm):", value=20.0)
+    
+    # Button to Calculate Hydrology
+    if st.button("Calculate Hydrology"):
+        ET_stage1, ET_stage2, SWS_after_ET, Root_Biomass, Recharge = calculate_hydrology(
+            BLAI, stage1_fraction, stage2_fraction, LAIMX1, LAIMX2, PET, SWS_max, SWS, runoff)
+    
+        # Display ET result
+        st.subheader("Evapotranspiration Result")
+        total_et = ET_stage1 + ET_stage2
+        st.write(f"- **Evapotranspiration (Total) (mm)**: {total_et:.2f} mm")
+        
+        # Create Plotly visualization for ET
+        et_fig = go.Figure()
+        et_fig.add_trace(go.Indicator(
+            mode="number+gauge+delta",
+            value=total_et,
+            title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+            gauge={'axis': {'range': [0, 3000]}}
+        ))
+        st.plotly_chart(et_fig)
+    
+        # Display other results
+        st.subheader("Hydrology Results")
+        st.write(f"Actual Evapotranspiration (Stage 1): {ET_stage1:.2f} mm")
+        st.write(f"Actual Evapotranspiration (Stage 2): {ET_stage2:.2f} mm")
+        st.write(f"Soil Water Storage after ET: {SWS_after_ET:.2f} mm")
+        st.write(f"Root Biomass: {Root_Biomass:.2f} kg/m²")
+        st.write(f"Groundwater Recharge: {Recharge:.2f} mm")
     # Conclusion
     st.markdown("""
     ### Conclusion
