@@ -934,6 +934,66 @@ elif selected_option == "Forest hydrology":
         },
     }
     
+    st.title("Quick Learning: Forest Ecosystem Dynamics")
+    
+    # Predefined Scenarios for Quick Access
+    st.sidebar.header("Select a Quick Scenario")
+    species = st.sidebar.selectbox("Choose a Tree Species:", options=list(parameters.keys()))
+    age = st.sidebar.selectbox("Select Tree Age (Years):", options=[5, 10, 20, 30, 60, 100, 200, 500])
+    
+    # Fetch parameters
+    param_values = parameters[species].get(age, None)
+    
+    if param_values:
+        # Create a DataFrame for better visualization
+        param_df = pd.DataFrame({
+            "Parameter": ["BLAI", "Stage 1 Fraction", "Stage 2 Fraction", "LAIMX1", "LAIMX2"],
+            "Value": param_values
+        })
+        
+        # Display parameters in a table
+        st.subheader(f"Parameters for {species} at {age} Years")
+        st.table(param_df)
+    
+        # Tooltips for explanations
+        st.markdown("""
+        - **BLAI**: Biomass Leaf Area Index; higher values = more foliage.
+        - **Stage 1 Fraction**: Active growing season proportion.
+        - **Stage 2 Fraction**: Slower growth proportion.
+        - **LAIMX1**: Maximum LAI during active growth.
+        - **LAIMX2**: Maximum LAI during the second growth stage.
+        """)
+    
+        # Calculate Evapotranspiration (ET)
+        et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
+        area = 100  # You can also make this interactive
+        et = et_factor * area  # Total ET for the selected HRU area
+        
+        # Display ET result
+        st.subheader("Evapotranspiration Result")
+        st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+    
+        # Create Plotly visualization for ET
+        et_fig = go.Figure()
+        et_fig.add_trace(go.Indicator(
+            mode="number+gauge+delta",
+            value=et,
+            title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+            gauge={'axis': {'range': [0, 3000]}}
+        ))
+        st.plotly_chart(et_fig)
+    
+        # Summary button for quick overview
+        if st.button("Get Summary"):
+            st.success(f"Summary:\n- Species: {species}\n- Age: {age} Years\n- ET: {et:.2f} mm")
+    
+    # Additional section for quick facts
+    st.sidebar.header("Quick Facts")
+    st.sidebar.write("""
+    - **Douglas Fir**: Thrives in well-drained soils; high ET potential.
+    - **Red Cedar**: Tolerates wet conditions; moderate ET potential.
+    """)
+    
     # Assign selected parameters
     BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
     
