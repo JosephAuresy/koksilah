@@ -896,133 +896,46 @@ elif selected_option == "Forest hydrology":
     # Introduction
     st.markdown("""
     ### Introduction
-    
-    This part allows users to explore the impact of different forest management practices on hydrology, specifically focusing on two key tree species: **Douglas Fir** and **Red Cedar**. By selecting various parameters, users can analyze how these factors influence runoff, recharge, discharge, and evapotranspiration in forested areas.
+    Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
     """)
     
     # Input parameters
     st.header("Dynamic Input for Forest Parameters")
-    
-    # Explanation of parameter selection
     st.markdown("""
     ### Parameter Selection Guidelines
-    
-    In this section, you can select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters. 
-    
-    - **Tree Species**: Choose between **Douglas Fir** or **Red Cedar**. Each species has distinct growth patterns and hydrological characteristics that influence water dynamics.
-      
-    - **Tree Age**: Selecting the age of the tree is crucial, as different ages will significantly affect parameters such as Leaf Area Index (LAI), growth rates, and water uptake.
-    
-    ### Selected Parameters
-    Based on your selections, the app will display the corresponding parameters that will be used in the hydrological calculations.
+    Select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters. 
     """)
     
-    # Tree Species Selection
+    # Tree Species and Age Selection
     species = st.selectbox("Select Tree Species", ["Douglas Fir", "Red Cedar"])
-    
-    # Age Selection
     age = st.selectbox("Select Age of Tree (Years)", [5, 10, 20, 30, 60, 100, 200, 500])
     
-    # Parameter sets based on species and age
-    if species == "Douglas Fir":
-        if age == 5:
-            BLAI = 2.5
-            FRGRW1 = 0.5
-            FRGRW2 = 0.5
-            LAIMX1 = 3.0
-            LAIMX2 = 2.5
-        elif age == 10:
-            BLAI = 3.5
-            FRGRW1 = 0.6
-            FRGRW2 = 0.4
-            LAIMX1 = 4.0
-            LAIMX2 = 3.5
-        elif age == 20:
-            BLAI = 4.5
-            FRGRW1 = 0.8
-            FRGRW2 = 0.2
-            LAIMX1 = 5.5
-            LAIMX2 = 4.5
-        elif age == 30:
-            BLAI = 5.0
-            FRGRW1 = 0.9
-            FRGRW2 = 0.1
-            LAIMX1 = 6.0
-            LAIMX2 = 5.0
-        elif age == 60:
-            BLAI = 6.0
-            FRGRW1 = 0.95
-            FRGRW2 = 0.05
-            LAIMX1 = 7.0
-            LAIMX2 = 6.0
-        elif age == 100:
-            BLAI = 7.0
-            FRGRW1 = 0.95
-            FRGRW2 = 0.05
-            LAIMX1 = 8.0
-            LAIMX2 = 7.0
-        elif age == 200:
-            BLAI = 8.0
-            FRGRW1 = 0.95
-            FRGRW2 = 0.05
-            LAIMX1 = 9.0
-            LAIMX2 = 8.0
-        elif age == 500:
-            BLAI = 9.0
-            FRGRW1 = 0.95
-            FRGRW2 = 0.05
-            LAIMX1 = 10.0
-            LAIMX2 = 9.0
+    # Define parameter sets
+    parameters = {
+        "Douglas Fir": {
+            5: (2.5, 0.5, 0.5, 3.0, 2.5),
+            10: (3.5, 0.6, 0.4, 4.0, 3.5),
+            20: (4.5, 0.8, 0.2, 5.5, 4.5),
+            30: (5.0, 0.9, 0.1, 6.0, 5.0),
+            60: (6.0, 0.95, 0.05, 7.0, 6.0),
+            100: (7.0, 0.95, 0.05, 8.0, 7.0),
+            200: (8.0, 0.95, 0.05, 9.0, 8.0),
+            500: (9.0, 0.95, 0.05, 10.0, 9.0),
+        },
+        "Red Cedar": {
+            5: (2.0, 0.4, 0.6, 2.5, 2.0),
+            10: (3.0, 0.5, 0.5, 3.5, 3.0),
+            20: (4.0, 0.7, 0.3, 4.5, 4.0),
+            30: (5.0, 0.8, 0.2, 5.5, 5.0),
+            60: (6.0, 0.9, 0.1, 6.5, 6.0),
+            100: (7.0, 0.9, 0.1, 7.5, 7.0),
+            200: (8.0, 0.9, 0.1, 8.5, 8.0),
+            500: (9.0, 0.9, 0.1, 9.5, 9.0),
+        },
+    }
     
-    elif species == "Red Cedar":
-        if age == 5:
-            BLAI = 2.0
-            FRGRW1 = 0.4
-            FRGRW2 = 0.6
-            LAIMX1 = 2.5
-            LAIMX2 = 2.0
-        elif age == 10:
-            BLAI = 3.0
-            FRGRW1 = 0.5
-            FRGRW2 = 0.5
-            LAIMX1 = 3.5
-            LAIMX2 = 3.0
-        elif age == 20:
-            BLAI = 4.0
-            FRGRW1 = 0.7
-            FRGRW2 = 0.3
-            LAIMX1 = 4.5
-            LAIMX2 = 4.0
-        elif age == 30:
-            BLAI = 5.0
-            FRGRW1 = 0.8
-            FRGRW2 = 0.2
-            LAIMX1 = 5.5
-            LAIMX2 = 5.0
-        elif age == 60:
-            BLAI = 6.0
-            FRGRW1 = 0.9
-            FRGRW2 = 0.1
-            LAIMX1 = 6.5
-            LAIMX2 = 6.0
-        elif age == 100:
-            BLAI = 7.0
-            FRGRW1 = 0.9
-            FRGRW2 = 0.1
-            LAIMX1 = 7.5
-            LAIMX2 = 7.0
-        elif age == 200:
-            BLAI = 8.0
-            FRGRW1 = 0.9
-            FRGRW2 = 0.1
-            LAIMX1 = 8.5
-            LAIMX2 = 8.0
-        elif age == 500:
-            BLAI = 9.0
-            FRGRW1 = 0.9
-            FRGRW2 = 0.1
-            LAIMX1 = 9.5
-            LAIMX2 = 9.0
+    # Assign selected parameters
+    BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
     
     # Display selected parameters
     st.write(f"### Selected Parameters for {species} at Age {age} Years:")
@@ -1034,13 +947,9 @@ elif selected_option == "Forest hydrology":
     
     # HRU Calculations
     st.header("Hydrological Response Unit (HRU) Calculations")
-    
     st.markdown("""
     ### Hydrological Response Units (HRUs)
-    
-    HRUs are essential in hydrological modeling as they represent unique combinations of land use, soil type, and slope within a watershed. Understanding the hydrological response of these units helps in assessing the impacts of land management practices on water dynamics.
-    
-    In this section, you will input parameters such as rainfall and HRU area to compute runoff, recharge, and discharge based on your selected tree parameters.
+    Input parameters such as rainfall and HRU area to compute runoff, recharge, and discharge based on your selected tree parameters.
     """)
     
     # Input for rainfall and area
@@ -1054,61 +963,41 @@ elif selected_option == "Forest hydrology":
         else:
             return (rainfall - (0.2 * (1000 / CN - 10))) ** 2 / (rainfall + (0.8 * (1000 / CN - 10)))
     
-    # SCS Curve Number for forested areas (example values)
+    # SCS Curve Number for forested areas
     CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
     
-    # Runoff calculation
-    runoff = calculate_runoff(rainfall, CN)
-    
-    # Calculate Recharge (using a simple approach)
-    def calculate_recharge(rainfall, runoff):
-        return rainfall - runoff
-    
-    # Calculate Discharge (assumed to be equal to recharge for simplicity)
-    def calculate_discharge(recharge):
-        return recharge  # For simplicity, assume all recharge contributes to discharge
-    
     # Perform calculations
-    runoff_result = runoff * area  # Runoff in mm for the area
-    recharge_result = calculate_recharge(rainfall, runoff) * area  # Recharge in mm for the area
-    discharge_result = calculate_discharge(recharge_result)  # Discharge in mm for the area
+    runoff = calculate_runoff(rainfall, CN) * area  # Runoff in mm for the area
+    recharge = (rainfall - runoff) * area  # Recharge in mm for the area
+    discharge = recharge  # Assume all recharge contributes to discharge
     
     # Display HRU results
     st.subheader("HRU Results")
-    st.write(f"- **Runoff (mm)**: {runoff_result:.2f} mm")
-    st.write(f"- **Recharge (mm)**: {recharge_result:.2f} mm")
-    st.write(f"- **Discharge (mm)**: {discharge_result:.2f} mm")
+    st.write(f"- **Runoff (mm)**: {runoff:.2f} mm")
+    st.write(f"- **Recharge (mm)**: {recharge:.2f} mm")
+    st.write(f"- **Discharge (mm)**: {discharge:.2f} mm")
     
     # Visualization of results
     st.subheader("Hydrological Results Visualization")
     fig = go.Figure()
     fig.add_trace(go.Bar(x=["Runoff", "Recharge", "Discharge"],
-                         y=[runoff_result, recharge_result, discharge_result],
+                         y=[runoff, recharge, discharge],
                          marker_color=['blue', 'green', 'orange']))
     fig.update_layout(title_text='Hydrological Response Unit Results',
                       xaxis_title='Hydrological Component',
                       yaxis_title='Water Volume (mm)',
-                      yaxis=dict(range=[0, max(runoff_result, recharge_result, discharge_result) + 10]))
+                      yaxis=dict(range=[0, max(runoff, recharge, discharge) + 10]))
     st.plotly_chart(fig)
-
-    # Time inputs for LAI calculation
+    
+    # Leaf Area Index (LAI) Dynamics
     st.markdown("""
     ### Leaf Area Index (LAI) Dynamics
-    
-    The Leaf Area Index (LAI) is a crucial parameter influencing photosynthesis, transpiration, and overall forest health. In this section, you can observe the dynamic changes in LAI over time based on species and age.
+    Observe the dynamic changes in LAI over time based on species and age.
     """)
     
     # Time input for LAI calculations
     time_years = np.arange(1, 31)  # Years from 1 to 30
-    lai_values = []
-    
-    # Calculate LAI values based on species and age
-    for year in time_years:
-        if species == "Douglas Fir":
-            lai = min(LAIMX1 * (year / 30), LAIMX2)
-        else:  # Red Cedar
-            lai = min(LAIMX1 * (year / 30), LAIMX2)
-        lai_values.append(lai)
+    lai_values = [min(LAIMX1 * (year / 30), LAIMX2) for year in time_years]
     
     # Create Plotly visualization for LAI
     lai_fig = go.Figure()
@@ -1124,14 +1013,9 @@ elif selected_option == "Forest hydrology":
     # Input for Evapotranspiration (ET)
     st.markdown("""
     ### Evapotranspiration Dynamics
-    
-    Evapotranspiration (ET) represents the sum of evaporation from the land and transpiration from plants. In this section, you can analyze the ET dynamics based on your selected parameters.
+    Analyze the ET dynamics based on your selected parameters.
     """)
-    
-    # Input for ET calculation
     et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
-    
-    # Calculate ET (this is a simple calculation, could be expanded)
     et = et_factor * area  # Total ET for the selected HRU area
     
     # Display ET result
@@ -1144,14 +1028,10 @@ elif selected_option == "Forest hydrology":
         mode="number+gauge+delta",
         value=et,
         title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
-        gauge={'axis': {'range': [0, 3000]}},
-        delta={'reference': et_factor}
+        gauge={'axis': {'range': [0, 3000]}}
     ))
-    
-    et_fig.update_layout(title='Evapotranspiration Dynamics',
-                         template='plotly_white')
     st.plotly_chart(et_fig)
-    
+
     # Conclusion
     st.markdown("""
     ### Conclusion
