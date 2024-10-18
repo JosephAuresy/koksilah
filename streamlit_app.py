@@ -1340,6 +1340,9 @@ elif selected_option == "New":
         # Combine Results
         combined_results = pd.merge(growth_results, hydrology_results, on="Year")
     
+        # Check columns in combined_results for debugging
+        st.write("Columns in combined_results:", combined_results.columns.tolist())
+        
         st.write("Growth Simulation Results:")
         st.dataframe(combined_results)
     
@@ -1375,13 +1378,6 @@ elif selected_option == "New":
                                     legend_title='Components',
                                     template='plotly_white')
         st.plotly_chart(fig_hydrology)
-    
-        # 7. Summary Output
-        st.subheader("Summary Output")
-        st.write("Initial Conditions:")
-        st.write(f"Species: {species}, Age: {age}, Height: {height}, DBH: {dbh}, LAI: {lai}, Slope: {slope}, Soil Type: {soil_type}, Water Table Depth: {water_table_depth}")
-        st.write("Growth Projections and Hydrological Balance:")
-        st.dataframe(combined_results[['Year', 'Height (m)', 'DBH (cm)', 'LAI', 'Soil Moisture (mm)', 'Runoff (mm)', 'ET (mm)']])
 
     
     # st.title("Model Validation Report")
