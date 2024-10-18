@@ -37,7 +37,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator")
+    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New")
 )
 
 # # Decade Selection for each feature
@@ -1222,13 +1222,168 @@ elif selected_option == "Simulator":
     plot_data(years, LAI_example, "LAI Growth Over Time", "Years", "Leaf Area Index (LAI)")
 
 # If you want to add more sections, include them under the "Other Options" or similar option.
-elif selected_option == "Other Options":
-    st.header("Other Options")
-    st.write("Add more functionalities or information here!")
+elif selected_option == "New":
 
-# Conclusion
-st.write("Explore the impacts of different parameters on forest growth and hydrology!")
+    class Tree:
+        def __init__(self, species, age, height, dbh, lai):
+            self.species = species
+            self.age = age
+            self.height = height
+            self.dbh = dbh
+            self.lai = lai
+    
+        def calculate_growth(self, soil, water, climate):
+            growth_rate = (climate['temperature'] * 0.01) + (water * 0.1) + (soil['nutrients'] * 0.02)
+            self.height += growth_rate * self.height * 0.1
+            self.dbh += growth_rate * self.dbh * 0.05
+            self.lai = self.calculate_lai()
+    
+        def calculate_lai(self):
+            return self.height * 0.5  # Simplified calculation
+    
+    class HRU:
+        def __init__(self, slope, soil_type, water_table_depth):
+            self.slope = slope
+            self.soil_type = soil_type
+            self.water_table_depth = water_table_depth
+    
+        def calculate_runoff(self):
+            # Simplified runoff calculation based on slope and soil type
+            runoff_coefficient = 0.1 if self.soil_type == "Sandy" else 0.2 if self.soil_type == "Loamy" else 0.3
+            runoff = self.slope * runoff_coefficient
+            return runoff
+    
+    def hydrological_balance(tree, hru, years, precipitation, evaporation):
+        soil_moisture = 100  # Initial soil moisture in mm
+        results = []
+    
+        for year in range(years):
+            et = tree.lai * 2.5  # Evapotranspiration based on LAI
+            runoff = hru.calculate_runoff() * precipitation * 0.01  # Calculate runoff based on precipitation
+            soil_moisture += precipitation - et - runoff
+    
+            if soil_moisture > 150:
+                runoff += soil_moisture - 150
+                soil_moisture = 150
+            else:
+                runoff = 0
+    
+            results.append({
+                "Year": year + 1,
+                "Height (m)": round(tree.height, 2),
+                "DBH (cm)": round(tree.dbh, 2),
+                "LAI": round(tree.lai, 2),
+                "Soil Moisture (mm)": round(soil_moisture, 2),
+                "Runoff (mm)": round(runoff, 2),
+                "ET (mm)": round(et, 2)
+            })
+    
+        return pd.DataFrame(results)
+    
+    def simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation):
+        results = []
+        for year in range(years):
+            tree.calculate_growth(soil_conditions, water_availability, climate_conditions)
+            results.append({
+                "Year": year + 1,
+                "Height (m)": round(tree.height, 2),
+                "DBH (cm)": round(tree.dbh, 2),
+                "LAI": round(tree.lai, 2)
+            })
+        return pd.DataFrame(results)
+    
+    # Streamlit App
+    st.title("Tree Growth and Hydrology Simulator")
+    
+    # 1. Select a Tree
+    species = st.selectbox("Select Tree Species", options=["Oak", "Pine", "Maple"])
+    age = st.slider("Select Tree Age (years)", 1, 100, 10)
+    height = st.number_input("Initial Height (m)", value=5.5)
+    dbh = st.number_input("Initial DBH (cm)", value=20.0)
+    lai = st.number_input("Initial LAI", value=3.0)
+    
+    # 2. Display Parameter Effects
+    st.subheader("Tree Parameters")
+    st.write(f"Species: {species}, Age: {age}, Height: {height} m, DBH: {dbh} cm, LAI: {lai}")
+    
+    # 3. Growth Calculation Inputs
+    soil_moisture = st.number_input("Soil Moisture (mm)", value=30)
+    soil_nutrients = st.number_input("Soil Nutrients (1-10)", value=5, min_value=1, max_value=10)
+    water_availability = st.number_input("Water Availability (mm)", value=100)
+    temperature = st.number_input("Temperature (°C)", value=25)
+    precipitation = st.number_input("Annual Precipitation (mm)", value=800)
+    evaporation = st.number_input("Annual Evaporation (mm)", value=300)
+    years = st.number_input("Years to Simulate", value=10, min_value=1)
+    
+    # 4. HRU Properties
+    st.subheader("Hydrological Response Unit (HRU) Properties")
+    slope = st.number_input("Slope (%)", value=10.0)
+    soil_type = st.selectbox("Soil Type", options=["Sandy", "Loamy", "Clayey"])
+    water_table_depth = st.number_input("Water Table Depth (cm)", value=150)
+    
+    # Create HRU object
+    hru = HRU(slope, soil_type, water_table_depth)
+    
+    # Simulate on Button Click
+    if st.button("Simulate Growth and Hydrology"):
+        tree = Tree(species, age, height, dbh, lai)
+    
+        soil_conditions = {'moisture': soil_moisture, 'nutrients': soil_nutrients}
+        climate_conditions = {'temperature': temperature}
+    
+        # Simulate Growth
+        growth_results = simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation)
+    
+        # Hydrological Balance Calculation
+        hydrology_results = hydrological_balance(tree, hru, years, precipitation, evaporation)
+    
+        # Combine Results
+        combined_results = pd.merge(growth_results, hydrology_results, on="Year")
+    
+        st.write("Growth Simulation Results:")
+        st.dataframe(combined_results)
+    
+        # 6. Visualization with Plotly
+        st.subheader("Visualizations")
+    
+        # Tree Growth Over Time
+        fig_growth = go.Figure()
+        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Height (m)'],
+                                          mode='lines+markers', name='Height (m)', line=dict(color='green')))
+        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['DBH (cm)'],
+                                          mode='lines+markers', name='DBH (cm)', line=dict(color='blue')))
+        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['LAI'],
+                                          mode='lines+markers', name='LAI', line=dict(color='orange')))
+        fig_growth.update_layout(title='Tree Growth Over Time',
+                                 xaxis_title='Year',
+                                 yaxis_title='Value',
+                                 legend_title='Parameters',
+                                 template='plotly_white')
+        st.plotly_chart(fig_growth)
+    
+        # Hydrological Balance Components Over Time
+        fig_hydrology = go.Figure()
+        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['ET (mm)'],
+                                            mode='lines+markers', name='ET (mm)', line=dict(color='red')))
+        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Soil Moisture (mm)'],
+                                            mode='lines+markers', name='Soil Moisture (mm)', line=dict(color='blue')))
+        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Runoff (mm)'],
+                                            mode='lines+markers', name='Runoff (mm)', line=dict(color='orange')))
+        fig_hydrology.update_layout(title='Hydrological Balance Components Over Time',
+                                    xaxis_title='Year',
+                                    yaxis_title='Value',
+                                    legend_title='Components',
+                                    template='plotly_white')
+        st.plotly_chart(fig_hydrology)
+    
+        # 7. Summary Output
+        st.subheader("Summary Output")
+        st.write("Initial Conditions:")
+        st.write(f"Species: {species}, Age: {age}, Height: {height}, DBH: {dbh}, LAI: {lai}, Slope: {slope}, Soil Type: {soil_type}, Water Table Depth: {water_table_depth}")
+        st.write("Growth Projections and Hydrological Balance:")
+        st.dataframe(combined_results[['Year', 'Height (m)', 'DBH (cm)', 'LAI', 'Soil Moisture (mm)', 'Runoff (mm)', 'ET (mm)']])
 
+    
     # st.title("Model Validation Report")
 
     # # Add a short description
