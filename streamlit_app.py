@@ -1296,11 +1296,20 @@ elif selected_option == "New":
     st.title("Tree Growth and Hydrology Simulator")
     
     # 1. Select a Tree
-    species = st.selectbox("Select Tree Species", options=["Oak", "Pine", "Maple"])
-    age = st.slider("Select Tree Age (years)", 1, 100, 10)
-    height = st.number_input("Initial Height (m)", value=5.5)
-    dbh = st.number_input("Initial DBH (cm)", value=20.0)
-    lai = st.number_input("Initial LAI", value=3.0)
+    species = st.selectbox("Select Tree Species", options=["Douglas Fir", "Red Cedar"])
+    
+    # Change the age selection to specific predefined values
+    age = st.selectbox("Select Tree Age (years)", options=[10, 20, 30, 60, 100, 200, 500])
+    
+    # Set default values based on species
+    if species == "Douglas Fir":
+        height = st.number_input("Initial Height (m)", value=10.0)  # Default for Douglas Fir
+        dbh = st.number_input("Initial DBH (cm)", value=25.0)  # Default for Douglas Fir
+        lai = st.number_input("Initial LAI", value=4.0)  # Default for Douglas Fir
+    else:  # Red Cedar
+        height = st.number_input("Initial Height (m)", value=8.0)  # Default for Red Cedar
+        dbh = st.number_input("Initial DBH (cm)", value=20.0)  # Default for Red Cedar
+        lai = st.number_input("Initial LAI", value=3.5)  # Default for Red Cedar
     
     # 2. Display Parameter Effects
     st.subheader("Tree Parameters")
@@ -1342,7 +1351,7 @@ elif selected_option == "New":
     
         # Check columns in combined_results for debugging
         st.write("Columns in combined_results:", combined_results.columns.tolist())
-        
+    
         st.write("Growth Simulation Results:")
         st.dataframe(combined_results)
     
