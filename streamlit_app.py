@@ -900,11 +900,12 @@ elif selected_option == "Forest hydrology":
     Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
     
     **Key Equations**:
-    - **Evapotranspiration (ET)**: \( ET = PET \times \left(\frac{SWS}{SWS_{max}}\right) \times \text{fraction} \)
-    - **Runoff (SCS Curve Number method)**: 
-      \[
-      \text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10))}
-      \]
+    
+    1. **Evapotranspiration (ET)**: 
+       $$ET = PET \times \left(\frac{SWS}{SWS_{\text{max}}}\right) \times \text{fraction}$$
+    
+    2. **Runoff (SCS Curve Number method)**: 
+       $$\text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10))}$$
     
     Where:
     - \( R \) = Rainfall
