@@ -1091,6 +1091,74 @@ elif selected_option == "Forest hydrology":
                       yaxis=dict(range=[0, max(runoff_result, recharge_result, discharge_result) + 10]))
     st.plotly_chart(fig)
 
+    # Time inputs for LAI calculation
+    st.markdown("""
+    ### Leaf Area Index (LAI) Dynamics
+    
+    The Leaf Area Index (LAI) is a crucial parameter influencing photosynthesis, transpiration, and overall forest health. In this section, you can observe the dynamic changes in LAI over time based on species and age.
+    """)
+    
+    # Time input for LAI calculations
+    time_years = np.arange(1, 31)  # Years from 1 to 30
+    lai_values = []
+    
+    # Calculate LAI values based on species and age
+    for year in time_years:
+        if species == "Douglas Fir":
+            lai = min(LAIMX1 * (year / 30), LAIMX2)
+        else:  # Red Cedar
+            lai = min(LAIMX1 * (year / 30), LAIMX2)
+        lai_values.append(lai)
+    
+    # Create Plotly visualization for LAI
+    lai_fig = go.Figure()
+    lai_fig.add_trace(go.Scatter(x=time_years, y=lai_values, mode='lines+markers', name='LAI',
+                                  line=dict(color='forestgreen', width=2)))
+    
+    lai_fig.update_layout(title='Dynamic Leaf Area Index (LAI) over Time',
+                          xaxis_title='Years',
+                          yaxis_title='LAI',
+                          template='plotly_white')
+    st.plotly_chart(lai_fig)
+    
+    # Input for Evapotranspiration (ET)
+    st.markdown("""
+    ### Evapotranspiration Dynamics
+    
+    Evapotranspiration (ET) represents the sum of evaporation from the land and transpiration from plants. In this section, you can analyze the ET dynamics based on your selected parameters.
+    """)
+    
+    # Input for ET calculation
+    et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
+    
+    # Calculate ET (this is a simple calculation, could be expanded)
+    et = et_factor * area  # Total ET for the selected HRU area
+    
+    # Display ET result
+    st.subheader("Evapotranspiration Result")
+    st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+    
+    # Create Plotly visualization for ET
+    et_fig = go.Figure()
+    et_fig.add_trace(go.Indicator(
+        mode="number+gauge+delta",
+        value=et,
+        title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+        gauge={'axis': {'range': [0, 3000]}},
+        delta={'reference': et_factor}
+    ))
+    
+    et_fig.update_layout(title='Evapotranspiration Dynamics',
+                         template='plotly_white')
+    st.plotly_chart(et_fig)
+    
+    # Conclusion
+    st.markdown("""
+    ### Conclusion
+    
+    This app provides insights into the hydrological impact of forest management practices, focusing on different tree species and their ages. By adjusting various parameters, users can visualize and analyze how these factors influence water dynamics in forested areas.
+    """)
+
     # st.title("Model Validation Report")
 
     # # Add a short description
