@@ -1063,6 +1063,34 @@ elif selected_option == "Forest hydrology":
     st.write(f"- **Actual LAI**: {actual_LAI:.2f}")
     st.write(f"- **Adjusted LAI**: {adjusted_LAI:.2f}")
     
+        # Display equations in LaTeX
+    st.write("### LAI Calculation Equations")
+    st.write("Before the LAI reaches its maximum value, the new LAI on day \(i\) is calculated as follows:")
+    st.latex(r'\Delta LAI_i = (frLAI_{max,i} - frLAI_{max,i-1}) \times LAI_{max} \times \{1 - e^{5 \times (LAI_{i-1} - LAI_{max})\} } \quad (1)')
+    
+    st.write("The LAI does not change after reaching its maximum value. However, after leaf senescence exceeds leaf growth, the LAI is calculated as follows:")
+    st.latex(r'LAI = LAI_{max} \times \frac{1 - frPHU}{1 - frPHU_{sen}} \quad (frPHU > frPHU_{sen}) \quad (2)')
+    
+    st.write("The actual LAI is affected by the stress factors. The plant growth factor—defined as the fraction of actual plant growth to potential plant growth—is used to adjust the LAI calculation on each day as follows:")
+    st.latex(r'\gamma_{reg} = 1 - \max(w_{strs}, t_{strs}, n_{strs}, p_{strs}) \quad (3)')
+    
+    st.write("If one of the four stress factors exceeds 0, the LAI on day \(i\) is adjusted as follows:")
+    st.latex(r'\Delta LAI_{act,i} = \Delta LAI_i \times \gamma_{reg} \quad (4)')
+    
+    st.write("Where:")
+    st.write(r'- \(\Delta LAI_i\) is the new LAI on day \(i\);')
+    st.write(r'- \(frLAI_{max,i}\) and \(frLAI_{max,i-1}\) are the maximum LAI calculated based on heat on days \(i\) and \(i-1\), respectively;')
+    st.write(r'- \(LAI_{max}\) is the maximum LAI for a plant;')
+    st.write(r'- \(LAI_{i-1}\) is the LAI on day \(i-1\);')
+    st.write(r'- \(frPHU\) is the accumulated potential heat unit fraction on a day;')
+    st.write(r'- \(frPHU_{sen}\) is the fraction of days where leaf senescence exceeds leaf growth in the entire plant growth season;')
+    st.write(r'- \(\gamma_{reg}\) is the plant growth factor (range, 0–1);')
+    st.write(r'- \(w_{strs}\) is the water stress on a day;')
+    st.write(r'- \(t_{strs}\) is the temperature stress on a day;')
+    st.write(r'- \(n_{strs}\) is the nitrogen stress on a day;')
+    st.write(r'- \(p_{strs}\) is the phosphorus stress on a day;')
+    st.write(r'- \(\Delta LAI_{act,i}\) is the actual LAI on day \(i\);')
+    
     # LaTeX display for z-score formula
     st.write("**Formula:**")
     st.latex(r'z = \frac{(X - \mu)}{\sigma}')
