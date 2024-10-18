@@ -37,7 +37,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology")
+    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator")
 )
 
 # # Decade Selection for each feature
@@ -1100,7 +1100,139 @@ elif selected_option == "Forest hydrology":
     - \(\mu\) = mean of the dataset
     - \(\sigma\) = standard deviation of the dataset
     """)
+
+elif selected_option == "Simulator":
+
+    # Title and Introduction
+    st.title("Forest Growth and Hydrology Simulator")
+    st.write("Explore how different forest parameters influence growth and hydrological processes.")
     
+    # Sidebar for Navigation
+    st.sidebar.header("Navigation")
+    selected_option = st.sidebar.radio("Select a Section", ["Simulator", 
+                                                             "Other Options"])  # You can add other options here
+    
+    # Function to plot data
+    def plot_data(x, y, title, xlabel, ylabel):
+        plt.figure(figsize=(10, 4))
+        plt.plot(x, y, marker='o')
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.grid(True)
+        st.pyplot(plt)
+
+    
+    # Forest Growth Parameters Section
+    st.subheader("Forest Growth Parameters")
+    
+    # Input fields for forest growth parameters
+    LAI = st.slider("Leaf Area Index (LAI)", min_value=0.0, max_value=10.0, value=3.0)
+    biomass = st.number_input("Initial Biomass (metric tons/ha)", min_value=0.0, value=150.0)
+    canopy_height = st.number_input("Canopy Height (meters)", min_value=0.0, value=10.0)
+    light_extinction_coefficient = st.number_input("Light Extinction Coefficient (k)", value=0.5)
+    radiation_use_efficiency = st.number_input("Radiation Use Efficiency (RUE, g/MJ)", value=2.0)
+    total_solar_radiation = st.number_input("Total Solar Radiation (MJ/m²/day)", value=10.0)
+    
+    st.write(f"**Leaf Area Index (LAI):** {LAI}")
+    st.write(f"**Initial Biomass:** {biomass} metric tons/ha")
+    st.write(f"**Canopy Height:** {canopy_height} meters")
+    st.write(f"**Light Extinction Coefficient:** {light_extinction_coefficient}")
+    st.write(f"**Radiation Use Efficiency (RUE):** {radiation_use_efficiency} g/MJ")
+    st.write(f"**Total Solar Radiation:** {total_solar_radiation} MJ/m²/day")
+
+    # Leaf Area Development Calculation
+    LAImax = 3.0  # Maximum LAI for corn
+    f_rLAImax_prev = 0.9  # Fraction of LAImax at previous timestep (arbitrary example)
+    f_rLAImax_current = 1.0  # Current fraction (arbitrary example)
+    
+    Kf = LAImax * (f_rLAImax_current - f_rLAImax_prev)
+    delta_LAI = Kf * (1 - np.exp(-5 * (LAI - LAImax)))
+    LAI_new = LAI + delta_LAI
+    
+    st.write(f"**New LAI after Growth:** {LAI_new:.2f}")
+
+    # Light Interception Calculation
+    Hphosyn = total_solar_radiation * (1 - np.exp(-light_extinction_coefficient * LAI_new))
+    st.write(f"**Intercepted Photosynthetically Active Radiation:** {Hphosyn:.2f} MJ/m²")
+
+    # Biomass Production Calculation
+    delta_bio = radiation_use_efficiency * Hphosyn  # Daily biomass increase
+    total_biomass = biomass + delta_bio  # Update total biomass
+    st.write(f"**New Biomass after Growth:** {total_biomass:.2f} metric tons/ha")
+
+    # Hydrological Processes Section
+    st.subheader("Hydrological Processes")
+    
+    st.subheader("Evapotranspiration Calculator")
+    
+    # Input for evapotranspiration calculation
+    net_radiation = st.number_input("Net Radiation (MJ/m²/day)", value=10.0)
+    soil_heat_flux = st.number_input("Soil Heat Flux (MJ/m²/day)", value=0.5)
+    air_temp = st.number_input("Air Temperature (°C)", value=20.0)
+    relative_humidity = st.number_input("Relative Humidity (%)", value=60.0)
+
+    # Calculate and display ET
+    vapor_pressure_saturation = 0.611 * np.exp((17.27 * air_temp) / (air_temp + 237.3))
+    vapor_pressure_actual = (relative_humidity / 100) * vapor_pressure_saturation
+    delta = 4098 * vapor_pressure_saturation / ((air_temp + 237.3) ** 2)
+    gamma = 0.0665  # Psychrometric constant (kPa/°C)
+    
+    ET = (delta * (net_radiation - soil_heat_flux) + (gamma * (vapor_pressure_saturation - vapor_pressure_actual))) / (delta + gamma)
+    
+    if st.button("Calculate Evapotranspiration"):
+        st.write(f"**Evapotranspiration (ET):** {ET:.2f} mm/day")
+
+    # Interactive Calculations Section
+    st.subheader("Calculate Low Flows")
+    rainfall = st.number_input("Rainfall (mm)", value=50.0)
+    curve_number = st.number_input("Curve Number (CN)", value=75)
+
+    # Calculate and display runoff using the SCS runoff equation
+    if st.button("Calculate Runoff"):
+        S = (25400 / curve_number) - 254  # Calculate S
+        Q = (rainfall - 0.2 * S) ** 2 / (rainfall + 0.8 * S) if rainfall > 0.2 * S else 0
+        st.write(f"**Calculated Runoff:** {Q:.2f} mm")
+
+    # Soil and Root Systems Analysis Section
+    st.subheader("Soil and Root Systems Analysis")
+    
+    root_depth = st.number_input("Root Depth (meters)", value=1.5)
+    water_table = st.number_input("Water Table Depth (meters)", value=3.0)
+
+    # Example calculation of available water
+    soil_porosity = 0.3  # Example value for soil porosity
+    available_water = soil_porosity * (root_depth - water_table)
+    
+    st.write(f"**Available Water (from roots):** {available_water:.2f} m³/ha")
+
+    # Growth Constraints Section
+    st.subheader("Growth Constraints")
+    
+    temp = st.slider("Temperature (°C)", min_value=-10.0, max_value=30.0, value=15.0)
+    water_avail = st.slider("Water Availability (mm)", min_value=0.0, max_value=500.0, value=200.0)
+
+    # Assessment of growth impact based on constraints
+    growth_potential = (temp / 30) * (water_avail / 500) * 100  # Simplified growth potential assessment
+    st.write(f"**Growth Potential Estimate:** {growth_potential:.2f}% of max potential")
+
+    # Examples and Case Studies Section
+    st.subheader("Examples and Case Studies")
+    
+    # Example data for visualization
+    years = np.arange(1, 21)  # Years from 1 to 20
+    LAI_example = 0.85 * (1 - np.exp(-0.1 * years))  # Example LAI growth curve
+    
+    # Plotting LAI growth over years
+    plot_data(years, LAI_example, "LAI Growth Over Time", "Years", "Leaf Area Index (LAI)")
+
+# If you want to add more sections, include them under the "Other Options" or similar option.
+elif selected_option == "Other Options":
+    st.header("Other Options")
+    st.write("Add more functionalities or information here!")
+
+# Conclusion
+st.write("Explore the impacts of different parameters on forest growth and hydrology!")
 
     # st.title("Model Validation Report")
 
