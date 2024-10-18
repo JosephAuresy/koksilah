@@ -896,14 +896,27 @@ elif selected_option == "Forest hydrology":
     # Introduction
     st.markdown("""
     ### Introduction
-    Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
+    Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. 
+    Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
+    
+    **Key Equations**:
+    - **Evapotranspiration (ET)**: \( ET = PET \times \left(\frac{SWS}{SWS_{max}}\right) \times \text{fraction} \)
+    - **Runoff (SCS Curve Number method)**: 
+      \[
+      \text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10))}
+      \]
+    
+    Where:
+    - \( R \) = Rainfall
+    - \( CN \) = Curve Number
+    - \( SWS \) = Soil Water Storage
     """)
     
     # Input parameters
     st.header("Dynamic Input for Forest Parameters")
     st.markdown("""
     ### Parameter Selection Guidelines
-    Select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters. 
+    Select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters.
     """)
     
     # Tree Species and Age Selection
@@ -934,15 +947,16 @@ elif selected_option == "Forest hydrology":
         },
     }
     
+    # Quick Learning Section
     st.title("Quick Learning: Forest Ecosystem Dynamics")
     
     # Predefined Scenarios for Quick Access
     st.sidebar.header("Select a Quick Scenario")
-    species = st.sidebar.selectbox("Choose a Tree Species:", options=list(parameters.keys()))
-    age = st.sidebar.selectbox("Select Tree Age (Years):", options=[5, 10, 20, 30, 60, 100, 200, 500])
+    species_quick = st.sidebar.selectbox("Choose a Tree Species:", options=list(parameters.keys()))
+    age_quick = st.sidebar.selectbox("Select Tree Age (Years):", options=[5, 10, 20, 30, 60, 100, 200, 500])
     
-    # Fetch parameters
-    param_values = parameters[species].get(age, None)
+    # Fetch parameters for quick scenario
+    param_values = parameters[species_quick].get(age_quick, None)
     
     if param_values:
         # Create a DataFrame for better visualization
@@ -950,9 +964,9 @@ elif selected_option == "Forest hydrology":
             "Parameter": ["BLAI", "Stage 1 Fraction", "Stage 2 Fraction", "LAIMX1", "LAIMX2"],
             "Value": param_values
         })
-        
+    
         # Display parameters in a table
-        st.subheader(f"Parameters for {species} at {age} Years")
+        st.subheader(f"Parameters for {species_quick} at {age_quick} Years")
         st.table(param_df)
     
         # Tooltips for explanations
@@ -966,9 +980,9 @@ elif selected_option == "Forest hydrology":
     
         # Calculate Evapotranspiration (ET)
         et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
-        area = 100  # You can also make this interactive
+        area = 100  # This can also be made interactive
         et = et_factor * area  # Total ET for the selected HRU area
-        
+    
         # Display ET result
         st.subheader("Evapotranspiration Result")
         st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
@@ -985,7 +999,7 @@ elif selected_option == "Forest hydrology":
     
         # Summary button for quick overview
         if st.button("Get Summary"):
-            st.success(f"Summary:\n- Species: {species}\n- Age: {age} Years\n- ET: {et:.2f} mm")
+            st.success(f"Summary:\n- Species: {species_quick}\n- Age: {age_quick} Years\n- ET: {et:.2f} mm")
     
     # Additional section for quick facts
     st.sidebar.header("Quick Facts")
@@ -1014,7 +1028,7 @@ elif selected_option == "Forest hydrology":
     
     # Input for rainfall and area
     rainfall = st.number_input("**Rainfall (mm)**:", value=50, step=1)
-    area = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
+    area_hru = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
     
     # Calculate Runoff (using SCS Curve Number method)
     def calculate_runoff(rainfall, CN):
@@ -1027,8 +1041,8 @@ elif selected_option == "Forest hydrology":
     CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
     
     # Perform calculations
-    runoff = calculate_runoff(rainfall, CN) * area  # Runoff in mm for the area
-    recharge = (rainfall - runoff) * area  # Recharge in mm for the area
+    runoff = calculate_runoff(rainfall, CN) * area_hru  # Runoff in mm for the area
+    recharge = (rainfall - runoff) * area_hru  # Recharge in mm for the area
     discharge = recharge  # Assume all recharge contributes to discharge
     
     # Display HRU results
@@ -1037,117 +1051,8 @@ elif selected_option == "Forest hydrology":
     st.write(f"- **Recharge (mm)**: {recharge:.2f} mm")
     st.write(f"- **Discharge (mm)**: {discharge:.2f} mm")
     
-    # Visualization of results
-    st.subheader("Hydrological Results Visualization")
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=["Runoff", "Recharge", "Discharge"],
-                         y=[runoff, recharge, discharge],
-                         marker_color=['blue', 'green', 'orange']))
-    fig.update_layout(title_text='Hydrological Response Unit Results',
-                      xaxis_title='Hydrological Component',
-                      yaxis_title='Water Volume (mm)',
-                      yaxis=dict(range=[0, max(runoff, recharge, discharge) + 10]))
-    st.plotly_chart(fig)
-    
-    # Leaf Area Index (LAI) Dynamics
-    st.markdown("""
-    ### Leaf Area Index (LAI) Dynamics
-    Observe the dynamic changes in LAI over time based on species and age.
-    """)
-    
-    # Time input for LAI calculations
-    time_years = np.arange(1, 31)  # Years from 1 to 30
-    lai_values = [min(LAIMX1 * (year / 30), LAIMX2) for year in time_years]
-    
-    # Create Plotly visualization for LAI
-    lai_fig = go.Figure()
-    lai_fig.add_trace(go.Scatter(x=time_years, y=lai_values, mode='lines+markers', name='LAI',
-                                  line=dict(color='forestgreen', width=2)))
-    
-    lai_fig.update_layout(title='Dynamic Leaf Area Index (LAI) over Time',
-                          xaxis_title='Years',
-                          yaxis_title='LAI',
-                          template='plotly_white')
-    st.plotly_chart(lai_fig)
-    
-    # Input for Evapotranspiration (ET)
-    st.markdown("""
-    ### Evapotranspiration Dynamics
-    Analyze the ET dynamics based on your selected parameters.
-    """)
-    # Function to calculate ET, SWS, Root Biomass, and Recharge
-    def calculate_hydrology(BLAI, stage1_fraction, stage2_fraction, LAIMX1, LAIMX2, PET, SWS_max, SWS, runoff):
-        # Calculate LAI for both stages
-        LAI_stage1 = BLAI * stage1_fraction
-        LAI_stage2 = BLAI * stage2_fraction
-    
-        # Calculate Actual ET for both stages
-        ET_stage1 = PET * (SWS / SWS_max) * stage1_fraction
-        ET_stage2 = PET * (SWS / SWS_max) * stage2_fraction
-    
-        # Calculate new SWS after ET
-        SWS_after_ET = SWS - ET_stage1 - ET_stage2
-    
-        # Calculate Root Biomass (example k value can be adjusted based on plant type)
-        k = 1  # Adjust this based on specific plant characteristics
-        Root_Biomass = k * (BLAI**2 / SWS_max)
-    
-        # Calculate Recharge
-        Recharge = SWS_after_ET - runoff
-    
-        return ET_stage1, ET_stage2, SWS_after_ET, Root_Biomass, Recharge
-    
-    # Streamlit UI
-    st.title("Hydrology Calculator")
-    
-    # User Inputs for Hydrology
-    st.markdown("""
-    ### Evapotranspiration Dynamics
-    Analyze the ET dynamics based on your selected parameters.
-    """)
-    BLAI = st.number_input("Enter Biomass Leaf Area Index (BLAI):", value=2.5)
-    stage1_fraction = st.number_input("Fraction of Growing Season (Stage 1):", value=0.5)
-    stage2_fraction = st.number_input("Fraction of Growing Season (Stage 2):", value=0.5)
-    LAIMX1 = st.number_input("Maximum LAI for Stage 1 (LAIMX1):", value=3.0)
-    LAIMX2 = st.number_input("Maximum LAI for Stage 2 (LAIMX2):", value=2.5)
-    PET = st.number_input("Enter Potential Evapotranspiration (PET) (mm):", value=100.0)
-    SWS_max = st.number_input("Enter Maximum Soil Water Storage (SWS_max) (mm):", value=200.0)
-    SWS = st.number_input("Enter Current Soil Water Storage (SWS) (mm):", value=120.0)
-    runoff = st.number_input("Enter Runoff (mm):", value=20.0)
-    
-    # Button to Calculate Hydrology
-    if st.button("Calculate Hydrology"):
-        ET_stage1, ET_stage2, SWS_after_ET, Root_Biomass, Recharge = calculate_hydrology(
-            BLAI, stage1_fraction, stage2_fraction, LAIMX1, LAIMX2, PET, SWS_max, SWS, runoff)
-    
-        # Display ET result
-        st.subheader("Evapotranspiration Result")
-        total_et = ET_stage1 + ET_stage2
-        st.write(f"- **Evapotranspiration (Total) (mm)**: {total_et:.2f} mm")
-        
-        # Create Plotly visualization for ET
-        et_fig = go.Figure()
-        et_fig.add_trace(go.Indicator(
-            mode="number+gauge+delta",
-            value=total_et,
-            title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
-            gauge={'axis': {'range': [0, 3000]}}
-        ))
-        st.plotly_chart(et_fig)
-    
-        # Display other results
-        st.subheader("Hydrology Results")
-        st.write(f"Actual Evapotranspiration (Stage 1): {ET_stage1:.2f} mm")
-        st.write(f"Actual Evapotranspiration (Stage 2): {ET_stage2:.2f} mm")
-        st.write(f"Soil Water Storage after ET: {SWS_after_ET:.2f} mm")
-        st.write(f"Root Biomass: {Root_Biomass:.2f} kg/m²")
-        st.write(f"Groundwater Recharge: {Recharge:.2f} mm")
-    # Conclusion
-    st.markdown("""
-    ### Conclusion
-    
-    This app provides insights into the hydrological impact of forest management practices, focusing on different tree species and their ages. By adjusting various parameters, users can visualize and analyze how these factors influence water dynamics in forested areas.
-    """)
+    # Final message
+    st.success("Hydrological calculations completed successfully!")
 
     # st.title("Model Validation Report")
 
