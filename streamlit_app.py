@@ -893,7 +893,7 @@ elif selected_option == "Forest hydrology":
     # Title of the app
     st.title("Forest Hydrology and Management")
     
-    # Introduction
+    # Introduction (removing repeated part in sidebar)
     st.markdown("""
     ### Introduction
     Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. 
@@ -951,65 +951,7 @@ elif selected_option == "Forest hydrology":
     # Quick Learning Section
     st.title("Quick Learning: Forest Ecosystem Dynamics")
     
-    # Predefined Scenarios for Quick Access
-    st.sidebar.header("Select a Quick Scenario")
-    species_quick = st.sidebar.selectbox("Choose a Tree Species:", options=list(parameters.keys()))
-    age_quick = st.sidebar.selectbox("Select Tree Age (Years):", options=[5, 10, 20, 30, 60, 100, 200, 500])
-    
-    # Fetch parameters for quick scenario
-    param_values = parameters[species_quick].get(age_quick, None)
-    
-    if param_values:
-        # Create a DataFrame for better visualization
-        param_df = pd.DataFrame({
-            "Parameter": ["BLAI", "Stage 1 Fraction", "Stage 2 Fraction", "LAIMX1", "LAIMX2"],
-            "Value": param_values
-        })
-    
-        # Display parameters in a table
-        st.subheader(f"Parameters for {species_quick} at {age_quick} Years")
-        st.table(param_df)
-    
-        # Tooltips for explanations
-        st.markdown("""
-        - **BLAI**: Biomass Leaf Area Index; higher values = more foliage.
-        - **Stage 1 Fraction**: Active growing season proportion.
-        - **Stage 2 Fraction**: Slower growth proportion.
-        - **LAIMX1**: Maximum LAI during active growth.
-        - **LAIMX2**: Maximum LAI during the second growth stage.
-        """)
-    
-        # Calculate Evapotranspiration (ET)
-        et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
-        area = 100  # This can also be made interactive
-        et = et_factor * area  # Total ET for the selected HRU area
-    
-        # Display ET result
-        st.subheader("Evapotranspiration Result")
-        st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
-    
-        # Create Plotly visualization for ET
-        et_fig = go.Figure()
-        et_fig.add_trace(go.Indicator(
-            mode="number+gauge+delta",
-            value=et,
-            title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
-            gauge={'axis': {'range': [0, 3000]}}
-        ))
-        st.plotly_chart(et_fig)
-    
-        # Summary button for quick overview
-        if st.button("Get Summary"):
-            st.success(f"Summary:\n- Species: {species_quick}\n- Age: {age_quick} Years\n- ET: {et:.2f} mm")
-    
-    # Additional section for quick facts
-    st.sidebar.header("Quick Facts")
-    st.sidebar.write("""
-    - **Douglas Fir**: Thrives in well-drained soils; high ET potential.
-    - **Red Cedar**: Tolerates wet conditions; moderate ET potential.
-    """)
-    
-    # Assign selected parameters
+    # Fetch parameters based on user selection
     BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
     
     # Display selected parameters
@@ -1020,16 +962,27 @@ elif selected_option == "Forest hydrology":
     st.write(f"- **Maximum LAI for Stage 1 (LAIMX1)**: {LAIMX1}")
     st.write(f"- **Maximum LAI for Stage 2 (LAIMX2)**: {LAIMX2}")
     
-    # HRU Calculations
-    st.header("Hydrological Response Unit (HRU) Calculations")
-    st.markdown("""
-    ### Hydrological Response Units (HRUs)
-    Input parameters such as rainfall and HRU area to compute runoff, recharge, and discharge based on your selected tree parameters.
-    """)
+    # Input for evapotranspiration
+    et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
+    area = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
+    et = et_factor * area  # Total ET for the selected HRU area
     
-    # Input for rainfall and area
+    # Display ET result
+    st.subheader("Evapotranspiration Result")
+    st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+    
+    # Create Plotly visualization for ET
+    et_fig = go.Figure()
+    et_fig.add_trace(go.Indicator(
+        mode="number+gauge+delta",
+        value=et,
+        title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+        gauge={'axis': {'range': [0, 3000]}}
+    ))
+    st.plotly_chart(et_fig)
+    
+    # Input for rainfall and area for runoff calculations
     rainfall = st.number_input("**Rainfall (mm)**:", value=50, step=1)
-    area_hru = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
     
     # Calculate Runoff (using SCS Curve Number method)
     def calculate_runoff(rainfall, CN):
@@ -1042,8 +995,8 @@ elif selected_option == "Forest hydrology":
     CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
     
     # Perform calculations
-    runoff = calculate_runoff(rainfall, CN) * area_hru  # Runoff in mm for the area
-    recharge = (rainfall - runoff) * area_hru  # Recharge in mm for the area
+    runoff = calculate_runoff(rainfall, CN) * area  # Runoff in mm for the area
+    recharge = (rainfall - runoff) * area  # Recharge in mm for the area
     discharge = recharge  # Assume all recharge contributes to discharge
     
     # Display HRU results
@@ -1051,6 +1004,13 @@ elif selected_option == "Forest hydrology":
     st.write(f"- **Runoff (mm)**: {runoff:.2f} mm")
     st.write(f"- **Recharge (mm)**: {recharge:.2f} mm")
     st.write(f"- **Discharge (mm)**: {discharge:.2f} mm")
+    
+    # Create a bar chart for HRU Results
+    hru_fig = go.Figure(data=[
+        go.Bar(name='Runoff', x=['Runoff', 'Recharge', 'Discharge'], y=[runoff, recharge, discharge])
+    ])
+    hru_fig.update_layout(barmode='group', title='HRU Results (mm)', yaxis_title='Water (mm)')
+    st.plotly_chart(hru_fig)
     
     # Final message
     st.success("Hydrological calculations completed successfully!")
