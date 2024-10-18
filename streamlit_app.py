@@ -37,7 +37,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Groundwater / Surface water interactions", "Recharge")
+    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology")
 )
 
 # # Decade Selection for each feature
@@ -888,16 +888,273 @@ elif selected_option == "Recharge":
     #     st.plotly_chart(fig6)
 
     
-elif selected_option == "View Report":
-    st.title("Model Validation Report")
+elif selected_option == "Forest hydrology":
 
-    # Add a short description
+    st.title("Forest Hydrology and Management")
+
+    # Introduction
     st.markdown("""
-    This report provides a comprehensive validation of the SWAT-MODFLOW model 
-    implemented for groundwater and surface water interactions. It includes 
-    detailed analysis of the model's performance, statistical metrics, and 
-    visualizations that illustrate the model's predictions against observed data.
+    ### Introduction
+    
+    This application allows users to explore the impact of different forest management practices on hydrology, specifically focusing on two key tree species: **Douglas Fir** and **Red Cedar**. By selecting various parameters, users can analyze how these factors influence runoff, recharge, discharge, and evapotranspiration in forested areas.
     """)
+    
+    # Input parameters
+    st.header("Dynamic Input for Forest Parameters")
+    
+    # Explanation of parameter selection
+    st.markdown("""
+    ### Parameter Selection Guidelines
+    
+    In this section, you can select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters. 
+    
+    - **Tree Species**: Choose between **Douglas Fir** or **Red Cedar**. Each species has distinct growth patterns and hydrological characteristics that influence water dynamics.
+      
+    - **Tree Age**: Selecting the age of the tree is crucial, as different ages will significantly affect parameters such as Leaf Area Index (LAI), growth rates, and water uptake.
+    
+    ### Selected Parameters
+    Based on your selections, the app will display the corresponding parameters that will be used in the hydrological calculations.
+    """)
+    
+    # Tree Species Selection
+    species = st.selectbox("Select Tree Species", ["Douglas Fir", "Red Cedar"])
+    
+    # Age Selection
+    age = st.selectbox("Select Age of Tree (Years)", [1, 5, 10, 15, 20, 25, 30])
+    
+    # Parameter sets based on species and age
+    if species == "Douglas Fir":
+        if age == 1:
+            BLAI = 1.0
+            FRGRW1 = 0.3
+            FRGRW2 = 0.7
+            LAIMX1 = 2.0
+            LAIMX2 = 1.5
+        elif age == 5:
+            BLAI = 2.5
+            FRGRW1 = 0.5
+            FRGRW2 = 0.5
+            LAIMX1 = 3.0
+            LAIMX2 = 2.5
+        elif age == 10:
+            BLAI = 3.5
+            FRGRW1 = 0.6
+            FRGRW2 = 0.4
+            LAIMX1 = 4.0
+            LAIMX2 = 3.5
+        elif age == 15:
+            BLAI = 4.0
+            FRGRW1 = 0.7
+            FRGRW2 = 0.3
+            LAIMX1 = 5.0
+            LAIMX2 = 4.0
+        elif age == 20:
+            BLAI = 4.5
+            FRGRW1 = 0.8
+            FRGRW2 = 0.2
+            LAIMX1 = 5.5
+            LAIMX2 = 4.5
+        elif age == 25:
+            BLAI = 4.8
+            FRGRW1 = 0.85
+            FRGRW2 = 0.15
+            LAIMX1 = 5.8
+            LAIMX2 = 4.8
+        elif age == 30:
+            BLAI = 5.0
+            FRGRW1 = 0.9
+            FRGRW2 = 0.1
+            LAIMX1 = 6.0
+            LAIMX2 = 5.0
+    
+    elif species == "Red Cedar":
+        if age == 1:
+            BLAI = 0.8
+            FRGRW1 = 0.25
+            FRGRW2 = 0.75
+            LAIMX1 = 1.5
+            LAIMX2 = 1.0
+        elif age == 5:
+            BLAI = 2.0
+            FRGRW1 = 0.4
+            FRGRW2 = 0.6
+            LAIMX1 = 2.5
+            LAIMX2 = 2.0
+        elif age == 10:
+            BLAI = 3.0
+            FRGRW1 = 0.5
+            FRGRW2 = 0.5
+            LAIMX1 = 3.5
+            LAIMX2 = 3.0
+        elif age == 15:
+            BLAI = 3.5
+            FRGRW1 = 0.6
+            FRGRW2 = 0.4
+            LAIMX1 = 4.0
+            LAIMX2 = 3.5
+        elif age == 20:
+            BLAI = 4.0
+            FRGRW1 = 0.7
+            FRGRW2 = 0.3
+            LAIMX1 = 4.5
+            LAIMX2 = 4.0
+        elif age == 25:
+            BLAI = 4.5
+            FRGRW1 = 0.75
+            FRGRW2 = 0.25
+            LAIMX1 = 5.0
+            LAIMX2 = 4.5
+        elif age == 30:
+            BLAI = 5.0
+            FRGRW1 = 0.8
+            FRGRW2 = 0.2
+            LAIMX1 = 5.5
+            LAIMX2 = 5.0
+    
+    # Display selected parameters
+    st.write(f"### Selected Parameters for {species} at Age {age} Years:")
+    st.write(f"- **BLAI (Biomass Leaf Area Index)**: {BLAI}")
+    st.write(f"- **Fraction of Growing Season (Stage 1)**: {FRGRW1}")
+    st.write(f"- **Fraction of Growing Season (Stage 2)**: {FRGRW2}")
+    st.write(f"- **Maximum LAI for Stage 1 (LAIMX1)**: {LAIMX1}")
+    st.write(f"- **Maximum LAI for Stage 2 (LAIMX2)**: {LAIMX2}")
+    
+    # HRU Calculations
+    st.header("Hydrological Response Unit (HRU) Calculations")
+    
+    st.markdown("""
+    ### Hydrological Response Units (HRUs)
+    
+    HRUs are essential in hydrological modeling as they represent unique combinations of land use, soil type, and slope within a watershed. Understanding the hydrological response of these units helps in assessing the impacts of land management practices on water dynamics.
+    
+    In this section, you will input parameters such as rainfall and HRU area to compute runoff, recharge, and discharge based on your selected tree parameters.
+    """)
+    
+    # Input for rainfall and area
+    rainfall = st.number_input("**Rainfall (mm)**:", value=50, step=1)
+    area = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
+    
+    # Calculate Runoff (using SCS Curve Number method)
+    def calculate_runoff(rainfall, CN):
+        if rainfall < 0:
+            return 0
+        else:
+            return (rainfall - (0.2 * (1000 / CN - 10))) ** 2 / (rainfall + (0.8 * (1000 / CN - 10)))
+    
+    # SCS Curve Number for forested areas (example values)
+    CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
+    
+    # Runoff calculation
+    runoff = calculate_runoff(rainfall, CN)
+    
+    # Calculate Recharge (using a simple approach)
+    def calculate_recharge(rainfall, runoff):
+        return rainfall - runoff
+    
+    # Calculate Discharge (assumed to be equal to recharge for simplicity)
+    def calculate_discharge(recharge):
+        return recharge  # For simplicity, assume all recharge contributes to discharge
+    
+    # Perform calculations
+    runoff_result = runoff * area  # Runoff in mm for the area
+    recharge_result = calculate_recharge(rainfall, runoff) * area  # Recharge in mm for the area
+    discharge_result = calculate_discharge(recharge_result)  # Discharge in mm for the area
+    
+    # Display HRU results
+    st.subheader("HRU Results")
+    st.write(f"- **Runoff (mm)**: {runoff_result:.2f} mm")
+    st.write(f"- **Recharge (mm)**: {recharge_result:.2f} mm")
+    st.write(f"- **Discharge (mm)**: {discharge_result:.2f} mm")
+    
+    # Create Plotly visualization for HRU results
+    hru_fig = go.Figure()
+    hru_fig.add_trace(go.Bar(x=['Runoff', 'Recharge', 'Discharge'],
+                              y=[runoff_result, recharge_result, discharge_result],
+                              marker_color=['blue', 'green', 'orange']))
+    
+    hru_fig.update_layout(title='HRU Results',
+                          xaxis_title='Water Dynamics',
+                          yaxis_title='Volume (mm)',
+                          template='plotly_white')
+    st.plotly_chart(hru_fig)
+    
+    # Time inputs for LAI calculation
+    st.markdown("""
+    ### Leaf Area Index (LAI) Dynamics
+    
+    The Leaf Area Index (LAI) is a crucial parameter influencing photosynthesis, transpiration, and overall forest health. In this section, you can observe the dynamic changes in LAI over time based on species and age.
+    """)
+    
+    # Time input for LAI calculations
+    time_years = np.arange(1, 31)  # Years from 1 to 30
+    lai_values = []
+    
+    # Calculate LAI values based on species and age
+    for year in time_years:
+        if species == "Douglas Fir":
+            lai = min(LAIMX1 * (year / 30), LAIMX2)
+        else:  # Red Cedar
+            lai = min(LAIMX1 * (year / 30), LAIMX2)
+        lai_values.append(lai)
+    
+    # Create Plotly visualization for LAI
+    lai_fig = go.Figure()
+    lai_fig.add_trace(go.Scatter(x=time_years, y=lai_values, mode='lines+markers', name='LAI',
+                                  line=dict(color='forestgreen', width=2)))
+    
+    lai_fig.update_layout(title='Dynamic Leaf Area Index (LAI) over Time',
+                          xaxis_title='Years',
+                          yaxis_title='LAI',
+                          template='plotly_white')
+    st.plotly_chart(lai_fig)
+    
+    # Input for Evapotranspiration (ET)
+    st.markdown("""
+    ### Evapotranspiration Dynamics
+    
+    Evapotranspiration (ET) represents the sum of evaporation from the land and transpiration from plants. In this section, you can analyze the ET dynamics based on your selected parameters.
+    """)
+    
+    # Input for ET calculation
+    et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
+    
+    # Calculate ET (this is a simple calculation, could be expanded)
+    et = et_factor * area  # Total ET for the selected HRU area
+    
+    # Display ET result
+    st.subheader("Evapotranspiration Result")
+    st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+    
+    # Create Plotly visualization for ET
+    et_fig = go.Figure()
+    et_fig.add_trace(go.Indicator(
+        mode="number+gauge+delta",
+        value=et,
+        title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+        gauge={'axis': {'range': [0, 3000]}},
+        delta={'reference': et_factor}
+    ))
+    
+    et_fig.update_layout(title='Evapotranspiration Dynamics',
+                         template='plotly_white')
+    st.plotly_chart(et_fig)
+    
+    # Conclusion
+    st.markdown("""
+    ### Conclusion
+    
+    This app provides insights into the hydrological impact of forest management practices, focusing on different tree species and their ages. By adjusting various parameters, users can visualize and analyze how these factors influence water dynamics in forested areas.
+    """)
+    
+    # st.title("Model Validation Report")
+
+    # # Add a short description
+    # st.markdown("""
+    # This report provides a comprehensive validation of the SWAT-MODFLOW model 
+    # implemented for groundwater and surface water interactions. It includes 
+    # detailed analysis of the model's performance, statistical metrics, and 
+    # visualizations that illustrate the model's predictions against observed data.
+    # """)
 
     # PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
     # with open(PDF_FILE, "rb") as f:
