@@ -893,25 +893,60 @@ elif selected_option == "Forest hydrology":
     # Title of the app
     st.title("Forest Hydrology and Management")
     
-    # Introduction (removing repeated part in sidebar)
+    # Introduction
     st.markdown("""
     ### Introduction
     Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. 
     Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
     
     **Key Equations**:
-    
-    1. **Evapotranspiration (ET)**: 
-       $$ET = PET \times \left(\frac{SWS}{SWS_{\text{max}}}\right) \times \text{fraction}$$
-    
-    2. **Runoff (SCS Curve Number method)**: 
-       $$\text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10))}$$
-    
-    Where:
-    - \( R \) = Rainfall
-    - \( CN \) = Curve Number
-    - \( SWS \) = Soil Water Storage
     """)
+    
+    # Evapotranspiration formula (Penman-Monteith)
+    st.write("**Evapotranspiration (Penman-Monteith):**")
+    st.latex(r'ET = \frac{ \Delta (R_n - G) + \rho_a c_p \frac{(e_s - e_a)}{r_a} }{ \Delta + \gamma (1 + r_s/r_a) }')
+    st.write("""
+    Where:
+    - \(ET\) = Evapotranspiration (mm/day)
+    - \(\Delta\) = Slope of the saturation vapor pressure curve (kPa/°C)
+    - \(R_n\) = Net radiation (MJ/m²/day)
+    - \(G\) = Soil heat flux (MJ/m²/day)
+    - \(\rho_a\) = Density of air (kg/m³)
+    - \(c_p\) = Specific heat of air (MJ/kg/°C)
+    - \(e_s\) = Saturation vapor pressure (kPa)
+    - \(e_a\) = Actual vapor pressure (kPa)
+    - \(r_a\) = Aerodynamic resistance (s/m)
+    - \(\gamma\) = Psychrometric constant (kPa/°C)
+    - \(r_s\) = Surface resistance (s/m)
+    """)
+    
+    # Runoff formula
+    st.write("**Runoff (SCS Curve Number method):**")
+    st.latex(r'\text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10)}')
+    st.write("""
+    Where:
+    - \(R\) = Rainfall (mm)
+    - \(CN\) = Curve Number
+    """)
+    
+    # Function to calculate LAI accumulation
+    def calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1):
+        if LAIi_1 < LAImax:
+            delta_LAI = (frLAImax_i - frLAImax_i_1) * LAImax * (1 - np.exp(5 * (LAIi_1 - LAImax)))
+            return delta_LAI
+        else:
+            return 0  # No change if max LAI is reached
+    
+    # Function to calculate adjusted LAI after maximum is reached
+    def adjusted_lai(LAImax, frPHU, frPHU_sen):
+        if frPHU > frPHU_sen:
+            return LAImax * (1 - frPHU / (1 - frPHU_sen))
+        else:
+            return LAImax
+    
+    # Function to calculate actual LAI
+    def calculate_actual_lai(delta_LAI, gamma_reg):
+        return delta_LAI * gamma_reg
     
     # Input parameters
     st.header("Dynamic Input for Forest Parameters")
@@ -947,9 +982,6 @@ elif selected_option == "Forest hydrology":
             500: (9.0, 0.9, 0.1, 9.5, 9.0),
         },
     }
-    
-    # Quick Learning Section
-    st.title("Quick Learning: Forest Ecosystem Dynamics")
     
     # Fetch parameters based on user selection
     BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
@@ -1009,11 +1041,38 @@ elif selected_option == "Forest hydrology":
     hru_fig = go.Figure(data=[
         go.Bar(name='Runoff', x=['Runoff', 'Recharge', 'Discharge'], y=[runoff, recharge, discharge])
     ])
-    hru_fig.update_layout(barmode='group', title='HRU Results (mm)', yaxis_title='Water (mm)')
+    hru_fig.update_layout(barmode='group', title='HRU Results (mm)', xaxis_title='Process', yaxis_title='Value (mm)')
     st.plotly_chart(hru_fig)
     
-    # Final message
-    st.success("Hydrological calculations completed successfully!")
+    # Input parameters for LAI calculations
+    frLAImax_i = st.number_input("Enter Fraction of LAI (Current):", value=0.5)
+    frLAImax_i_1 = st.number_input("Enter Fraction of LAI (Previous):", value=0.4)
+    LAImax = st.number_input("Enter Maximum LAI:", value=6.0)
+    LAIi_1 = st.number_input("Enter Previous LAI:", value=5.0)
+    frPHU = st.number_input("Enter Fraction of Growing Season (frPHU):", value=0.6)
+    frPHU_sen = st.number_input("Enter Sensitivity for Fraction of Growing Season:", value=0.5)
+    
+    # Calculate LAI
+    delta_LAI = calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1)
+    actual_LAI = calculate_actual_lai(delta_LAI, 1.0)  # Assuming gamma_reg = 1 for simplicity
+    adjusted_LAI = adjusted_lai(LAImax, frPHU, frPHU_sen)
+    
+    # Display LAI results
+    st.subheader("LAI Results")
+    st.write(f"- **Change in LAI (Delta LAI)**: {delta_LAI:.2f}")
+    st.write(f"- **Actual LAI**: {actual_LAI:.2f}")
+    st.write(f"- **Adjusted LAI**: {adjusted_LAI:.2f}")
+    
+    # LaTeX display for z-score formula
+    st.write("**Formula:**")
+    st.latex(r'z = \frac{(X - \mu)}{\sigma}')
+    st.write("""
+    Where:
+    - \(X\) = individual observation
+    - \(\mu\) = mean of the dataset
+    - \(\sigma\) = standard deviation of the dataset
+    """)
+    
 
     # st.title("Model Validation Report")
 
