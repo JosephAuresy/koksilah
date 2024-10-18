@@ -1358,35 +1358,35 @@ elif selected_option == "New":
         # 6. Visualization with Plotly
         st.subheader("Visualizations")
     
-        # Tree Growth Over Time
-        fig_growth = go.Figure()
-        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Height (m)'],
-                                          mode='lines+markers', name='Height (m)', line=dict(color='green')))
-        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['DBH (cm)'],
-                                          mode='lines+markers', name='DBH (cm)', line=dict(color='blue')))
-        fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['LAI'],
-                                          mode='lines+markers', name='LAI', line=dict(color='orange')))
-        fig_growth.update_layout(title='Tree Growth Over Time',
-                                 xaxis_title='Year',
-                                 yaxis_title='Value',
-                                 legend_title='Parameters',
-                                 template='plotly_white')
-        st.plotly_chart(fig_growth)
+    # Tree Growth Over Time
+    fig_growth = go.Figure()
+    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Height (m)_x'],
+                                      mode='lines+markers', name='Height (m)', line=dict(color='green')))
+    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['DBH (cm)_x'],
+                                      mode='lines+markers', name='DBH (cm)', line=dict(color='blue')))
+    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['LAI_x'],
+                                      mode='lines+markers', name='LAI', line=dict(color='orange')))
+    fig_growth.update_layout(title='Tree Growth Over Time',
+                             xaxis_title='Year',
+                             yaxis_title='Value',
+                             legend_title='Parameters',
+                             template='plotly_white')
+    st.plotly_chart(fig_growth)
     
-        # Hydrological Balance Components Over Time
-        fig_hydrology = go.Figure()
-        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['ET (mm)'],
-                                            mode='lines+markers', name='ET (mm)', line=dict(color='red')))
-        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Soil Moisture (mm)'],
-                                            mode='lines+markers', name='Soil Moisture (mm)', line=dict(color='blue')))
-        fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Runoff (mm)'],
-                                            mode='lines+markers', name='Runoff (mm)', line=dict(color='orange')))
-        fig_hydrology.update_layout(title='Hydrological Balance Components Over Time',
-                                    xaxis_title='Year',
-                                    yaxis_title='Value',
-                                    legend_title='Components',
-                                    template='plotly_white')
-        st.plotly_chart(fig_hydrology)
+    # Hydrological Balance Components Over Time
+    fig_hydrology = go.Figure()
+    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['ET (mm)'],
+                                        mode='lines+markers', name='ET (mm)', line=dict(color='red')))
+    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Soil Moisture (mm)'],
+                                        mode='lines+markers', name='Soil Moisture (mm)', line=dict(color='blue')))
+    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Runoff (mm)'],
+                                        mode='lines+markers', name='Runoff (mm)', line=dict(color='orange')))
+    fig_hydrology.update_layout(title='Hydrological Balance Components Over Time',
+                                xaxis_title='Year',
+                                yaxis_title='Value',
+                                legend_title='Components',
+                                template='plotly_white')
+    st.plotly_chart(fig_hydrology)
 
     
     # st.title("Model Validation Report")
