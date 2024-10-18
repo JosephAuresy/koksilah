@@ -1107,11 +1107,6 @@ elif selected_option == "Simulator":
     st.title("Forest Growth and Hydrology Simulator")
     st.write("Explore how different forest parameters influence growth and hydrological processes.")
     
-    # Sidebar for Navigation
-    st.sidebar.header("Navigation")
-    selected_option = st.sidebar.radio("Select a Section", ["Simulator", 
-                                                             "Other Options"])  # You can add other options here
-    
     # Function to plot data
     def plot_data(x, y, title, xlabel, ylabel):
         plt.figure(figsize=(10, 4))
