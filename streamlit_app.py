@@ -37,7 +37,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New")
+    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New", "Biomass")
 )
 
 # # Decade Selection for each feature
@@ -1388,7 +1388,79 @@ elif selected_option == "New":
                                 template='plotly_white')
     st.plotly_chart(fig_hydrology)
 
+elif selected_option == "Biomass":
+
+    # Load the HRU file based on the selected year
+    def load_hru_file(year):
+        file_path = f'path_to_hru_files/hru_{year}.hru'  # Update path accordingly
+        df = pd.read_csv(file_path, delim_whitespace=True, comment='|')
+        return df
     
+    # Function to plot Stress factors vs Biomass
+    def plot_stress_biomass(df):
+        fig, ax1 = plt.subplots()
+    
+        # Stress factors (W_STRS, TMP_STRS, N_STRS, P_STRS)
+        stress_columns = ['W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS']
+        for col in stress_columns:
+            sns.lineplot(data=df[col], ax=ax1, label=col)
+    
+        ax1.set_ylabel('Stress Factors (W_STRS, TMP_STRS, N_STRS, P_STRS)')
+        ax1.set_ylim([1, 0])  # Stress range: 1 (bottom) to 0 (top)
+        
+        # Biomass (BIOMt/ha) on the right y-axis
+        ax2 = ax1.twinx()
+        sns.lineplot(data=df['BIOMt/ha'], ax=ax2, color='orange', label='Biomass (BIOMt/ha)')
+        ax2.set_ylabel('Biomass (t/ha)')
+        
+        fig.tight_layout()  # Ensures the labels don't overlap
+        st.pyplot(fig)
+    
+    # Function to plot Biomass, Yield, and LAI
+    def plot_biomass_yield_lai(df):
+        fig, ax1 = plt.subplots()
+    
+        # Biomass (BIOMt/ha) and Yield (YLDt/ha) on the left y-axis
+        sns.lineplot(data=df['BIOMt/ha'], ax=ax1, label='Biomass (BIOMt/ha)', color='orange')
+        sns.lineplot(data=df['YLDt/ha'], ax=ax1, label='Yield (YLDt/ha)', color='blue')
+        ax1.set_ylabel('Biomass (t/ha) and Yield (t/ha)')
+        
+        # LAI on the right y-axis
+        ax2 = ax1.twinx()
+        sns.lineplot(data=df['LAI'], ax=ax2, label='LAI', color='green')
+        ax2.set_ylabel('Leaf Area Index (LAI)')
+        
+        fig.tight_layout()
+        st.pyplot(fig)
+    
+    # Streamlit App UI
+    def hru_analysis():
+        st.title("HRU Data Analysis")
+    
+        # Select year
+        years = [2010, 2020]  # Add more years as needed
+        selected_year = st.sidebar.selectbox("Select Year", years)
+    
+        # Load the selected HRU file
+        df = load_hru_file(selected_year)
+    
+        # Select variable to explore
+        variables_of_interest = [
+            'BIOMt/ha', 'LAI', 'YLDt/ha', 'W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS'
+        ]
+        selected_variable = st.sidebar.selectbox("Select Variable", variables_of_interest)
+    
+        # Display the data for the selected variable
+        st.write(f"Displaying data for {selected_variable}")
+        st.dataframe(df[[selected_variable]])
+    
+        # Add plots
+        st.write("### Plot 1: Stress Factors and Biomass")
+        plot_stress_biomass(df)
+    
+        st.write("### Plot 2: Biomass, Yield, and LAI")
+        plot_biomass_yield_lai(df)
+
     # st.title("Model Validation Report")
 
     # # Add a short description
