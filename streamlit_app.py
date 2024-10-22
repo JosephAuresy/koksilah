@@ -1389,49 +1389,54 @@ elif selected_option == "New":
     st.plotly_chart(fig_hydrology)
 
 elif selected_option == "Biomass":
-
-    # Load the HRU file based on the selected year
-    def load_hru_file(year):
-        file_path = f'path_to_hru_files/hru_{year}.hru'  # Update path accordingly
-        df = pd.read_csv(file_path, delim_whitespace=True, comment='|')
-        return df
     
-    # Function to plot Stress factors vs Biomass
+    def load_hru_file(year):
+    file_path = f'path_to_hru_files/hru_{year}.hru'  # Update path accordingly
+    df = pd.read_csv(file_path, delim_whitespace=True, comment='|')
+    return df
+    
+    # Function to plot Stress factors vs Biomass using Plotly
     def plot_stress_biomass(df):
-        fig, ax1 = plt.subplots()
+        fig = go.Figure()
     
         # Stress factors (W_STRS, TMP_STRS, N_STRS, P_STRS)
         stress_columns = ['W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS']
         for col in stress_columns:
-            sns.lineplot(data=df[col], ax=ax1, label=col)
+            fig.add_trace(go.Scatter(x=df.index, y=df[col], mode='lines', name=col))
     
-        ax1.set_ylabel('Stress Factors (W_STRS, TMP_STRS, N_STRS, P_STRS)')
-        ax1.set_ylim([1, 0])  # Stress range: 1 (bottom) to 0 (top)
-        
         # Biomass (BIOMt/ha) on the right y-axis
-        ax2 = ax1.twinx()
-        sns.lineplot(data=df['BIOMt/ha'], ax=ax2, color='orange', label='Biomass (BIOMt/ha)')
-        ax2.set_ylabel('Biomass (t/ha)')
-        
-        fig.tight_layout()  # Ensures the labels don't overlap
-        st.pyplot(fig)
+        fig.add_trace(go.Scatter(x=df.index, y=df['BIOMt/ha'], mode='lines', name='Biomass (BIOMt/ha)', yaxis="y2", line=dict(color='orange')))
     
-    # Function to plot Biomass, Yield, and LAI
+        # Update layout to handle dual axes
+        fig.update_layout(
+            yaxis=dict(title='Stress Factors', range=[1, 0]),  # Stress range: 1 (bottom) to 0 (top)
+            yaxis2=dict(title='Biomass (t/ha)', overlaying='y', side='right'),
+            title='Stress Factors vs Biomass',
+            xaxis_title="Index",
+        )
+    
+        st.plotly_chart(fig)
+    
+    # Function to plot Biomass, Yield, and LAI using Plotly
     def plot_biomass_yield_lai(df):
-        fig, ax1 = plt.subplots()
+        fig = go.Figure()
     
         # Biomass (BIOMt/ha) and Yield (YLDt/ha) on the left y-axis
-        sns.lineplot(data=df['BIOMt/ha'], ax=ax1, label='Biomass (BIOMt/ha)', color='orange')
-        sns.lineplot(data=df['YLDt/ha'], ax=ax1, label='Yield (YLDt/ha)', color='blue')
-        ax1.set_ylabel('Biomass (t/ha) and Yield (t/ha)')
-        
+        fig.add_trace(go.Scatter(x=df.index, y=df['BIOMt/ha'], mode='lines', name='Biomass (BIOMt/ha)', line=dict(color='orange')))
+        fig.add_trace(go.Scatter(x=df.index, y=df['YLDt/ha'], mode='lines', name='Yield (YLDt/ha)', line=dict(color='blue')))
+    
         # LAI on the right y-axis
-        ax2 = ax1.twinx()
-        sns.lineplot(data=df['LAI'], ax=ax2, label='LAI', color='green')
-        ax2.set_ylabel('Leaf Area Index (LAI)')
-        
-        fig.tight_layout()
-        st.pyplot(fig)
+        fig.add_trace(go.Scatter(x=df.index, y=df['LAI'], mode='lines', name='LAI', yaxis="y2", line=dict(color='green')))
+    
+        # Update layout to handle dual axes
+        fig.update_layout(
+            yaxis=dict(title='Biomass (t/ha) and Yield (t/ha)'),
+            yaxis2=dict(title='LAI', overlaying='y', side='right'),
+            title='Biomass, Yield, and LAI',
+            xaxis_title="Index",
+        )
+    
+        st.plotly_chart(fig)
     
     # Streamlit App UI
     def hru_analysis():
