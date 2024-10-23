@@ -26,6 +26,7 @@ from scipy.stats import zscore
 from sklearn.metrics import pairwise_distances
 import re
 import requests
+import io
 
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
