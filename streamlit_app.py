@@ -1392,10 +1392,22 @@ elif selected_option == "New":
 elif selected_option == "Biomass":
     
     def load_hru_file(year):
-    file_path = f'path_to_hru_files/hru_{year}.hru'  # Update path accordingly
-    df = pd.read_csv(file_path, delim_whitespace=True, comment='|')
-    return df
+        # URL to the OneDrive shared file
+        file_url = 'https://uvic-my.sharepoint.com/:u:/g/personal/auresy_uvic_ca/ERcMarxe86RDoS08zB42mOcBwDw3synWV0Igk139rNI1pw'
     
+        # Make the request to download the file
+        response = requests.get(file_url)
+    
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Read the file content into a pandas DataFrame
+            # Assuming the file content is plain text or CSV-like format
+            df = pd.read_csv(io.StringIO(response.text), delim_whitespace=True, comment='|')
+            return df
+        else:
+            st.error(f"Error: Unable to download file for {year}. Status code {response.status_code}")
+            return None
+        
     # Function to plot Stress factors vs Biomass using Plotly
     def plot_stress_biomass(df):
         fig = go.Figure()
