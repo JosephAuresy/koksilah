@@ -1400,11 +1400,15 @@ elif selected_option == "Biomass":
         try:
             # Make the request to download the file
             response = requests.get(file_url)
-    
+
             # Check if the request was successful
             if response.status_code == 200:
-                # Read the file content into a pandas DataFrame
-                df = pd.read_csv(io.StringIO(response.text), delim_whitespace=True, comment='|')
+                # Read the response content into a pandas DataFrame
+                # Decode response content to string and split into lines
+                lines = response.text.splitlines()
+
+                # Skip the first 6 lines (assumed metadata) and read the rest into a DataFrame
+                df = pd.read_csv(pd.compat.StringIO('\n'.join(lines[6:])), delim_whitespace=True, comment='|')
                 return df
             else:
                 st.error(f"Error: Unable to download file for {year}. Status code {response.status_code}")
