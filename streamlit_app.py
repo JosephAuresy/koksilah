@@ -1391,23 +1391,27 @@ elif selected_option == "New":
 
 elif selected_option == "Biomass":
     
+    # Function to load the HRU file from OneDrive
     def load_hru_file(year):
-        # URL to the OneDrive shared file
-        file_url = 'https://uvic-my.sharepoint.com/:u:/g/personal/auresy_uvic_ca/ERcMarxe86RDoS08zB42mOcBwDw3synWV0Igk139rNI1pw'
-    
-        # Make the request to download the file
-        response = requests.get(file_url)
-    
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Read the file content into a pandas DataFrame
-            # Assuming the file content is plain text or CSV-like format
-            df = pd.read_csv(io.StringIO(response.text), delim_whitespace=True, comment='|')
-            return df
-        else:
-            st.error(f"Error: Unable to download file for {year}. Status code {response.status_code}")
-            return None
+        # Direct download link to the OneDrive shared file
+        file_url = 'https://uvic-my.sharepoint.com/personal/auresy_uvic_ca/_layouts/download.aspx?SourceUrl=/personal/auresy_uvic_ca/Documents/Koksilah_david/data/output.hru'
         
+        try:
+            # Make the request to download the file
+            response = requests.get(file_url)
+    
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Read the file content into a pandas DataFrame
+                df = pd.read_csv(io.StringIO(response.text), delim_whitespace=True, comment='|')
+                return df
+            else:
+                st.error(f"Error: Unable to download file for {year}. Status code {response.status_code}")
+                return None
+        except Exception as e:
+            st.error(f"Error loading file: {str(e)}")
+            return None
+    
     # Function to plot Stress factors vs Biomass using Plotly
     def plot_stress_biomass(df):
         fig = go.Figure()
@@ -1462,24 +1466,25 @@ elif selected_option == "Biomass":
         # Load the selected HRU file
         df = load_hru_file(selected_year)
     
-        # Select variable to explore
-        variables_of_interest = [
-            'BIOMt/ha', 'LAI', 'YLDt/ha', 'W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS'
-        ]
-        selected_variable = st.sidebar.selectbox("Select Variable", variables_of_interest)
+        if df is not None:
+            # Select variable to explore
+            variables_of_interest = [
+                'BIOMt/ha', 'LAI', 'YLDt/ha', 'W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS'
+            ]
+            selected_variable = st.sidebar.selectbox("Select Variable", variables_of_interest)
     
-        # Display the data for the selected variable
-        st.write(f"Displaying data for {selected_variable}")
-        st.dataframe(df[[selected_variable]])
+            # Display the data for the selected variable
+            st.write(f"Displaying data for {selected_variable}")
+            st.dataframe(df[[selected_variable]])
     
-        # Add plots
-        st.write("### Plot 1: Stress Factors and Biomass")
-        plot_stress_biomass(df)
+            # Add plots
+            st.write("### Plot 1: Stress Factors and Biomass")
+            plot_stress_biomass(df)
     
-        st.write("### Plot 2: Biomass, Yield, and LAI")
-        plot_biomass_yield_lai(df)
-
-    # st.title("Model Validation Report")
+            st.write("### Plot 2: Biomass, Yield, and LAI")
+            plot_biomass_yield_lai(df)
+        
+# st.title("Model Validation Report")
 
     # # Add a short description
     # st.markdown("""
