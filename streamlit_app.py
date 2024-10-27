@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
+from pyproj import Proj, transform
 import base64
 import folium
 from streamlit_folium import st_folium
@@ -365,6 +366,36 @@ elif selected_option == "Groundwater / Surface water interactions":
     
         # Create hover text for the real values
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
+
+    # Points Kristina Path to your data file
+    DATA_FILENAME = Path(__file__).parent / 'data/hotspots-4.csv'
+    
+    # Load hotspot data
+    hotspots_df = pd.read_csv(DATA_FILENAME)
+    
+    # Define grid origin (top-left corner in meters) and cell size
+    origin_x, origin_y = 428359.5, 5401295.0  # top-left corner coordinates in meters
+    cell_size = 300  # cell size in meters
+    
+    # Define the projection systems
+    # Replace 'EPSG:XXXX' with your actual EPSG codes for the latitude/longitude and the projected coordinate system
+    latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
+    meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
+    
+    # Function to convert lat/lng to x/y coordinates in meters
+    def convert_latlng_to_meters(lat, lng):
+        x, y = transform(latlng_proj, meters_proj, lng, lat)  # Note the order: (lng, lat)
+        return x, y
+    
+    # Convert lat/lng coordinates to x/y in meters
+    hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
+    
+    # Calculate grid row and column
+    hotspots_df['col'] = ((hotspots_df['x'] - origin_x) // cell_size).astype(int)
+    hotspots_df['row'] = ((origin_y - hotspots_df['y']) // cell_size).astype(int)
+    
+    # Display the result
+    print(hotspots_df[['id', 'name', 'row', 'col']])
     
     # Function to create heatmap
     def create_heatmap(grid, selected_month_name, hover_text):
