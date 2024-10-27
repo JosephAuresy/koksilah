@@ -18,6 +18,5 @@ matplotlib
 scikit-learn
 scipy
 requests
-proj
-transform
+
 
