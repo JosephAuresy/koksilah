@@ -367,64 +367,64 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Create hover text for the real values
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
 
-    # Set the title of the Streamlit app
-    st.title("Hotspot Data Processing")
+    # # Set the title of the Streamlit app
+    # st.title("Hotspot Data Processing")
     
-    # Path to your data file
-    DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
+    # # Path to your data file
+    # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
     
-    # Load hotspot data
-    hotspots_df = pd.read_csv(DATA_FILENAME)
+    # # Load hotspot data
+    # hotspots_df = pd.read_csv(DATA_FILENAME)
     
-    # Define grid origin (top-left corner in meters) and cell size
-    origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
-    cell_size = 300  # cell size in meters
-    num_cols = 94  # number of columns
-    num_rows = 68  # number of rows
+    # # Define grid origin (top-left corner in meters) and cell size
+    # origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
+    # cell_size = 300  # cell size in meters
+    # num_cols = 94  # number of columns
+    # num_rows = 68  # number of rows
     
-    # Define the projection systems
-    latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
-    meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
+    # # Define the projection systems
+    # latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
+    # meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
     
-    # Create a transformer
-    transformer = Transformer.from_proj(latlng_proj, meters_proj)
+    # # Create a transformer
+    # transformer = Transformer.from_proj(latlng_proj, meters_proj)
     
-    # Function to convert lat/lng to x/y coordinates in meters
-    def convert_latlng_to_meters(lat, lng):
-        x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
-        return x, y
+    # # Function to convert lat/lng to x/y coordinates in meters
+    # def convert_latlng_to_meters(lat, lng):
+    #     x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
+    #     return x, y
     
-    # Convert lat/lng coordinates to x/y in meters
-    hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
+    # # Convert lat/lng coordinates to x/y in meters
+    # hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
     
-    # Calculate grid cell centers
-    grid_centers = []
-    for row in range(num_rows):
-        for col in range(num_cols):
-            center_x = origin_x + (col * cell_size) + (cell_size / 2)
-            center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
-            grid_centers.append((center_x, center_y))
+    # # Calculate grid cell centers
+    # grid_centers = []
+    # for row in range(num_rows):
+    #     for col in range(num_cols):
+    #         center_x = origin_x + (col * cell_size) + (cell_size / 2)
+    #         center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
+    #         grid_centers.append((center_x, center_y))
     
-    # Create a DataFrame for grid centers
-    grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
-    grid_centers_df['row'] = grid_centers_df.index // num_cols
-    grid_centers_df['col'] = grid_centers_df.index % num_cols
+    # # Create a DataFrame for grid centers
+    # grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
+    # grid_centers_df['row'] = grid_centers_df.index // num_cols
+    # grid_centers_df['col'] = grid_centers_df.index % num_cols
     
-    # Determine the position of hotspots relative to the grid
-    def find_grid_cell(hotspot_x, hotspot_y):
-        for _, row in grid_centers_df.iterrows():
-            if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
-                row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
-                return row['row'], row['col']
-        return None, None
+    # # Determine the position of hotspots relative to the grid
+    # def find_grid_cell(hotspot_x, hotspot_y):
+    #     for _, row in grid_centers_df.iterrows():
+    #         if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
+    #             row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
+    #             return row['row'], row['col']
+    #     return None, None
     
-    # Find grid positions for each hotspot
-    hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
+    # # Find grid positions for each hotspot
+    # hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
     
-    # Streamlit display
-    st.title('Hotspot Coordinates Transformation and Grid Positions')
-    st.write('Hotspot Data with Grid Positions:')
-    st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
+    # # Streamlit display
+    # st.title('Hotspot Coordinates Transformation and Grid Positions')
+    # st.write('Hotspot Data with Grid Positions:')
+    # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
 
     # Function to create heatmap
     def create_heatmap(grid, selected_month_name, hover_text):
