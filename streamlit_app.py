@@ -367,8 +367,11 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Create hover text for the real values
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
 
-    # Points Kristina Path to your data file
-    DATA_FILENAME = Path(__file__).parent / 'data/hotspots-4.csv'
+    # Set the title of the Streamlit app
+    st.title("Hotspot Data Processing")
+    
+    # Path to your data file
+    DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
     
     # Load hotspot data
     hotspots_df = pd.read_csv(DATA_FILENAME)
@@ -376,7 +379,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Define grid origin (top-left corner in meters) and cell size
     origin_x, origin_y = 428359.5, 5401295.0  # top-left corner coordinates in meters
     cell_size = 300  # cell size in meters
-    
+            
     # Define the projection systems
     # Replace 'EPSG:XXXX' with your actual EPSG codes for the latitude/longitude and the projected coordinate system
     latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
@@ -394,9 +397,10 @@ elif selected_option == "Groundwater / Surface water interactions":
     hotspots_df['col'] = ((hotspots_df['x'] - origin_x) // cell_size).astype(int)
     hotspots_df['row'] = ((origin_y - hotspots_df['y']) // cell_size).astype(int)
     
-    # Display the result
-    print(hotspots_df[['id', 'name', 'row', 'col']])
-    
+    # Display the result in the Streamlit app
+    st.write("Processed Hotspot Data:")
+    st.dataframe(hotspots_df[['id', 'name', 'row', 'col']])  # Display the dataframe
+
     # Function to create heatmap
     def create_heatmap(grid, selected_month_name, hover_text):
         # Step 6: Define a custom color scale
