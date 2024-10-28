@@ -324,22 +324,23 @@ elif selected_option == "GW/SW validation":
         # Plotting box plots for each unique point
         st.subheader("Box Plot for August Rates at Selected Points")
         
-        # Group by the `id` or `name` from points_info.csv to identify unique points
+        # Loop through each unique point ID and create a box plot
         for point_id, group_data in filtered_data.groupby('id'):
-            fig, ax = plt.subplots()
-            sns.boxplot(x='Year', y='Rate', data=group_data, ax=ax)
+            point_name = group_data['name'].iloc[0]  # Get point name for the title
             
-            # Set title based on the point's name or ID for clarity
-            point_name = group_data['name'].iloc[0]
-            ax.set_title(f"Box Plot of August Rates for Point: {point_name} (ID: {point_id})")
-            ax.set_xlabel("Year")
-            ax.set_ylabel("Rate")
+            # Use Plotly to create the box plot
+            fig = px.box(
+                group_data,
+                x='Year',
+                y='Rate',
+                title=f"Box Plot of August Rates for Point: {point_name} (ID: {point_id})",
+                labels={'Year': 'Year', 'Rate': 'Rate'}
+            )
             
-            # Display the plot
-            st.pyplot(fig)
+            # Display the plot in Streamlit
+            st.plotly_chart(fig)
     else:
         st.error("Required files not found. Please ensure 'swatmf_data.txt' and 'points_info.csv' are in the 'data' folder.")
-
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
