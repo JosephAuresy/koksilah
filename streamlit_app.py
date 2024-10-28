@@ -40,7 +40,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New", "Biomass")
+    ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New", "Biomass")
 )
 
 # # Decade Selection for each feature
@@ -205,6 +205,7 @@ epsg = 32610  # Adjust this if necessary
 main_path = Path(__file__).parent
 subbasins_shapefile_path = main_path / 'data/subs1.shp'
 grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
+points_file_path = main_path / 'data/points_info.csv'
 
 # Load the subbasins GeoDataFrame from the shapefile
 try:
@@ -302,6 +303,42 @@ if selected_option == "Watershed models":
         st.write(selected_caption)  # Show the caption only after the image is clicked
     else:
         st.write("Click on an image to see a larger view and explanation.")
+
+
+elif selected_option == "GW/SW validation":
+    # Streamlit App
+    st.title("SWAT-MODFLOW Data Analysis for August Points")
+    
+    # Check if data files exist before proceeding
+    if data_file_path.exists() and points_file_path.exists():
+        # Process the main data file and filter for August
+        df = process_swatmf_data(data_file_path)
+        august_data = df[df['Month'] == 8]  # Filter for August only
+    
+        # Read points CSV file with the structure you provided
+        points_df = pd.read_csv(points_file_path)
+        
+        # Merge to get data only for the points in points_info.csv
+        filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
+    
+        # Plotting box plots for each unique point
+        st.subheader("Box Plot for August Rates at Selected Points")
+        
+        # Group by the `id` or `name` from points_info.csv to identify unique points
+        for point_id, group_data in filtered_data.groupby('id'):
+            fig, ax = plt.subplots()
+            sns.boxplot(x='Year', y='Rate', data=group_data, ax=ax)
+            
+            # Set title based on the point's name or ID for clarity
+            point_name = group_data['name'].iloc[0]
+            ax.set_title(f"Box Plot of August Rates for Point: {point_name} (ID: {point_id})")
+            ax.set_xlabel("Year")
+            ax.set_ylabel("Rate")
+            
+            # Display the plot
+            st.pyplot(fig)
+    else:
+        st.error("Required files not found. Please ensure 'swatmf_data.txt' and 'points_info.csv' are in the 'data' folder.")
 
         
 elif selected_option == "Groundwater / Surface water interactions":
