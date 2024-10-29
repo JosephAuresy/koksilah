@@ -352,15 +352,15 @@ elif selected_option == "GW/SW validation":
     if not duplicates.empty:
         st.subheader("List of Points in the Same Cell")
         
-        # Create a list of points per overlapping cell
-        overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x)).reset_index()
+        # Create a list of unique points per overlapping cell
+        overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x.unique())).reset_index()
         overlapping_cells.columns = ['Row', 'Column', 'Points']
         
         # Display the list in the app
         st.table(overlapping_cells)
     else:
         st.info("No overlapping points found in the same grid square.")
-    
+        
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
