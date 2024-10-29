@@ -353,7 +353,7 @@ elif selected_option == "GW/SW validation":
         st.subheader("List of Points in the Same Cell")
         
         # Create a list of unique points per overlapping cell
-        overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x.unique())).reset_index()
+        overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x.drop_duplicates())).reset_index()
         overlapping_cells.columns = ['Row', 'Column', 'Points']
         
         # Display the list in the app
