@@ -346,24 +346,16 @@ elif selected_option == "GW/SW validation":
     else:
         st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
     
-    # Identify overlapping points in the same cell
-    duplicates = filtered_data.groupby(['Row', 'Column']).filter(lambda x: len(x) > 1)
-    st.write("Total points in filtered data:", len(filtered_data))
-    st.write("Total points in duplicates:", len(duplicates))
-
-    if not duplicates.empty:
+    # Identify overlapping points in the same cell by checking duplicates directly
+    overlapping_points = filtered_data[filtered_data.duplicated(subset=['Row', 'Column'], keep=False)]
+    
+    if not overlapping_points.empty:
         st.subheader("List of Points in the Same Cell")
         
-        # Create a list of unique points per overlapping cell
-        overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x.drop_duplicates())).reset_index()
-        overlapping_cells.columns = ['Row', 'Column', 'Points']
-        
-        # Display the list in the app
-        st.table(overlapping_cells)
+        # Display points with Row, Column, and Names without aggregating
+        st.table(overlapping_points[['Row', 'Column', 'name']].drop_duplicates())
     else:
         st.info("No overlapping points found in the same grid square.")
-        st.write("Duplicates Data:", duplicates)
-
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
