@@ -307,45 +307,57 @@ if selected_option == "Watershed models":
 elif selected_option == "GW/SW validation":
     
     # Define paths to the main data file and the points file
-        main_path = Path.cwd()  # Use the current working directory
-        DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'  # August flow data
-        points_file_path = main_path / 'data/points_info.csv'
-        # Streamlit App
-        st.title("SWAT-MODFLOW Data Analysis for August Points")
+    main_path = Path.cwd()  # Use the current working directory
+    DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'  # August flow data
+    points_file_path = main_path / 'data/points_info.csv'
+    # Streamlit App
+    st.title("SWAT-MODFLOW Data Analysis for August Points")
         
-        # Check if data files exist before proceeding
-        if DATA_FILENAME.exists() and points_file_path.exists():
-            # Process the main data file and filter for August
-            df = process_swatmf_data(DATA_FILENAME)
-            august_data = df[df['Month'] == 8]  # Filter for August only
+    # Check if data files exist before proceeding
+    if DATA_FILENAME.exists() and points_file_path.exists():
+        # Process the main data file and filter for August
+        df = pd.read_csv(DATA_FILENAME)
+        august_data = df[df['Month'] == 8]  # Filter for August only
+    
+        # Read points CSV file
+        points_df = pd.read_csv(points_file_path)
         
-            # Read points CSV file
-            points_df = pd.read_csv(points_file_path)
+        # Merge to get data only for the points in points_info.csv
+        filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
+        
+        # Identify overlapping points in the same cell
+        duplicates = filtered_data.groupby(['Row', 'Column']).filter(lambda x: len(x) > 1)
+        
+        if not duplicates.empty:
+            st.subheader("List of Points in the Same Cell")
             
-            # Merge to get data only for the points in points_info.csv
-            filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
-        
-            # Plotting box plots for each unique point
-            st.subheader("Box Plot for August Rates at Selected Points")
+            # Create a list of points per overlapping cell
+            overlapping_cells = duplicates.groupby(['Row', 'Column'])['name'].apply(lambda x: ', '.join(x)).reset_index()
+            overlapping_cells.columns = ['Row', 'Column', 'Points']
             
-            # Loop through each unique point ID and create a box plot
-            for point_id, group_data in filtered_data.groupby('id'):
-                point_name = group_data['name'].iloc[0]  # Get point name for the title
-                
-                # Use Plotly to create the box plot
+            # Display the list in the app
+            st.table(overlapping_cells)
+            
+            # Plotting box plots for each group of overlapping points
+            st.subheader("Box Plot for August Rates at Overlapping Points")
+            
+            for (row, column), group_data in duplicates.groupby(['Row', 'Column']):
+                point_names = ', '.join(group_data['name'].unique())  # Names of all points in this grid
                 fig = px.box(
                     group_data,
                     x='Year',
                     y='Rate',
-                    title=f"Box Plot of August Rates for Point: {point_name} (ID: {point_id})",
+                    color='id',  # Differentiate points by ID
+                    title=f"Box Plot of August Rates for Points in Grid Square ({row}, {column}) - {point_names}",
                     labels={'Year': 'Year', 'Rate': 'Rate'}
                 )
-                
                 # Display the plot in Streamlit
                 st.plotly_chart(fig)
         else:
-            st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
-            
+            st.info("No overlapping points found in the same grid square.")
+    else:
+        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
+        
     
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
