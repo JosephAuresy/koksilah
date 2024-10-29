@@ -348,7 +348,9 @@ elif selected_option == "GW/SW validation":
     
     # Identify overlapping points in the same cell
     duplicates = filtered_data.groupby(['Row', 'Column']).filter(lambda x: len(x) > 1)
-    
+    st.write("Total points in filtered data:", len(filtered_data))
+    st.write("Total points in duplicates:", len(duplicates))
+
     if not duplicates.empty:
         st.subheader("List of Points in the Same Cell")
         
