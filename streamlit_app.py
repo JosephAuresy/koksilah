@@ -205,7 +205,6 @@ epsg = 32610  # Adjust this if necessary
 main_path = Path(__file__).parent
 subbasins_shapefile_path = main_path / 'data/subs1.shp'
 grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
-points_file_path = main_path / 'data/points_info.csv'
 
 # Load the subbasins GeoDataFrame from the shapefile
 try:
@@ -306,16 +305,21 @@ if selected_option == "Watershed models":
 
 
 elif selected_option == "GW/SW validation":
+
+    # Define paths to the main data file and the points file
+    main_path = Path.cwd()  # Use the current working directory
+    DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'  # August flow data
+    points_file_path = main_path / 'data/points_info.csv'
     # Streamlit App
     st.title("SWAT-MODFLOW Data Analysis for August Points")
     
     # Check if data files exist before proceeding
-    if data_file_path.exists() and points_file_path.exists():
+    if DATA_FILENAME.exists() and points_file_path.exists():
         # Process the main data file and filter for August
-        df = process_swatmf_data(data_file_path)
+        df = process_swatmf_data(DATA_FILENAME)
         august_data = df[df['Month'] == 8]  # Filter for August only
     
-        # Read points CSV file with the structure you provided
+        # Read points CSV file
         points_df = pd.read_csv(points_file_path)
         
         # Merge to get data only for the points in points_info.csv
@@ -340,7 +344,7 @@ elif selected_option == "GW/SW validation":
             # Display the plot in Streamlit
             st.plotly_chart(fig)
     else:
-        st.error("Required files not found. Please ensure 'swatmf_data.txt' and 'points_info.csv' are in the 'data' folder.")
+        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
