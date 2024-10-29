@@ -360,6 +360,8 @@ elif selected_option == "GW/SW validation":
         st.table(overlapping_cells)
     else:
         st.info("No overlapping points found in the same grid square.")
+        st.write("Duplicates Data:", duplicates)
+
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
