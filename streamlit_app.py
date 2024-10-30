@@ -328,7 +328,7 @@ elif selected_option == "GW/SW validation":
         
         # Get the unique site names
         sites = filtered_data['name'].unique()
-    
+            
         # Create a figure to hold all box plots
         fig = go.Figure()
         
@@ -350,7 +350,11 @@ elif selected_option == "GW/SW validation":
                 marker_color='blue',
                 line=dict(width=2),  # Increase line width for box edges
                 boxmean='sd',  # Show mean and standard deviation
-                marker=dict(size=8, color='red', outliercolor='green'),  # Customize outlier markers
+                outliercolor='red',  # Color of the outlier line
+                outlier=dict(
+                    mode='lines',  # Display outliers as lines
+                    line=dict(color='red', width=1)  # Line properties for outliers
+                ),
                 showlegend=False  # Disable legend to avoid showing names on the right
             ))
         
@@ -359,7 +363,9 @@ elif selected_option == "GW/SW validation":
             title="Box Plot of August Flow Rates by Site",
             yaxis_title="Flow Rate (cms)",
             boxmode='group',  # Group boxes together
-            height=600
+            height=600,
+            plot_bgcolor='white',  # Set plot background color
+            yaxis=dict(gridcolor='LightGray')  # Light grid lines
         )
         
         # Display the combined plot in Streamlit
