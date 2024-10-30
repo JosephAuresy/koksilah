@@ -317,43 +317,43 @@ elif selected_option == "GW/SW validation":
     # Check if data files exist before proceeding
     if DATA_FILENAME.exists() and points_file_path.exists():
         # Process the main data file and filter for August
-        df = pd.read_csv(DATA_FILENAME)
-        df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])  # Combine Year, Month, Day into a Date column if needed
+        df = process_swatmf_data(DATA_FILENAME)
         august_data = df[df['Month'] == 8]  # Filter for August only
-        
+    
         # Read points CSV file
         points_df = pd.read_csv(points_file_path)
-        
+    
         # Merge to get data only for the points in points_info.csv
         filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
-        
-        # Plotting box plots for each unique point
-        st.subheader("Box Plot for August Flow Rates at Selected Points")
     
-        # Create a single box plot for all points with years as x-axis
+        # Plotting combined box plots for all sites
+        st.subheader("Combined Box Plot of August Rates for All Points")
+        
+        # Use Plotly to create a single box plot
         fig = px.box(
             filtered_data,
-            x='Year',
+            x='name',  # Each box plot will be grouped by 'name' (the site name)
             y='Rate',
-            color='name',  # Color by point name to distinguish different sites
             title="Box Plot of August Flow Rates for Each Site Across All Years",
-            labels={'Year': 'Year', 'Rate': 'Flow Rate (cms)', 'name': 'Site'},
-            boxmode='group'  # Groups boxes by year across different sites
+            labels={'name': 'Site', 'Rate': 'Flow Rate (cms)'}
         )
-        
-        # Display the plot in Streamlit
+    
+        # Display the combined plot in Streamlit
         st.plotly_chart(fig)
-        
-        # Identify overlapping points in the same cell
-        overlapping_points = filtered_data[filtered_data.duplicated(subset=['Row', 'Column'], keep=False)]
-        
-        if not overlapping_points.empty:
-            st.subheader("List of Points in the Same Cell")
-            st.table(overlapping_points[['Row', 'Column', 'name']].drop_duplicates())
-        else:
-            st.info("No overlapping points found in the same grid square.")
+    
     else:
         st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
+    
+    # Identify overlapping points in the same cell by checking duplicates directly
+    overlapping_points = filtered_data[filtered_data.duplicated(subset=['Row', 'Column'], keep=False)]
+    
+    if not overlapping_points.empty:
+        st.subheader("List of Points in the Same Cell")
+    
+        # Display points with Row, Column, and Names without aggregating
+        st.table(overlapping_points[['Row', 'Column', 'name']].drop_duplicates())
+    else:
+        st.info("No overlapping points found in the same grid square.")
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
