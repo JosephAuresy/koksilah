@@ -370,8 +370,8 @@ elif selected_option == "GW/SW validation":
         st.subheader("Box Plot of August Flow Rates for Each Site Across All Years")
         st.plotly_chart(fig)
     
-        else:
-        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
+    else:
+    st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
         
     # Load your data from the CSV file
     csv_file_path = 'data/Simulated_vs_Observed_Flow_Year10_Months6_9.csv'  # Path to your CSV file
