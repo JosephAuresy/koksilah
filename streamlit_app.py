@@ -368,8 +368,8 @@ elif selected_option == "GW/SW validation":
     
     # Set log scale and limit the range of the plot to 2
     fig.update_layout(
-        xaxis=dict(title="Measured Flow (cms)", type="log", range=[-2, np.log10(2)]),  # Log scale range for values 0.01 to 2
-        yaxis=dict(title="Simulated Flow (cms)", type="log", range=[-2, np.log10(2)]),  # Log scale range for values 0.01 to 2
+        xaxis=dict(title="Measured Flow (cms)", type="log", range=[np.log10(0.00001), np.log10(2)]),  # Log scale starting at 0.00001
+        yaxis=dict(title="Simulated Flow (cms)", type="log", range=[np.log10(0.00001), np.log10(2)]),  # Log scale starting at 0.00001
         autosize=False,
         width=700,
         height=700
