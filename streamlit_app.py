@@ -325,36 +325,43 @@ elif selected_option == "GW/SW validation":
     
         # Merge to get data only for the points in points_info.csv
         filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
+        
+        # Get the unique site names
+        sites = filtered_data['name'].unique()
     
-        # Replace positive rates with their log10 value and leave negative rates unchanged
-        filtered_data['Transformed_Rate'] = np.where(
-            filtered_data['Rate'] > 0, 
-            np.log10(filtered_data['Rate']),  # Apply log10 for positive rates
-            filtered_data['Rate']               # Leave negative rates unchanged
-        )
-    
-        # Create a figure for the box plot
+        # Create a figure to hold all box plots
         fig = go.Figure()
     
-        # Add box plot for the transformed rates
-        fig.add_trace(go.Box(
-            y=filtered_data['Transformed_Rate'],
-            name='Flow Rates',
-            marker_color='blue',
-            boxmean='sd'  # Show mean and standard deviation
-        ))
+        # Loop through each site and create a box plot for each
+        for site in sites:
+            site_data = filtered_data[filtered_data['name'] == site]
+    
+            # Transform the Rate for box plotting
+            site_data['Transformed_Rate'] = np.where(
+                site_data['Rate'] > 0, 
+                np.log10(site_data['Rate']),  # Apply log10 for positive rates
+                site_data['Rate']               # Leave negative rates unchanged
+            )
+    
+            # Add a box plot for the transformed rates of the current site
+            fig.add_trace(go.Box(
+                y=site_data['Transformed_Rate'],
+                name=site,
+                marker_color='blue',
+                boxmean='sd'  # Show mean and standard deviation
+            ))
     
         # Update layout for better visualization
         fig.update_layout(
-            title="Box Plot of August Flow Rates",
+            title="Box Plot of August Flow Rates by Site",
             yaxis_title="Flow Rate (cms)",
-            xaxis_title="Combined Flow Rates (Log Scale for Positive Values)",
-            yaxis_type='linear',  # Keep y-axis as linear
-            height=600
+            xaxis_title="Sites",
+            height=600,
+            boxmode='group'  # Group boxes together for better comparison
         )
     
         # Display the combined plot in Streamlit
-        st.subheader("Box Plot of August Flow Rates Across All Sites")
+        st.subheader("Box Plot of August Flow Rates for Each Site Across All Years")
         st.plotly_chart(fig)
     
     else:
