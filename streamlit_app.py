@@ -331,42 +331,36 @@ elif selected_option == "GW/SW validation":
     
         # Create a figure to hold all box plots
         fig = go.Figure()
-    
+        
         # Loop through each site and create a box plot for each
         for site in sites:
             site_data = filtered_data[filtered_data['name'] == site]
-    
-            # Transform the Rate for box plotting
+        
+            # Transform the Rate values for the box plot
             site_data['Transformed_Rate'] = np.where(
-                site_data['Rate'] > 0, 
-                np.log10(site_data['Rate'] + 1e-10),  # Apply log10 for positive rates with a small offset to avoid log(0)
-                site_data['Rate']                     # Leave negative rates unchanged
+                site_data['Rate'] > 0,
+                np.log10(site_data['Rate'] + 1e-10),  # Small value to avoid log(0)
+                site_data['Rate']
             )
-    
-            # Add a box plot for the transformed rates of the current site
+            
+            # Add box plot for each site
             fig.add_trace(go.Box(
                 y=site_data['Transformed_Rate'],
                 name=site,
                 marker_color='blue',
-                boxmean='sd'  # Show mean and standard deviation
+                line=dict(width=2),  # Increase line width for box edges
+                boxmean='sd',  # Show mean and standard deviation
+                marker=dict(size=8, color='red', outliercolor='green')  # Customize outlier markers
             ))
-    
-        # Set y-axis range to ensure both positive and negative values fit nicely
-        # Adjust these limits as necessary for your data
-        y_min = min(filtered_data['Rate'].min(), 0)  # Minimum is 0 or the min of negative rates
-        y_max = max(filtered_data['Rate'].max(), 1)  # Maximum is the max of positive rates or 1 for better visibility
-    
-        fig.update_yaxes(range=[y_min, y_max])  # Set consistent y-axis range
-    
+        
         # Update layout for better visualization
         fig.update_layout(
             title="Box Plot of August Flow Rates by Site",
             yaxis_title="Flow Rate (cms)",
-            xaxis_title="Sites",
-            height=600,
-            boxmode='group'  # Group boxes together for better comparison
+            boxmode='group',  # Group boxes together
+            height=600
         )
-    
+        
         # Display the combined plot in Streamlit
         st.subheader("Box Plot of August Flow Rates for Each Site Across All Years")
         st.plotly_chart(fig)
