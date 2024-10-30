@@ -328,15 +328,38 @@ elif selected_option == "GW/SW validation":
     
         # Plotting combined box plots for all sites
         st.subheader("Combined Box Plot of August Rates for All Points")
-        
-        # Create a scatter plot to visualize box plot with log scale
+            
+        # Create a new column for flow rates, transformed for log scale where applicable
+        filtered_data['Log_Rate'] = np.where(filtered_data['Rate'] > 0, 
+                                              np.log10(filtered_data['Rate']), 
+                                              filtered_data['Rate'])
+    
+        # Plotting combined box plots for all sites
+        st.subheader("Combined Box Plot of August Rates for All Points")
+    
+        # Create a box plot for the log-transformed and regular values
         fig = px.box(
             filtered_data,
             x='name',  # Each box plot will be grouped by 'name' (the site name)
-            y='Rate',
-            title="Box Plot of August Flow Rates for Each Site Across All Years",
-            labels={'name': 'Site', 'Rate': 'Flow Rate (cms)'},
-            log_y=True  # Set logarithmic scale for y-axis
+            y='Log_Rate',  # Use the log-transformed rate
+            title="Box Plot of August Flow Rates for Each Site Across All Years (Log Scale for Positives)",
+            labels={'name': 'Site', 'Log_Rate': 'Flow Rate (cms)'},
+            points="all"  # Show all points
+        )
+    
+        # Update y-axis to allow for both negative and positive values
+        fig.update_yaxes(
+            title="Flow Rate (cms)",
+            tickvals=[-2, -1, 0, 0.1, 1, 2],  # Adjust these values as needed
+            ticktext=["-2", "-1", "0", "0.1", "1", "2"],
+        )
+    
+        # Add a separate layout for the positive values in log scale
+        fig.add_shape(
+            type="line",
+            x0=-0.5, y0=0, x1=len(filtered_data['name']) - 0.5, y1=0,
+            line=dict(color="Red", dash="dash"),
+            name="Zero Line"
         )
     
         # Display the combined plot in Streamlit
