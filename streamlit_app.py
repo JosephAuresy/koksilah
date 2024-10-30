@@ -329,13 +329,14 @@ elif selected_option == "GW/SW validation":
         # Plotting combined box plots for all sites
         st.subheader("Combined Box Plot of August Rates for All Points")
         
-        # Use Plotly to create a single box plot
+        # Create a scatter plot to visualize box plot with log scale
         fig = px.box(
             filtered_data,
             x='name',  # Each box plot will be grouped by 'name' (the site name)
             y='Rate',
             title="Box Plot of August Flow Rates for Each Site Across All Years",
-            labels={'name': 'Site', 'Rate': 'Flow Rate (cms)'}
+            labels={'name': 'Site', 'Rate': 'Flow Rate (cms)'},
+            log_y=True  # Set logarithmic scale for y-axis
         )
     
         # Display the combined plot in Streamlit
