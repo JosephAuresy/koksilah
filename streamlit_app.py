@@ -350,7 +350,7 @@ elif selected_option == "GW/SW validation":
                 marker_color='blue',
                 line=dict(width=2),  # Increase line width for box edges
                 boxmean='sd',  # Show mean and standard deviation
-                marker=dict(size=8, color='red', outliercolor='green')  # Customize outlier markers
+                marker=dict(size=8, color='red', outliercolor='green'),  # Customize outlier markers
                 showlegend=False  # Disable legend to avoid showing names on the right
             ))
         
