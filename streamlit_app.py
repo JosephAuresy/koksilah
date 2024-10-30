@@ -343,17 +343,44 @@ elif selected_option == "GW/SW validation":
     
     else:
         st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
+        
+    # Load your data from the CSV file
+    csv_file_path = 'data/Simulated_vs_Observed_Flow_Year10_Months6_9.csv'  # Path to your CSV file
+    merged_data = pd.read_csv(csv_file_path)
     
-    # Identify overlapping points in the same cell by checking duplicates directly
-    overlapping_points = filtered_data[filtered_data.duplicated(subset=['Row', 'Column'], keep=False)]
+    # Create an interactive scatter plot with log scale and limited axis range, coloring points by 'Site'
+    fig = px.scatter(
+        merged_data, 
+        x='Measured_Flow', 
+        y='Simulated_Flow', 
+        color='Site',  # Color points by site
+        labels={'Measured_Flow': 'Measured Flow (cms)', 'Simulated_Flow': 'Simulated Flow (cms)', 'Site': 'Site'},
+        title='Simulated vs. Measured Flow by Site (Log Scale, Limited Range)',
+        opacity=0.6
+    )
     
-    if not overlapping_points.empty:
-        st.subheader("List of Points in the Same Cell")
+    # Add a 45-degree reference line
+    fig.add_shape(
+        type="line",
+        x0=0.00001, y0=0.00001, x1=2, y1=2,  # Start from a small positive value to fit the log scale
+        line=dict(color="Red", dash="dash")
+    )
     
-        # Display points with Row, Column, and Names without aggregating
-        st.table(overlapping_points[['Row', 'Column', 'name']].drop_duplicates())
-    else:
-        st.info("No overlapping points found in the same grid square.")
+    # Set log scale and limit the range of the plot to 2
+    fig.update_layout(
+        xaxis=dict(title="Measured Flow (cms)", type="log", range=[-2, np.log10(2)]),  # Log scale range for values 0.01 to 2
+        yaxis=dict(title="Simulated Flow (cms)", type="log", range=[-2, np.log10(2)]),  # Log scale range for values 0.01 to 2
+        autosize=False,
+        width=700,
+        height=700
+    )
+    
+    # Streamlit app layout
+    st.title("Flow Simulation Analysis")
+    st.write("This application displays the simulated vs. measured flow data colored by site.")
+    
+    # Display the plot in the Streamlit app
+    st.plotly_chart(fig)
         
 elif selected_option == "Groundwater / Surface water interactions":
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
