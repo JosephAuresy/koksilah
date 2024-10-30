@@ -305,14 +305,20 @@ if selected_option == "Watershed models":
 
 
 elif selected_option == "GW/SW validation":
-
-    # Define paths to the main data file and the points file
-    main_path = Path.cwd()  # Use the current working directory
-    DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'  # August flow data
-    points_file_path = main_path / 'data/points_info.csv'
     
-    # Streamlit App
-    st.title("SWAT-MODFLOW Data Analysis for August Points")
+    # Define paths to the main data file and the points file
+    DATA_FILENAME = Path("swatmf_out_MF_gwsw_monthly.csv")
+    points_file_path = Path("points_info.csv")
+    
+    # Define the sites to color in purple
+    purple_sites = [
+        "Glenora_DoupeRd", "Glenora_MarshallRd", "Kelvin_MountainRd_5",
+        "Mainstem_KoksilahRiverPark", "Neel_ShawRd_2", "Patrolas_HillbankRd",
+        "WildDeer_WildDeerMain4.8", "WK_East_RenfrewMain1.0"
+    ]
+    
+    # Streamlit app
+    st.title("Flow Rate Analysis for August")
     
     # Check if data files exist before proceeding
     if DATA_FILENAME.exists() and points_file_path.exists():
@@ -325,56 +331,66 @@ elif selected_option == "GW/SW validation":
     
         # Merge to get data only for the points in points_info.csv
         filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
-        
-        # Get the unique site names
-        sites = filtered_data['name'].unique()
-            
-        # Create a figure to hold all box plots
-        fig = go.Figure()
-        
-        # Loop through each site and create a box plot for each
-        for site in sites:
+    
+        # Separate sites into three groups: all negative, all positive, and mixed values
+        all_negative_sites = []
+        all_positive_sites = []
+        mixed_sites = []
+    
+        # Determine which sites belong to each group
+        for site in filtered_data['name'].unique():
             site_data = filtered_data[filtered_data['name'] == site]
-        
-            # Transform the Rate values for the box plot
-            site_data['Transformed_Rate'] = np.where(
-                site_data['Rate'] > 0,
-                np.log10(site_data['Rate'] + 1e-10),  # Small value to avoid log(0)
-                site_data['Rate']
+            if (site_data['Rate'] <= 0).all():  # All values are negative
+                all_negative_sites.append(site)
+            elif (site_data['Rate'] > 0).all():  # All values are positive
+                all_positive_sites.append(site)
+            else:  # Mixed values
+                mixed_sites.append(site)
+    
+        # Function to create box plots
+        def create_box_plot(sites, title, color_map):
+            fig = go.Figure()
+            for site in sites:
+                site_data = filtered_data[filtered_data['name'] == site]
+                color = color_map.get(site, 'gray')
+                
+                fig.add_trace(go.Box(
+                    y=site_data['Rate'],
+                    name=site,
+                    marker_color=color,
+                    line=dict(width=2),
+                    boxmean='sd',
+                    marker=dict(outliercolor='red'),
+                    showlegend=False
+                ))
+            fig.update_layout(
+                title=title,
+                yaxis_title="Flow Rate (cms)",
+                boxmode='group',
+                height=600,
+                plot_bgcolor='white',
+                yaxis=dict(gridcolor='LightGray')
             )
-            
-            # Add box plot for each site
-            fig.add_trace(go.Box(
-                y=site_data['Transformed_Rate'],
-                name=site,
-                marker_color='blue',
-                line=dict(width=2),  # Increase line width for box edges
-                boxmean='sd',  # Show mean and standard deviation
-                outliercolor='red',  # Color of the outlier line
-                outlier=dict(
-                    mode='lines',  # Display outliers as lines
-                    line=dict(color='red', width=1)  # Line properties for outliers
-                ),
-                showlegend=False  # Disable legend to avoid showing names on the right
-            ))
-        
-        # Update layout for better visualization
-        fig.update_layout(
-            title="Box Plot of August Flow Rates by Site",
-            yaxis_title="Flow Rate (cms)",
-            boxmode='group',  # Group boxes together
-            height=600,
-            plot_bgcolor='white',  # Set plot background color
-            yaxis=dict(gridcolor='LightGray')  # Light grid lines
-        )
-        
-        # Display the combined plot in Streamlit
-        st.subheader("Box Plot of August Flow Rates for Each Site Across All Years")
-        st.plotly_chart(fig)
+            return fig
+    
+        # Create color maps for each group
+        negative_color_map = {site: 'purple' if site in purple_sites else 'blue' for site in all_negative_sites}
+        mixed_color_map = {site: 'purple' if site in purple_sites else 'lightblue' for site in mixed_sites}
+        positive_color_map = {site: 'purple' if site in purple_sites else 'brown' for site in all_positive_sites}
+    
+        # Display the plots in the Streamlit app
+        st.subheader("Consistently Gaining: Box Plot of August Flow Rates (All Negative Sites)")
+        st.plotly_chart(create_box_plot(all_negative_sites, "Consistently Gaining", negative_color_map))
+    
+        st.subheader("Transition Places: Box Plot of August Flow Rates (Mixed Value Sites)")
+        st.plotly_chart(create_box_plot(mixed_sites, "Transition Places", mixed_color_map))
+    
+        st.subheader("Consistently Losing: Box Plot of August Flow Rates (All Positive Sites)")
+        st.plotly_chart(create_box_plot(all_positive_sites, "Consistently Losing", positive_color_map))
     
     else:
-        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
-    
+        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the working directory.")
+        
     # Load your data from the CSV file
     csv_file_path = 'data/Simulated_vs_Observed_Flow_Year10_Months6_9.csv'  # Path to your CSV file
     merged_data = pd.read_csv(csv_file_path)
