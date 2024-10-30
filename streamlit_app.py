@@ -326,41 +326,51 @@ elif selected_option == "GW/SW validation":
         # Merge to get data only for the points in points_info.csv
         filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
     
-        # Plotting combined box plots for all sites
-        st.subheader("Combined Box Plot of August Rates for All Points")
+        # Get the unique site names
+        sites = filtered_data['name'].unique()
+    
+        # Create a figure to hold all box plots
+        fig = go.Figure()
+    
+        # Loop through each site and create a box plot for each
+        for site in sites:
+            site_data = filtered_data[filtered_data['name'] == site]
             
-        # Separate positive and negative flow rates
-        positive_rates = filtered_data[filtered_data['Rate'] > 0]
-        negative_rates = filtered_data[filtered_data['Rate'] <= 0]
+            # Separate positive and negative flow rates
+            positive_rates = site_data[site_data['Rate'] > 0]
+            negative_rates = site_data[site_data['Rate'] <= 0]
+            
+            # Add box plot for positive rates (log scale)
+            if not positive_rates.empty:
+                fig.add_trace(go.Box(
+                    y=np.log10(positive_rates['Rate']),
+                    name=f'Positive Rates - {site}',
+                    marker_color='blue',
+                    boxmean='sd'  # Show mean and standard deviation
+                ))
     
-        # Create a box plot for positive rates (log scale)
-        positive_fig = go.Figure()
-        positive_fig.add_trace(go.Box(
-            y=np.log10(positive_rates['Rate']),
-            name='Positive Rates (Log Scale)',
-            marker_color='blue',
-            boxmean='sd'  # Show mean and standard deviation
-        ))
+            # Add box plot for negative rates (normal scale)
+            if not negative_rates.empty:
+                fig.add_trace(go.Box(
+                    y=negative_rates['Rate'],
+                    name=f'Negative Rates - {site}',
+                    marker_color='orange',
+                    boxmean='sd'  # Show mean and standard deviation
+                ))
     
-        # Create a box plot for negative rates (normal scale)
-        negative_fig = go.Figure()
-        negative_fig.add_trace(go.Box(
-            y=negative_rates['Rate'],
-            name='Negative Rates (Normal Scale)',
-            marker_color='orange',
-            boxmean='sd'  # Show mean and standard deviation
-        ))
+        # Update layout for better visualization
+        fig.update_layout(
+            title="Box Plot of August Flow Rates by Site",
+            yaxis_title="Flow Rate (cms)",
+            boxmode='group',  # Group boxes together
+            height=600
+        )
     
-        # Display the plots in Streamlit
+        # Display the combined plot in Streamlit
         st.subheader("Box Plot of August Flow Rates for Each Site Across All Years")
-        
-        # Plot positive rates on log scale
-        st.plotly_chart(positive_fig)
+        st.plotly_chart(fig)
     
-        # Plot negative rates on normal scale
-        st.plotly_chart(negative_fig)
-    
-    else:
+        else:
         st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
         
     # Load your data from the CSV file
