@@ -339,8 +339,8 @@ elif selected_option == "GW/SW validation":
             # Transform the Rate for box plotting
             site_data['Transformed_Rate'] = np.where(
                 site_data['Rate'] > 0, 
-                np.log10(site_data['Rate']),  # Apply log10 for positive rates
-                site_data['Rate']               # Leave negative rates unchanged
+                np.log10(site_data['Rate'] + 1e-10),  # Apply log10 for positive rates with a small offset to avoid log(0)
+                site_data['Rate']                     # Leave negative rates unchanged
             )
     
             # Add a box plot for the transformed rates of the current site
@@ -350,6 +350,13 @@ elif selected_option == "GW/SW validation":
                 marker_color='blue',
                 boxmean='sd'  # Show mean and standard deviation
             ))
+    
+        # Set y-axis range to ensure both positive and negative values fit nicely
+        # Adjust these limits as necessary for your data
+        y_min = min(filtered_data['Rate'].min(), 0)  # Minimum is 0 or the min of negative rates
+        y_max = max(filtered_data['Rate'].max(), 1)  # Maximum is the max of positive rates or 1 for better visibility
+    
+        fig.update_yaxes(range=[y_min, y_max])  # Set consistent y-axis range
     
         # Update layout for better visualization
         fig.update_layout(
@@ -366,7 +373,7 @@ elif selected_option == "GW/SW validation":
     
     else:
         st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the 'data' folder.")
-
+    
     # Load your data from the CSV file
     csv_file_path = 'data/Simulated_vs_Observed_Flow_Year10_Months6_9.csv'  # Path to your CSV file
     merged_data = pd.read_csv(csv_file_path)
