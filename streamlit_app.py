@@ -307,8 +307,9 @@ if selected_option == "Watershed models":
 elif selected_option == "GW/SW validation":
     
     # Define paths to the main data file and the points file
-    DATA_FILENAME = Path("swatmf_out_MF_gwsw_monthly.csv")
-    points_file_path = Path("points_info.csv")
+    main_path = Path(__file__).parent
+    DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'
+    points_file_path = main_path / 'data/points_info.csv'
     
     # Define the sites to color in purple
     purple_sites = [
