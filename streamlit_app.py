@@ -67,7 +67,25 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
         ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
         index=6  # Default to 2010s (index 6)
     )
+    # Define a function to generate folder path based on selected decade
+    def get_folder_path(land_use, climate, water_use):
+        # Assuming data folder structure is like: 'data/L{land_use}_C{climate}_W{water_use}'
+        folder_name = f'L{land_use}_C{climate}_W{water_use}'
+        return Path(__file__).parent / 'data' / folder_name
+
+    # Get the folder based on selected decades
+    data_folder = get_folder_path(selected_decade_land_use, selected_decade_climate, selected_decade_water_use)
     
+    # Path to your data file
+    data_filename = data_folder / 'swatmf_out_MF_gwsw_monthly.csv'
+
+    # Check if the file exists
+    if data_filename.exists():
+        df = process_swatmf_data(data_filename)
+        st.write(df.head())  # Show the first few rows of the data
+    else:
+        st.error(f"Data file not found: {data_filename}")
+   
 # Month names for mapping
 month_names = [
     "January", "February", "March", "April", "May", "June",
