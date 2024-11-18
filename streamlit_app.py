@@ -43,6 +43,39 @@ selected_option = st.sidebar.radio(
     ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Report")
 )
 
+def process_swatmf_data(file_path):
+    data = []
+    current_month = None
+    current_year = None
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            if 'month:' in line:
+                parts = line.split()
+                try:
+                    current_month = int(parts[1])
+                    current_year = int(parts[3])
+                except (ValueError, IndexError):
+                    continue  # Skip if there's an issue parsing month/year
+            elif 'Layer' in line:
+                continue  # Skip header line
+            elif line.strip() == '':
+                continue  # Skip empty line
+            else:
+                parts = line.split()
+                if len(parts) == 4:
+                    try:
+                        layer = int(parts[0])
+                        row = int(parts[1])
+                        column = int(parts[2])
+                        rate = float(parts[3])
+                        data.append([current_year, current_month, layer, row, column, rate])
+                    except ValueError:
+                        continue  # Skip if there's an issue parsing the data
+
+    df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
+    return df
+
 # Conditional Model Selection Display
 if selected_option == "Groundwater / Surface water interactions" or selected_option == "Recharge":
     # Display Model selection part only when these options are selected
@@ -97,39 +130,6 @@ month_names = [
 
 # Function to process SWAT-MF data
 @st.cache_data
-def process_swatmf_data(file_path):
-    data = []
-    current_month = None
-    current_year = None
-
-    with open(file_path, 'r') as file:
-        for line in file:
-            if 'month:' in line:
-                parts = line.split()
-                try:
-                    current_month = int(parts[1])
-                    current_year = int(parts[3])
-                except (ValueError, IndexError):
-                    continue  # Skip if there's an issue parsing month/year
-            elif 'Layer' in line:
-                continue  # Skip header line
-            elif line.strip() == '':
-                continue  # Skip empty line
-            else:
-                parts = line.split()
-                if len(parts) == 4:
-                    try:
-                        layer = int(parts[0])
-                        row = int(parts[1])
-                        column = int(parts[2])
-                        rate = float(parts[3])
-                        data.append([current_year, current_month, layer, row, column, rate])
-                    except ValueError:
-                        continue  # Skip if there's an issue parsing the data
-
-    df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
-    return df
-
 # Function to read the recharge file
 def read_recharge_file(file_path):
     data = {}
