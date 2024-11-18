@@ -73,7 +73,7 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
         land_use_code = land_use[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
         climate_code = climate[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
         water_use_code = water_use[-2:]         
-        folder_name = f'L{land_use}_C{climate}_W{water_use}'
+        folder_name = f'L{land_use_code}_C{climate_code}_W{water_use_code}'
         return Path(__file__).parent / 'data' / folder_name
 
     # Get the folder based on selected decades
