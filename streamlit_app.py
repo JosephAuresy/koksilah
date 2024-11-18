@@ -40,7 +40,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New", "Report")
+    ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Report")
 )
 
 # Decade Selection for each feature
