@@ -40,7 +40,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Report")
+    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Report")
 )
 
 # Conditional Model Selection Display
@@ -309,7 +309,7 @@ if selected_option == "Watershed models":
         st.write("Click on an image to see a larger view and explanation.")
 
 
-elif selected_option == "GW/SW validation":
+elif selected_option == "Field data validation":
     
     # Define paths to the main data file and the points file
     main_path = Path(__file__).parent
