@@ -85,7 +85,7 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     # Check if the file exists
     if data_filename.exists():
         df = process_swatmf_data(data_filename)
-        st.write(df.head())  # Show the first few rows of the data
+        # st.write(df.head())  # Show the first few rows of the data
     else:
         st.error(f"Data file not found: {data_filename}")
    
@@ -204,9 +204,9 @@ def create_map(data, selected_month=None):
 
     return m
     
-#Path to your data file
-DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
-df = process_swatmf_data(DATA_FILENAME)
+# #Path to your data file
+# DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
+# df = process_swatmf_data(DATA_FILENAME)
 
 # Path to recharge data
 RECHARGE_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_recharge_monthly.txt'
