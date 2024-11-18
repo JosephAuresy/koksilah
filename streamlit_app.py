@@ -43,25 +43,25 @@ selected_option = st.sidebar.radio(
     ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Forest hydrology", "Simulator", "New", "Report")
 )
 
-# # Decade Selection for each feature
-# st.sidebar.title("Model selection")
-# st.sidebar.subheader("Climate")
-# selected_decade_climate = st.sidebar.selectbox(
-#     "Choose a decade for Climate:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
+# Decade Selection for each feature
+st.sidebar.title("Model selection")
+st.sidebar.subheader("Climate")
+selected_decade_climate = st.sidebar.selectbox(
+    "Choose a decade for Climate:",
+    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+)
 
-# st.sidebar.subheader("Land Use")
-# selected_decade_land_use = st.sidebar.selectbox(
-#     "Choose a decade for Land Use:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
+st.sidebar.subheader("Land Use")
+selected_decade_land_use = st.sidebar.selectbox(
+    "Choose a decade for Land Use:",
+    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+)
 
-# st.sidebar.subheader("Water Use")
-# selected_decade_water_use = st.sidebar.selectbox(
-#     "Choose a decade for Water Use:",
-#     ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-# )
+st.sidebar.subheader("Water Use")
+selected_decade_water_use = st.sidebar.selectbox(
+    "Choose a decade for Water Use:",
+    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+)
 
 # Month names for mapping
 month_names = [
@@ -1076,505 +1076,505 @@ elif selected_option == "Recharge":
     #     st.plotly_chart(fig6)
 
     
-elif selected_option == "Forest hydrology":
+# elif selected_option == "Forest hydrology":
     
-    # Title of the app
-    st.title("Forest Hydrology and Management")
+#     # Title of the app
+#     st.title("Forest Hydrology and Management")
     
-    # Introduction
-    st.markdown("""
-    ### Introduction
-    Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. 
-    Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
+#     # Introduction
+#     st.markdown("""
+#     ### Introduction
+#     Explore the impact of different forest management practices on hydrology, focusing on **Douglas Fir** and **Red Cedar**. 
+#     Analyze how various parameters influence runoff, recharge, discharge, and evapotranspiration in forested areas.
     
-    **Key Equations**:
-    """)
+#     **Key Equations**:
+#     """)
     
-    # Evapotranspiration formula (Penman-Monteith)
-    st.write("**Evapotranspiration (Penman-Monteith):**")
-    st.latex(r'ET = \frac{ \Delta (R_n - G) + \rho_a c_p \frac{(e_s - e_a)}{r_a} }{ \Delta + \gamma (1 + r_s/r_a) }')
-    st.write("""
-    Where:
-    - \(ET\) = Evapotranspiration (mm/day)
-    - \(\Delta\) = Slope of the saturation vapor pressure curve (kPa/°C)
-    - \(R_n\) = Net radiation (MJ/m²/day)
-    - \(G\) = Soil heat flux (MJ/m²/day)
-    - \(\rho_a\) = Density of air (kg/m³)
-    - \(c_p\) = Specific heat of air (MJ/kg/°C)
-    - \(e_s\) = Saturation vapor pressure (kPa)
-    - \(e_a\) = Actual vapor pressure (kPa)
-    - \(r_a\) = Aerodynamic resistance (s/m)
-    - \(\gamma\) = Psychrometric constant (kPa/°C)
-    - \(r_s\) = Surface resistance (s/m)
-    """)
+#     # Evapotranspiration formula (Penman-Monteith)
+#     st.write("**Evapotranspiration (Penman-Monteith):**")
+#     st.latex(r'ET = \frac{ \Delta (R_n - G) + \rho_a c_p \frac{(e_s - e_a)}{r_a} }{ \Delta + \gamma (1 + r_s/r_a) }')
+#     st.write("""
+#     Where:
+#     - \(ET\) = Evapotranspiration (mm/day)
+#     - \(\Delta\) = Slope of the saturation vapor pressure curve (kPa/°C)
+#     - \(R_n\) = Net radiation (MJ/m²/day)
+#     - \(G\) = Soil heat flux (MJ/m²/day)
+#     - \(\rho_a\) = Density of air (kg/m³)
+#     - \(c_p\) = Specific heat of air (MJ/kg/°C)
+#     - \(e_s\) = Saturation vapor pressure (kPa)
+#     - \(e_a\) = Actual vapor pressure (kPa)
+#     - \(r_a\) = Aerodynamic resistance (s/m)
+#     - \(\gamma\) = Psychrometric constant (kPa/°C)
+#     - \(r_s\) = Surface resistance (s/m)
+#     """)
     
-    # Runoff formula
-    st.write("**Runoff (SCS Curve Number method):**")
-    st.latex(r'\text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10)}')
-    st.write("""
-    Where:
-    - \(R\) = Rainfall (mm)
-    - \(CN\) = Curve Number
-    """)
+#     # Runoff formula
+#     st.write("**Runoff (SCS Curve Number method):**")
+#     st.latex(r'\text{Runoff} = \frac{(R - 0.2 \times (1000/CN - 10))^2}{R + (0.8 \times (1000/CN - 10)}')
+#     st.write("""
+#     Where:
+#     - \(R\) = Rainfall (mm)
+#     - \(CN\) = Curve Number
+#     """)
     
-    # Function to calculate LAI accumulation
-    def calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1):
-        if LAIi_1 < LAImax:
-            delta_LAI = (frLAImax_i - frLAImax_i_1) * LAImax * (1 - np.exp(5 * (LAIi_1 - LAImax)))
-            return delta_LAI
-        else:
-            return 0  # No change if max LAI is reached
+#     # Function to calculate LAI accumulation
+#     def calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1):
+#         if LAIi_1 < LAImax:
+#             delta_LAI = (frLAImax_i - frLAImax_i_1) * LAImax * (1 - np.exp(5 * (LAIi_1 - LAImax)))
+#             return delta_LAI
+#         else:
+#             return 0  # No change if max LAI is reached
     
-    # Function to calculate adjusted LAI after maximum is reached
-    def adjusted_lai(LAImax, frPHU, frPHU_sen):
-        if frPHU > frPHU_sen:
-            return LAImax * (1 - frPHU / (1 - frPHU_sen))
-        else:
-            return LAImax
+#     # Function to calculate adjusted LAI after maximum is reached
+#     def adjusted_lai(LAImax, frPHU, frPHU_sen):
+#         if frPHU > frPHU_sen:
+#             return LAImax * (1 - frPHU / (1 - frPHU_sen))
+#         else:
+#             return LAImax
     
-    # Function to calculate actual LAI
-    def calculate_actual_lai(delta_LAI, gamma_reg):
-        return delta_LAI * gamma_reg
+#     # Function to calculate actual LAI
+#     def calculate_actual_lai(delta_LAI, gamma_reg):
+#         return delta_LAI * gamma_reg
     
-    # Input parameters
-    st.header("Dynamic Input for Forest Parameters")
-    st.markdown("""
-    ### Parameter Selection Guidelines
-    Select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters.
-    """)
+#     # Input parameters
+#     st.header("Dynamic Input for Forest Parameters")
+#     st.markdown("""
+#     ### Parameter Selection Guidelines
+#     Select the **tree species** and their **corresponding age** to dynamically adjust hydrological parameters.
+#     """)
     
-    # Tree Species and Age Selection
-    species = st.selectbox("Select Tree Species", ["Douglas Fir", "Red Cedar"])
-    age = st.selectbox("Select Age of Tree (Years)", [5, 10, 20, 30, 60, 100, 200, 500])
+#     # Tree Species and Age Selection
+#     species = st.selectbox("Select Tree Species", ["Douglas Fir", "Red Cedar"])
+#     age = st.selectbox("Select Age of Tree (Years)", [5, 10, 20, 30, 60, 100, 200, 500])
     
-    # Define parameter sets
-    parameters = {
-        "Douglas Fir": {
-            5: (2.5, 0.5, 0.5, 3.0, 2.5),
-            10: (3.5, 0.6, 0.4, 4.0, 3.5),
-            20: (4.5, 0.8, 0.2, 5.5, 4.5),
-            30: (5.0, 0.9, 0.1, 6.0, 5.0),
-            60: (6.0, 0.95, 0.05, 7.0, 6.0),
-            100: (7.0, 0.95, 0.05, 8.0, 7.0),
-            200: (8.0, 0.95, 0.05, 9.0, 8.0),
-            500: (9.0, 0.95, 0.05, 10.0, 9.0),
-        },
-        "Red Cedar": {
-            5: (2.0, 0.4, 0.6, 2.5, 2.0),
-            10: (3.0, 0.5, 0.5, 3.5, 3.0),
-            20: (4.0, 0.7, 0.3, 4.5, 4.0),
-            30: (5.0, 0.8, 0.2, 5.5, 5.0),
-            60: (6.0, 0.9, 0.1, 6.5, 6.0),
-            100: (7.0, 0.9, 0.1, 7.5, 7.0),
-            200: (8.0, 0.9, 0.1, 8.5, 8.0),
-            500: (9.0, 0.9, 0.1, 9.5, 9.0),
-        },
-    }
+#     # Define parameter sets
+#     parameters = {
+#         "Douglas Fir": {
+#             5: (2.5, 0.5, 0.5, 3.0, 2.5),
+#             10: (3.5, 0.6, 0.4, 4.0, 3.5),
+#             20: (4.5, 0.8, 0.2, 5.5, 4.5),
+#             30: (5.0, 0.9, 0.1, 6.0, 5.0),
+#             60: (6.0, 0.95, 0.05, 7.0, 6.0),
+#             100: (7.0, 0.95, 0.05, 8.0, 7.0),
+#             200: (8.0, 0.95, 0.05, 9.0, 8.0),
+#             500: (9.0, 0.95, 0.05, 10.0, 9.0),
+#         },
+#         "Red Cedar": {
+#             5: (2.0, 0.4, 0.6, 2.5, 2.0),
+#             10: (3.0, 0.5, 0.5, 3.5, 3.0),
+#             20: (4.0, 0.7, 0.3, 4.5, 4.0),
+#             30: (5.0, 0.8, 0.2, 5.5, 5.0),
+#             60: (6.0, 0.9, 0.1, 6.5, 6.0),
+#             100: (7.0, 0.9, 0.1, 7.5, 7.0),
+#             200: (8.0, 0.9, 0.1, 8.5, 8.0),
+#             500: (9.0, 0.9, 0.1, 9.5, 9.0),
+#         },
+#     }
     
-    # Fetch parameters based on user selection
-    BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
+#     # Fetch parameters based on user selection
+#     BLAI, FRGRW1, FRGRW2, LAIMX1, LAIMX2 = parameters[species][age]
     
-    # Display selected parameters
-    st.write(f"### Selected Parameters for {species} at Age {age} Years:")
-    st.write(f"- **BLAI (Biomass Leaf Area Index)**: {BLAI}")
-    st.write(f"- **Fraction of Growing Season (Stage 1)**: {FRGRW1}")
-    st.write(f"- **Fraction of Growing Season (Stage 2)**: {FRGRW2}")
-    st.write(f"- **Maximum LAI for Stage 1 (LAIMX1)**: {LAIMX1}")
-    st.write(f"- **Maximum LAI for Stage 2 (LAIMX2)**: {LAIMX2}")
+#     # Display selected parameters
+#     st.write(f"### Selected Parameters for {species} at Age {age} Years:")
+#     st.write(f"- **BLAI (Biomass Leaf Area Index)**: {BLAI}")
+#     st.write(f"- **Fraction of Growing Season (Stage 1)**: {FRGRW1}")
+#     st.write(f"- **Fraction of Growing Season (Stage 2)**: {FRGRW2}")
+#     st.write(f"- **Maximum LAI for Stage 1 (LAIMX1)**: {LAIMX1}")
+#     st.write(f"- **Maximum LAI for Stage 2 (LAIMX2)**: {LAIMX2}")
     
-    # Input for evapotranspiration
-    et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
-    area = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
-    et = et_factor * area  # Total ET for the selected HRU area
+#     # Input for evapotranspiration
+#     et_factor = st.number_input("**Evapotranspiration Factor (mm/year)**:", value=500, step=10)
+#     area = st.number_input("**HRU Area (hectares)**:", value=10, step=1)
+#     et = et_factor * area  # Total ET for the selected HRU area
     
-    # Display ET result
-    st.subheader("Evapotranspiration Result")
-    st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
+#     # Display ET result
+#     st.subheader("Evapotranspiration Result")
+#     st.write(f"- **Evapotranspiration (Total) (mm)**: {et:.2f} mm")
     
-    # Create Plotly visualization for ET
-    et_fig = go.Figure()
-    et_fig.add_trace(go.Indicator(
-        mode="number+gauge+delta",
-        value=et,
-        title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
-        gauge={'axis': {'range': [0, 3000]}}
-    ))
-    st.plotly_chart(et_fig)
+#     # Create Plotly visualization for ET
+#     et_fig = go.Figure()
+#     et_fig.add_trace(go.Indicator(
+#         mode="number+gauge+delta",
+#         value=et,
+#         title={'text': "Evapotranspiration (Total) (mm)", 'font': {'size': 24}},
+#         gauge={'axis': {'range': [0, 3000]}}
+#     ))
+#     st.plotly_chart(et_fig)
     
-    # Input for rainfall and area for runoff calculations
-    rainfall = st.number_input("**Rainfall (mm)**:", value=50, step=1)
+#     # Input for rainfall and area for runoff calculations
+#     rainfall = st.number_input("**Rainfall (mm)**:", value=50, step=1)
     
-    # Calculate Runoff (using SCS Curve Number method)
-    def calculate_runoff(rainfall, CN):
-        if rainfall < 0:
-            return 0
-        else:
-            return (rainfall - (0.2 * (1000 / CN - 10))) ** 2 / (rainfall + (0.8 * (1000 / CN - 10)))
+#     # Calculate Runoff (using SCS Curve Number method)
+#     def calculate_runoff(rainfall, CN):
+#         if rainfall < 0:
+#             return 0
+#         else:
+#             return (rainfall - (0.2 * (1000 / CN - 10))) ** 2 / (rainfall + (0.8 * (1000 / CN - 10)))
     
-    # SCS Curve Number for forested areas
-    CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
+#     # SCS Curve Number for forested areas
+#     CN = 70 if species == "Douglas Fir" else 75  # Adjust CN for different tree species
     
-    # Perform calculations
-    runoff = calculate_runoff(rainfall, CN) * area  # Runoff in mm for the area
-    recharge = (rainfall - runoff) * area  # Recharge in mm for the area
-    discharge = recharge  # Assume all recharge contributes to discharge
+#     # Perform calculations
+#     runoff = calculate_runoff(rainfall, CN) * area  # Runoff in mm for the area
+#     recharge = (rainfall - runoff) * area  # Recharge in mm for the area
+#     discharge = recharge  # Assume all recharge contributes to discharge
     
-    # Display HRU results
-    st.subheader("HRU Results")
-    st.write(f"- **Runoff (mm)**: {runoff:.2f} mm")
-    st.write(f"- **Recharge (mm)**: {recharge:.2f} mm")
-    st.write(f"- **Discharge (mm)**: {discharge:.2f} mm")
+#     # Display HRU results
+#     st.subheader("HRU Results")
+#     st.write(f"- **Runoff (mm)**: {runoff:.2f} mm")
+#     st.write(f"- **Recharge (mm)**: {recharge:.2f} mm")
+#     st.write(f"- **Discharge (mm)**: {discharge:.2f} mm")
     
-    # Create a bar chart for HRU Results
-    hru_fig = go.Figure(data=[
-        go.Bar(name='Runoff', x=['Runoff', 'Recharge', 'Discharge'], y=[runoff, recharge, discharge])
-    ])
-    hru_fig.update_layout(barmode='group', title='HRU Results (mm)', xaxis_title='Process', yaxis_title='Value (mm)')
-    st.plotly_chart(hru_fig)
+#     # Create a bar chart for HRU Results
+#     hru_fig = go.Figure(data=[
+#         go.Bar(name='Runoff', x=['Runoff', 'Recharge', 'Discharge'], y=[runoff, recharge, discharge])
+#     ])
+#     hru_fig.update_layout(barmode='group', title='HRU Results (mm)', xaxis_title='Process', yaxis_title='Value (mm)')
+#     st.plotly_chart(hru_fig)
     
-    # Input parameters for LAI calculations
-    frLAImax_i = st.number_input("Enter Fraction of LAI (Current):", value=0.5)
-    frLAImax_i_1 = st.number_input("Enter Fraction of LAI (Previous):", value=0.4)
-    LAImax = st.number_input("Enter Maximum LAI:", value=6.0)
-    LAIi_1 = st.number_input("Enter Previous LAI:", value=5.0)
-    frPHU = st.number_input("Enter Fraction of Growing Season (frPHU):", value=0.6)
-    frPHU_sen = st.number_input("Enter Sensitivity for Fraction of Growing Season:", value=0.5)
+#     # Input parameters for LAI calculations
+#     frLAImax_i = st.number_input("Enter Fraction of LAI (Current):", value=0.5)
+#     frLAImax_i_1 = st.number_input("Enter Fraction of LAI (Previous):", value=0.4)
+#     LAImax = st.number_input("Enter Maximum LAI:", value=6.0)
+#     LAIi_1 = st.number_input("Enter Previous LAI:", value=5.0)
+#     frPHU = st.number_input("Enter Fraction of Growing Season (frPHU):", value=0.6)
+#     frPHU_sen = st.number_input("Enter Sensitivity for Fraction of Growing Season:", value=0.5)
     
-    # Calculate LAI
-    delta_LAI = calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1)
-    actual_LAI = calculate_actual_lai(delta_LAI, 1.0)  # Assuming gamma_reg = 1 for simplicity
-    adjusted_LAI = adjusted_lai(LAImax, frPHU, frPHU_sen)
+#     # Calculate LAI
+#     delta_LAI = calculate_lai(frLAImax_i, frLAImax_i_1, LAImax, LAIi_1)
+#     actual_LAI = calculate_actual_lai(delta_LAI, 1.0)  # Assuming gamma_reg = 1 for simplicity
+#     adjusted_LAI = adjusted_lai(LAImax, frPHU, frPHU_sen)
     
-    # Display LAI results
-    st.subheader("LAI Results")
-    st.write(f"- **Change in LAI (Delta LAI)**: {delta_LAI:.2f}")
-    st.write(f"- **Actual LAI**: {actual_LAI:.2f}")
-    st.write(f"- **Adjusted LAI**: {adjusted_LAI:.2f}")
+#     # Display LAI results
+#     st.subheader("LAI Results")
+#     st.write(f"- **Change in LAI (Delta LAI)**: {delta_LAI:.2f}")
+#     st.write(f"- **Actual LAI**: {actual_LAI:.2f}")
+#     st.write(f"- **Adjusted LAI**: {adjusted_LAI:.2f}")
     
-        # Display equations in LaTeX
-    st.write("### LAI Calculation Equations")
-    st.write("Before the LAI reaches its maximum value, the new LAI on day \(i\) is calculated as follows:")
-    st.latex(r'\Delta LAI_i = (frLAI_{max,i} - frLAI_{max,i-1}) \times LAI_{max} \times \{1 - e^{5 \times (LAI_{i-1} - LAI_{max})\} } \quad (1)')
+#         # Display equations in LaTeX
+#     st.write("### LAI Calculation Equations")
+#     st.write("Before the LAI reaches its maximum value, the new LAI on day \(i\) is calculated as follows:")
+#     st.latex(r'\Delta LAI_i = (frLAI_{max,i} - frLAI_{max,i-1}) \times LAI_{max} \times \{1 - e^{5 \times (LAI_{i-1} - LAI_{max})\} } \quad (1)')
     
-    st.write("The LAI does not change after reaching its maximum value. However, after leaf senescence exceeds leaf growth, the LAI is calculated as follows:")
-    st.latex(r'LAI = LAI_{max} \times \frac{1 - frPHU}{1 - frPHU_{sen}} \quad (frPHU > frPHU_{sen}) \quad (2)')
+#     st.write("The LAI does not change after reaching its maximum value. However, after leaf senescence exceeds leaf growth, the LAI is calculated as follows:")
+#     st.latex(r'LAI = LAI_{max} \times \frac{1 - frPHU}{1 - frPHU_{sen}} \quad (frPHU > frPHU_{sen}) \quad (2)')
     
-    st.write("The actual LAI is affected by the stress factors. The plant growth factor—defined as the fraction of actual plant growth to potential plant growth—is used to adjust the LAI calculation on each day as follows:")
-    st.latex(r'\gamma_{reg} = 1 - \max(w_{strs}, t_{strs}, n_{strs}, p_{strs}) \quad (3)')
+#     st.write("The actual LAI is affected by the stress factors. The plant growth factor—defined as the fraction of actual plant growth to potential plant growth—is used to adjust the LAI calculation on each day as follows:")
+#     st.latex(r'\gamma_{reg} = 1 - \max(w_{strs}, t_{strs}, n_{strs}, p_{strs}) \quad (3)')
     
-    st.write("If one of the four stress factors exceeds 0, the LAI on day \(i\) is adjusted as follows:")
-    st.latex(r'\Delta LAI_{act,i} = \Delta LAI_i \times \gamma_{reg} \quad (4)')
+#     st.write("If one of the four stress factors exceeds 0, the LAI on day \(i\) is adjusted as follows:")
+#     st.latex(r'\Delta LAI_{act,i} = \Delta LAI_i \times \gamma_{reg} \quad (4)')
     
-    st.write("Where:")
-    st.write(r'- \(\Delta LAI_i\) is the new LAI on day \(i\);')
-    st.write(r'- \(frLAI_{max,i}\) and \(frLAI_{max,i-1}\) are the maximum LAI calculated based on heat on days \(i\) and \(i-1\), respectively;')
-    st.write(r'- \(LAI_{max}\) is the maximum LAI for a plant;')
-    st.write(r'- \(LAI_{i-1}\) is the LAI on day \(i-1\);')
-    st.write(r'- \(frPHU\) is the accumulated potential heat unit fraction on a day;')
-    st.write(r'- \(frPHU_{sen}\) is the fraction of days where leaf senescence exceeds leaf growth in the entire plant growth season;')
-    st.write(r'- \(\gamma_{reg}\) is the plant growth factor (range, 0–1);')
-    st.write(r'- \(w_{strs}\) is the water stress on a day;')
-    st.write(r'- \(t_{strs}\) is the temperature stress on a day;')
-    st.write(r'- \(n_{strs}\) is the nitrogen stress on a day;')
-    st.write(r'- \(p_{strs}\) is the phosphorus stress on a day;')
-    st.write(r'- \(\Delta LAI_{act,i}\) is the actual LAI on day \(i\);')
+#     st.write("Where:")
+#     st.write(r'- \(\Delta LAI_i\) is the new LAI on day \(i\);')
+#     st.write(r'- \(frLAI_{max,i}\) and \(frLAI_{max,i-1}\) are the maximum LAI calculated based on heat on days \(i\) and \(i-1\), respectively;')
+#     st.write(r'- \(LAI_{max}\) is the maximum LAI for a plant;')
+#     st.write(r'- \(LAI_{i-1}\) is the LAI on day \(i-1\);')
+#     st.write(r'- \(frPHU\) is the accumulated potential heat unit fraction on a day;')
+#     st.write(r'- \(frPHU_{sen}\) is the fraction of days where leaf senescence exceeds leaf growth in the entire plant growth season;')
+#     st.write(r'- \(\gamma_{reg}\) is the plant growth factor (range, 0–1);')
+#     st.write(r'- \(w_{strs}\) is the water stress on a day;')
+#     st.write(r'- \(t_{strs}\) is the temperature stress on a day;')
+#     st.write(r'- \(n_{strs}\) is the nitrogen stress on a day;')
+#     st.write(r'- \(p_{strs}\) is the phosphorus stress on a day;')
+#     st.write(r'- \(\Delta LAI_{act,i}\) is the actual LAI on day \(i\);')
     
-    # LaTeX display for z-score formula
-    st.write("**Formula:**")
-    st.latex(r'z = \frac{(X - \mu)}{\sigma}')
-    st.write("""
-    Where:
-    - \(X\) = individual observation
-    - \(\mu\) = mean of the dataset
-    - \(\sigma\) = standard deviation of the dataset
-    """)
+#     # LaTeX display for z-score formula
+#     st.write("**Formula:**")
+#     st.latex(r'z = \frac{(X - \mu)}{\sigma}')
+#     st.write("""
+#     Where:
+#     - \(X\) = individual observation
+#     - \(\mu\) = mean of the dataset
+#     - \(\sigma\) = standard deviation of the dataset
+#     """)
 
-elif selected_option == "Simulator":
+# elif selected_option == "Simulator":
 
-    # Title and Introduction
-    st.title("Forest Growth and Hydrology Simulator")
-    st.write("Explore how different forest parameters influence growth and hydrological processes.")
+#     # Title and Introduction
+#     st.title("Forest Growth and Hydrology Simulator")
+#     st.write("Explore how different forest parameters influence growth and hydrological processes.")
     
-    # Function to plot data
-    def plot_data(x, y, title, xlabel, ylabel):
-        plt.figure(figsize=(10, 4))
-        plt.plot(x, y, marker='o')
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.grid(True)
-        st.pyplot(plt)
+#     # Function to plot data
+#     def plot_data(x, y, title, xlabel, ylabel):
+#         plt.figure(figsize=(10, 4))
+#         plt.plot(x, y, marker='o')
+#         plt.title(title)
+#         plt.xlabel(xlabel)
+#         plt.ylabel(ylabel)
+#         plt.grid(True)
+#         st.pyplot(plt)
 
     
-    # Forest Growth Parameters Section
-    st.subheader("Forest Growth Parameters")
+#     # Forest Growth Parameters Section
+#     st.subheader("Forest Growth Parameters")
     
-    # Input fields for forest growth parameters
-    LAI = st.slider("Leaf Area Index (LAI)", min_value=0.0, max_value=10.0, value=3.0)
-    biomass = st.number_input("Initial Biomass (metric tons/ha)", min_value=0.0, value=150.0)
-    canopy_height = st.number_input("Canopy Height (meters)", min_value=0.0, value=10.0)
-    light_extinction_coefficient = st.number_input("Light Extinction Coefficient (k)", value=0.5)
-    radiation_use_efficiency = st.number_input("Radiation Use Efficiency (RUE, g/MJ)", value=2.0)
-    total_solar_radiation = st.number_input("Total Solar Radiation (MJ/m²/day)", value=10.0)
+#     # Input fields for forest growth parameters
+#     LAI = st.slider("Leaf Area Index (LAI)", min_value=0.0, max_value=10.0, value=3.0)
+#     biomass = st.number_input("Initial Biomass (metric tons/ha)", min_value=0.0, value=150.0)
+#     canopy_height = st.number_input("Canopy Height (meters)", min_value=0.0, value=10.0)
+#     light_extinction_coefficient = st.number_input("Light Extinction Coefficient (k)", value=0.5)
+#     radiation_use_efficiency = st.number_input("Radiation Use Efficiency (RUE, g/MJ)", value=2.0)
+#     total_solar_radiation = st.number_input("Total Solar Radiation (MJ/m²/day)", value=10.0)
     
-    st.write(f"**Leaf Area Index (LAI):** {LAI}")
-    st.write(f"**Initial Biomass:** {biomass} metric tons/ha")
-    st.write(f"**Canopy Height:** {canopy_height} meters")
-    st.write(f"**Light Extinction Coefficient:** {light_extinction_coefficient}")
-    st.write(f"**Radiation Use Efficiency (RUE):** {radiation_use_efficiency} g/MJ")
-    st.write(f"**Total Solar Radiation:** {total_solar_radiation} MJ/m²/day")
+#     st.write(f"**Leaf Area Index (LAI):** {LAI}")
+#     st.write(f"**Initial Biomass:** {biomass} metric tons/ha")
+#     st.write(f"**Canopy Height:** {canopy_height} meters")
+#     st.write(f"**Light Extinction Coefficient:** {light_extinction_coefficient}")
+#     st.write(f"**Radiation Use Efficiency (RUE):** {radiation_use_efficiency} g/MJ")
+#     st.write(f"**Total Solar Radiation:** {total_solar_radiation} MJ/m²/day")
 
-    # Leaf Area Development Calculation
-    LAImax = 3.0  # Maximum LAI for corn
-    f_rLAImax_prev = 0.9  # Fraction of LAImax at previous timestep (arbitrary example)
-    f_rLAImax_current = 1.0  # Current fraction (arbitrary example)
+#     # Leaf Area Development Calculation
+#     LAImax = 3.0  # Maximum LAI for corn
+#     f_rLAImax_prev = 0.9  # Fraction of LAImax at previous timestep (arbitrary example)
+#     f_rLAImax_current = 1.0  # Current fraction (arbitrary example)
     
-    Kf = LAImax * (f_rLAImax_current - f_rLAImax_prev)
-    delta_LAI = Kf * (1 - np.exp(-5 * (LAI - LAImax)))
-    LAI_new = LAI + delta_LAI
+#     Kf = LAImax * (f_rLAImax_current - f_rLAImax_prev)
+#     delta_LAI = Kf * (1 - np.exp(-5 * (LAI - LAImax)))
+#     LAI_new = LAI + delta_LAI
     
-    st.write(f"**New LAI after Growth:** {LAI_new:.2f}")
+#     st.write(f"**New LAI after Growth:** {LAI_new:.2f}")
 
-    # Light Interception Calculation
-    Hphosyn = total_solar_radiation * (1 - np.exp(-light_extinction_coefficient * LAI_new))
-    st.write(f"**Intercepted Photosynthetically Active Radiation:** {Hphosyn:.2f} MJ/m²")
+#     # Light Interception Calculation
+#     Hphosyn = total_solar_radiation * (1 - np.exp(-light_extinction_coefficient * LAI_new))
+#     st.write(f"**Intercepted Photosynthetically Active Radiation:** {Hphosyn:.2f} MJ/m²")
 
-    # Biomass Production Calculation
-    delta_bio = radiation_use_efficiency * Hphosyn  # Daily biomass increase
-    total_biomass = biomass + delta_bio  # Update total biomass
-    st.write(f"**New Biomass after Growth:** {total_biomass:.2f} metric tons/ha")
+#     # Biomass Production Calculation
+#     delta_bio = radiation_use_efficiency * Hphosyn  # Daily biomass increase
+#     total_biomass = biomass + delta_bio  # Update total biomass
+#     st.write(f"**New Biomass after Growth:** {total_biomass:.2f} metric tons/ha")
 
-    # Hydrological Processes Section
-    st.subheader("Hydrological Processes")
+#     # Hydrological Processes Section
+#     st.subheader("Hydrological Processes")
     
-    st.subheader("Evapotranspiration Calculator")
+#     st.subheader("Evapotranspiration Calculator")
     
-    # Input for evapotranspiration calculation
-    net_radiation = st.number_input("Net Radiation (MJ/m²/day)", value=10.0)
-    soil_heat_flux = st.number_input("Soil Heat Flux (MJ/m²/day)", value=0.5)
-    air_temp = st.number_input("Air Temperature (°C)", value=20.0)
-    relative_humidity = st.number_input("Relative Humidity (%)", value=60.0)
+#     # Input for evapotranspiration calculation
+#     net_radiation = st.number_input("Net Radiation (MJ/m²/day)", value=10.0)
+#     soil_heat_flux = st.number_input("Soil Heat Flux (MJ/m²/day)", value=0.5)
+#     air_temp = st.number_input("Air Temperature (°C)", value=20.0)
+#     relative_humidity = st.number_input("Relative Humidity (%)", value=60.0)
 
-    # Calculate and display ET
-    vapor_pressure_saturation = 0.611 * np.exp((17.27 * air_temp) / (air_temp + 237.3))
-    vapor_pressure_actual = (relative_humidity / 100) * vapor_pressure_saturation
-    delta = 4098 * vapor_pressure_saturation / ((air_temp + 237.3) ** 2)
-    gamma = 0.0665  # Psychrometric constant (kPa/°C)
+#     # Calculate and display ET
+#     vapor_pressure_saturation = 0.611 * np.exp((17.27 * air_temp) / (air_temp + 237.3))
+#     vapor_pressure_actual = (relative_humidity / 100) * vapor_pressure_saturation
+#     delta = 4098 * vapor_pressure_saturation / ((air_temp + 237.3) ** 2)
+#     gamma = 0.0665  # Psychrometric constant (kPa/°C)
     
-    ET = (delta * (net_radiation - soil_heat_flux) + (gamma * (vapor_pressure_saturation - vapor_pressure_actual))) / (delta + gamma)
+#     ET = (delta * (net_radiation - soil_heat_flux) + (gamma * (vapor_pressure_saturation - vapor_pressure_actual))) / (delta + gamma)
     
-    if st.button("Calculate Evapotranspiration"):
-        st.write(f"**Evapotranspiration (ET):** {ET:.2f} mm/day")
+#     if st.button("Calculate Evapotranspiration"):
+#         st.write(f"**Evapotranspiration (ET):** {ET:.2f} mm/day")
 
-    # Interactive Calculations Section
-    st.subheader("Calculate Low Flows")
-    rainfall = st.number_input("Rainfall (mm)", value=50.0)
-    curve_number = st.number_input("Curve Number (CN)", value=75)
+#     # Interactive Calculations Section
+#     st.subheader("Calculate Low Flows")
+#     rainfall = st.number_input("Rainfall (mm)", value=50.0)
+#     curve_number = st.number_input("Curve Number (CN)", value=75)
 
-    # Calculate and display runoff using the SCS runoff equation
-    if st.button("Calculate Runoff"):
-        S = (25400 / curve_number) - 254  # Calculate S
-        Q = (rainfall - 0.2 * S) ** 2 / (rainfall + 0.8 * S) if rainfall > 0.2 * S else 0
-        st.write(f"**Calculated Runoff:** {Q:.2f} mm")
+#     # Calculate and display runoff using the SCS runoff equation
+#     if st.button("Calculate Runoff"):
+#         S = (25400 / curve_number) - 254  # Calculate S
+#         Q = (rainfall - 0.2 * S) ** 2 / (rainfall + 0.8 * S) if rainfall > 0.2 * S else 0
+#         st.write(f"**Calculated Runoff:** {Q:.2f} mm")
 
-    # Soil and Root Systems Analysis Section
-    st.subheader("Soil and Root Systems Analysis")
+#     # Soil and Root Systems Analysis Section
+#     st.subheader("Soil and Root Systems Analysis")
     
-    root_depth = st.number_input("Root Depth (meters)", value=1.5)
-    water_table = st.number_input("Water Table Depth (meters)", value=3.0)
+#     root_depth = st.number_input("Root Depth (meters)", value=1.5)
+#     water_table = st.number_input("Water Table Depth (meters)", value=3.0)
 
-    # Example calculation of available water
-    soil_porosity = 0.3  # Example value for soil porosity
-    available_water = soil_porosity * (root_depth - water_table)
+#     # Example calculation of available water
+#     soil_porosity = 0.3  # Example value for soil porosity
+#     available_water = soil_porosity * (root_depth - water_table)
     
-    st.write(f"**Available Water (from roots):** {available_water:.2f} m³/ha")
+#     st.write(f"**Available Water (from roots):** {available_water:.2f} m³/ha")
 
-    # Growth Constraints Section
-    st.subheader("Growth Constraints")
+#     # Growth Constraints Section
+#     st.subheader("Growth Constraints")
     
-    temp = st.slider("Temperature (°C)", min_value=-10.0, max_value=30.0, value=15.0)
-    water_avail = st.slider("Water Availability (mm)", min_value=0.0, max_value=500.0, value=200.0)
+#     temp = st.slider("Temperature (°C)", min_value=-10.0, max_value=30.0, value=15.0)
+#     water_avail = st.slider("Water Availability (mm)", min_value=0.0, max_value=500.0, value=200.0)
 
-    # Assessment of growth impact based on constraints
-    growth_potential = (temp / 30) * (water_avail / 500) * 100  # Simplified growth potential assessment
-    st.write(f"**Growth Potential Estimate:** {growth_potential:.2f}% of max potential")
+#     # Assessment of growth impact based on constraints
+#     growth_potential = (temp / 30) * (water_avail / 500) * 100  # Simplified growth potential assessment
+#     st.write(f"**Growth Potential Estimate:** {growth_potential:.2f}% of max potential")
 
-    # Examples and Case Studies Section
-    st.subheader("Examples and Case Studies")
+#     # Examples and Case Studies Section
+#     st.subheader("Examples and Case Studies")
     
-    # Example data for visualization
-    years = np.arange(1, 21)  # Years from 1 to 20
-    LAI_example = 0.85 * (1 - np.exp(-0.1 * years))  # Example LAI growth curve
+#     # Example data for visualization
+#     years = np.arange(1, 21)  # Years from 1 to 20
+#     LAI_example = 0.85 * (1 - np.exp(-0.1 * years))  # Example LAI growth curve
     
-    # Plotting LAI growth over years
-    plot_data(years, LAI_example, "LAI Growth Over Time", "Years", "Leaf Area Index (LAI)")
+#     # Plotting LAI growth over years
+#     plot_data(years, LAI_example, "LAI Growth Over Time", "Years", "Leaf Area Index (LAI)")
 
-# If you want to add more sections, include them under the "Other Options" or similar option.
-elif selected_option == "New":
+# # If you want to add more sections, include them under the "Other Options" or similar option.
+# elif selected_option == "New":
 
-    class Tree:
-        def __init__(self, species, age, height, dbh, lai):
-            self.species = species
-            self.age = age
-            self.height = height
-            self.dbh = dbh
-            self.lai = lai
+#     class Tree:
+#         def __init__(self, species, age, height, dbh, lai):
+#             self.species = species
+#             self.age = age
+#             self.height = height
+#             self.dbh = dbh
+#             self.lai = lai
     
-        def calculate_growth(self, soil, water, climate):
-            growth_rate = (climate['temperature'] * 0.01) + (water * 0.1) + (soil['nutrients'] * 0.02)
-            self.height += growth_rate * self.height * 0.1
-            self.dbh += growth_rate * self.dbh * 0.05
-            self.lai = self.calculate_lai()
+#         def calculate_growth(self, soil, water, climate):
+#             growth_rate = (climate['temperature'] * 0.01) + (water * 0.1) + (soil['nutrients'] * 0.02)
+#             self.height += growth_rate * self.height * 0.1
+#             self.dbh += growth_rate * self.dbh * 0.05
+#             self.lai = self.calculate_lai()
     
-        def calculate_lai(self):
-            return self.height * 0.5  # Simplified calculation
+#         def calculate_lai(self):
+#             return self.height * 0.5  # Simplified calculation
     
-    class HRU:
-        def __init__(self, slope, soil_type, water_table_depth):
-            self.slope = slope
-            self.soil_type = soil_type
-            self.water_table_depth = water_table_depth
+#     class HRU:
+#         def __init__(self, slope, soil_type, water_table_depth):
+#             self.slope = slope
+#             self.soil_type = soil_type
+#             self.water_table_depth = water_table_depth
     
-        def calculate_runoff(self):
-            # Simplified runoff calculation based on slope and soil type
-            runoff_coefficient = 0.1 if self.soil_type == "Sandy" else 0.2 if self.soil_type == "Loamy" else 0.3
-            runoff = self.slope * runoff_coefficient
-            return runoff
+#         def calculate_runoff(self):
+#             # Simplified runoff calculation based on slope and soil type
+#             runoff_coefficient = 0.1 if self.soil_type == "Sandy" else 0.2 if self.soil_type == "Loamy" else 0.3
+#             runoff = self.slope * runoff_coefficient
+#             return runoff
     
-    def hydrological_balance(tree, hru, years, precipitation, evaporation):
-        soil_moisture = 100  # Initial soil moisture in mm
-        results = []
+#     def hydrological_balance(tree, hru, years, precipitation, evaporation):
+#         soil_moisture = 100  # Initial soil moisture in mm
+#         results = []
     
-        for year in range(years):
-            et = tree.lai * 2.5  # Evapotranspiration based on LAI
-            runoff = hru.calculate_runoff() * precipitation * 0.01  # Calculate runoff based on precipitation
-            soil_moisture += precipitation - et - runoff
+#         for year in range(years):
+#             et = tree.lai * 2.5  # Evapotranspiration based on LAI
+#             runoff = hru.calculate_runoff() * precipitation * 0.01  # Calculate runoff based on precipitation
+#             soil_moisture += precipitation - et - runoff
     
-            if soil_moisture > 150:
-                runoff += soil_moisture - 150
-                soil_moisture = 150
-            else:
-                runoff = 0
+#             if soil_moisture > 150:
+#                 runoff += soil_moisture - 150
+#                 soil_moisture = 150
+#             else:
+#                 runoff = 0
     
-            results.append({
-                "Year": year + 1,
-                "Height (m)": round(tree.height, 2),
-                "DBH (cm)": round(tree.dbh, 2),
-                "LAI": round(tree.lai, 2),
-                "Soil Moisture (mm)": round(soil_moisture, 2),
-                "Runoff (mm)": round(runoff, 2),
-                "ET (mm)": round(et, 2)
-            })
+#             results.append({
+#                 "Year": year + 1,
+#                 "Height (m)": round(tree.height, 2),
+#                 "DBH (cm)": round(tree.dbh, 2),
+#                 "LAI": round(tree.lai, 2),
+#                 "Soil Moisture (mm)": round(soil_moisture, 2),
+#                 "Runoff (mm)": round(runoff, 2),
+#                 "ET (mm)": round(et, 2)
+#             })
     
-        return pd.DataFrame(results)
+#         return pd.DataFrame(results)
     
-    def simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation):
-        results = []
-        for year in range(years):
-            tree.calculate_growth(soil_conditions, water_availability, climate_conditions)
-            results.append({
-                "Year": year + 1,
-                "Height (m)": round(tree.height, 2),
-                "DBH (cm)": round(tree.dbh, 2),
-                "LAI": round(tree.lai, 2)
-            })
-        return pd.DataFrame(results)
+#     def simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation):
+#         results = []
+#         for year in range(years):
+#             tree.calculate_growth(soil_conditions, water_availability, climate_conditions)
+#             results.append({
+#                 "Year": year + 1,
+#                 "Height (m)": round(tree.height, 2),
+#                 "DBH (cm)": round(tree.dbh, 2),
+#                 "LAI": round(tree.lai, 2)
+#             })
+#         return pd.DataFrame(results)
     
-    # Streamlit App
-    st.title("Tree Growth and Hydrology Simulator")
+#     # Streamlit App
+#     st.title("Tree Growth and Hydrology Simulator")
     
-    # 1. Select a Tree
-    species = st.selectbox("Select Tree Species", options=["Douglas Fir", "Red Cedar"])
+#     # 1. Select a Tree
+#     species = st.selectbox("Select Tree Species", options=["Douglas Fir", "Red Cedar"])
     
-    # Change the age selection to specific predefined values
-    age = st.selectbox("Select Tree Age (years)", options=[10, 20, 30, 60, 100, 200, 500])
+#     # Change the age selection to specific predefined values
+#     age = st.selectbox("Select Tree Age (years)", options=[10, 20, 30, 60, 100, 200, 500])
     
-    # Set default values based on species
-    if species == "Douglas Fir":
-        height = st.number_input("Initial Height (m)", value=10.0)  # Default for Douglas Fir
-        dbh = st.number_input("Initial DBH (cm)", value=25.0)  # Default for Douglas Fir
-        lai = st.number_input("Initial LAI", value=4.0)  # Default for Douglas Fir
-    else:  # Red Cedar
-        height = st.number_input("Initial Height (m)", value=8.0)  # Default for Red Cedar
-        dbh = st.number_input("Initial DBH (cm)", value=20.0)  # Default for Red Cedar
-        lai = st.number_input("Initial LAI", value=3.5)  # Default for Red Cedar
+#     # Set default values based on species
+#     if species == "Douglas Fir":
+#         height = st.number_input("Initial Height (m)", value=10.0)  # Default for Douglas Fir
+#         dbh = st.number_input("Initial DBH (cm)", value=25.0)  # Default for Douglas Fir
+#         lai = st.number_input("Initial LAI", value=4.0)  # Default for Douglas Fir
+#     else:  # Red Cedar
+#         height = st.number_input("Initial Height (m)", value=8.0)  # Default for Red Cedar
+#         dbh = st.number_input("Initial DBH (cm)", value=20.0)  # Default for Red Cedar
+#         lai = st.number_input("Initial LAI", value=3.5)  # Default for Red Cedar
     
-    # 2. Display Parameter Effects
-    st.subheader("Tree Parameters")
-    st.write(f"Species: {species}, Age: {age}, Height: {height} m, DBH: {dbh} cm, LAI: {lai}")
+#     # 2. Display Parameter Effects
+#     st.subheader("Tree Parameters")
+#     st.write(f"Species: {species}, Age: {age}, Height: {height} m, DBH: {dbh} cm, LAI: {lai}")
     
-    # 3. Growth Calculation Inputs
-    soil_moisture = st.number_input("Soil Moisture (mm)", value=30)
-    soil_nutrients = st.number_input("Soil Nutrients (1-10)", value=5, min_value=1, max_value=10)
-    water_availability = st.number_input("Water Availability (mm)", value=100)
-    temperature = st.number_input("Temperature (°C)", value=25)
-    precipitation = st.number_input("Annual Precipitation (mm)", value=800)
-    evaporation = st.number_input("Annual Evaporation (mm)", value=300)
-    years = st.number_input("Years to Simulate", value=10, min_value=1)
+#     # 3. Growth Calculation Inputs
+#     soil_moisture = st.number_input("Soil Moisture (mm)", value=30)
+#     soil_nutrients = st.number_input("Soil Nutrients (1-10)", value=5, min_value=1, max_value=10)
+#     water_availability = st.number_input("Water Availability (mm)", value=100)
+#     temperature = st.number_input("Temperature (°C)", value=25)
+#     precipitation = st.number_input("Annual Precipitation (mm)", value=800)
+#     evaporation = st.number_input("Annual Evaporation (mm)", value=300)
+#     years = st.number_input("Years to Simulate", value=10, min_value=1)
     
-    # 4. HRU Properties
-    st.subheader("Hydrological Response Unit (HRU) Properties")
-    slope = st.number_input("Slope (%)", value=10.0)
-    soil_type = st.selectbox("Soil Type", options=["Sandy", "Loamy", "Clayey"])
-    water_table_depth = st.number_input("Water Table Depth (cm)", value=150)
+#     # 4. HRU Properties
+#     st.subheader("Hydrological Response Unit (HRU) Properties")
+#     slope = st.number_input("Slope (%)", value=10.0)
+#     soil_type = st.selectbox("Soil Type", options=["Sandy", "Loamy", "Clayey"])
+#     water_table_depth = st.number_input("Water Table Depth (cm)", value=150)
     
-    # Create HRU object
-    hru = HRU(slope, soil_type, water_table_depth)
+#     # Create HRU object
+#     hru = HRU(slope, soil_type, water_table_depth)
     
-    # Simulate on Button Click
-    if st.button("Simulate Growth and Hydrology"):
-        tree = Tree(species, age, height, dbh, lai)
+#     # Simulate on Button Click
+#     if st.button("Simulate Growth and Hydrology"):
+#         tree = Tree(species, age, height, dbh, lai)
     
-        soil_conditions = {'moisture': soil_moisture, 'nutrients': soil_nutrients}
-        climate_conditions = {'temperature': temperature}
+#         soil_conditions = {'moisture': soil_moisture, 'nutrients': soil_nutrients}
+#         climate_conditions = {'temperature': temperature}
     
-        # Simulate Growth
-        growth_results = simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation)
+#         # Simulate Growth
+#         growth_results = simulate_tree_growth_and_hydrology(tree, hru, years, soil_conditions, water_availability, climate_conditions, precipitation, evaporation)
     
-        # Hydrological Balance Calculation
-        hydrology_results = hydrological_balance(tree, hru, years, precipitation, evaporation)
+#         # Hydrological Balance Calculation
+#         hydrology_results = hydrological_balance(tree, hru, years, precipitation, evaporation)
     
-        # Combine Results
-        combined_results = pd.merge(growth_results, hydrology_results, on="Year")
+#         # Combine Results
+#         combined_results = pd.merge(growth_results, hydrology_results, on="Year")
     
-        # Check columns in combined_results for debugging
-        st.write("Columns in combined_results:", combined_results.columns.tolist())
+#         # Check columns in combined_results for debugging
+#         st.write("Columns in combined_results:", combined_results.columns.tolist())
     
-        st.write("Growth Simulation Results:")
-        st.dataframe(combined_results)
+#         st.write("Growth Simulation Results:")
+#         st.dataframe(combined_results)
     
-        # 6. Visualization with Plotly
-        st.subheader("Visualizations")
+#         # 6. Visualization with Plotly
+#         st.subheader("Visualizations")
     
-    # Tree Growth Over Time
-    fig_growth = go.Figure()
-    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Height (m)_x'],
-                                      mode='lines+markers', name='Height (m)', line=dict(color='green')))
-    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['DBH (cm)_x'],
-                                      mode='lines+markers', name='DBH (cm)', line=dict(color='blue')))
-    fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['LAI_x'],
-                                      mode='lines+markers', name='LAI', line=dict(color='orange')))
-    fig_growth.update_layout(title='Tree Growth Over Time',
-                             xaxis_title='Year',
-                             yaxis_title='Value',
-                             legend_title='Parameters',
-                             template='plotly_white')
-    st.plotly_chart(fig_growth)
+#     # Tree Growth Over Time
+#     fig_growth = go.Figure()
+#     fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Height (m)_x'],
+#                                       mode='lines+markers', name='Height (m)', line=dict(color='green')))
+#     fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['DBH (cm)_x'],
+#                                       mode='lines+markers', name='DBH (cm)', line=dict(color='blue')))
+#     fig_growth.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['LAI_x'],
+#                                       mode='lines+markers', name='LAI', line=dict(color='orange')))
+#     fig_growth.update_layout(title='Tree Growth Over Time',
+#                              xaxis_title='Year',
+#                              yaxis_title='Value',
+#                              legend_title='Parameters',
+#                              template='plotly_white')
+#     st.plotly_chart(fig_growth)
     
-    # Hydrological Balance Components Over Time
-    fig_hydrology = go.Figure()
-    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['ET (mm)'],
-                                        mode='lines+markers', name='ET (mm)', line=dict(color='red')))
-    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Soil Moisture (mm)'],
-                                        mode='lines+markers', name='Soil Moisture (mm)', line=dict(color='blue')))
-    fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Runoff (mm)'],
-                                        mode='lines+markers', name='Runoff (mm)', line=dict(color='orange')))
-    fig_hydrology.update_layout(title='Hydrological Balance Components Over Time',
-                                xaxis_title='Year',
-                                yaxis_title='Value',
-                                legend_title='Components',
-                                template='plotly_white')
-    st.plotly_chart(fig_hydrology)
+#     # Hydrological Balance Components Over Time
+#     fig_hydrology = go.Figure()
+#     fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['ET (mm)'],
+#                                         mode='lines+markers', name='ET (mm)', line=dict(color='red')))
+#     fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Soil Moisture (mm)'],
+#                                         mode='lines+markers', name='Soil Moisture (mm)', line=dict(color='blue')))
+#     fig_hydrology.add_trace(go.Scatter(x=combined_results['Year'], y=combined_results['Runoff (mm)'],
+#                                         mode='lines+markers', name='Runoff (mm)', line=dict(color='orange')))
+#     fig_hydrology.update_layout(title='Hydrological Balance Components Over Time',
+#                                 xaxis_title='Year',
+#                                 yaxis_title='Value',
+#                                 legend_title='Components',
+#                                 template='plotly_white')
+#     st.plotly_chart(fig_hydrology)
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
