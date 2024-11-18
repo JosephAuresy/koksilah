@@ -1576,130 +1576,32 @@ elif selected_option == "New":
                                 template='plotly_white')
     st.plotly_chart(fig_hydrology)
 
-elif selected_option == "Biomass":
+elif selected_option == "Report":   
+    st.title("Model Validation Report")
     
-    # Function to load the HRU file from OneDrive
-    def load_hru_file(year):
-        # Direct download link to the OneDrive shared file
-        file_url = 'https://uvic-my.sharepoint.com/personal/auresy_uvic_ca/_layouts/download.aspx?SourceUrl=/personal/auresy_uvic_ca/Documents/Koksilah_david/data/output.hru'
-        
-        try:
-            # Make the request to download the file
-            response = requests.get(file_url)
-
-            # Check if the request was successful
-            if response.status_code == 200:
-                # Read the response content into a pandas DataFrame
-                # Decode response content to string and split into lines
-                lines = response.text.splitlines()
-
-                # Skip the first 6 lines (assumed metadata) and read the rest into a DataFrame
-                df = pd.read_csv(pd.compat.StringIO('\n'.join(lines[6:])), delim_whitespace=True, comment='|')
-                return df
-            else:
-                st.error(f"Error: Unable to download file for {year}. Status code {response.status_code}")
-                return None
-        except Exception as e:
-            st.error(f"Error loading file: {str(e)}")
-            return None
+        # Add a short description
+        st.markdown("""
+        This report provides a comprehensive validation of the SWAT-MODFLOW model 
+        implemented for groundwater and surface water interactions. It includes 
+        detailed analysis of the model's performance, statistical metrics, and 
+        visualizations that illustrate the model's predictions against observed data.
+        """)
     
-    # Function to plot Stress factors vs Biomass using Plotly
-    def plot_stress_biomass(df):
-        fig = go.Figure()
+        PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
+        with open(PDF_FILE, "rb") as f:
+            pdf_data = f.read()
+            pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
     
-        # Stress factors (W_STRS, TMP_STRS, N_STRS, P_STRS)
-        stress_columns = ['W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS']
-        for col in stress_columns:
-            fig.add_trace(go.Scatter(x=df.index, y=df[col], mode='lines', name=col))
-    
-        # Biomass (BIOMt/ha) on the right y-axis
-        fig.add_trace(go.Scatter(x=df.index, y=df['BIOMt/ha'], mode='lines', name='Biomass (BIOMt/ha)', yaxis="y2", line=dict(color='orange')))
-    
-        # Update layout to handle dual axes
-        fig.update_layout(
-            yaxis=dict(title='Stress Factors', range=[1, 0]),  # Stress range: 1 (bottom) to 0 (top)
-            yaxis2=dict(title='Biomass (t/ha)', overlaying='y', side='right'),
-            title='Stress Factors vs Biomass',
-            xaxis_title="Index",
+        st.download_button(
+            label="Download PDF",
+            data=pdf_data,
+            file_name="koki_swatmf_report.pdf",
+            mime="application/pdf"
         )
-    
-        st.plotly_chart(fig)
-    
-    # Function to plot Biomass, Yield, and LAI using Plotly
-    def plot_biomass_yield_lai(df):
-        fig = go.Figure()
-    
-        # Biomass (BIOMt/ha) and Yield (YLDt/ha) on the left y-axis
-        fig.add_trace(go.Scatter(x=df.index, y=df['BIOMt/ha'], mode='lines', name='Biomass (BIOMt/ha)', line=dict(color='orange')))
-        fig.add_trace(go.Scatter(x=df.index, y=df['YLDt/ha'], mode='lines', name='Yield (YLDt/ha)', line=dict(color='blue')))
-    
-        # LAI on the right y-axis
-        fig.add_trace(go.Scatter(x=df.index, y=df['LAI'], mode='lines', name='LAI', yaxis="y2", line=dict(color='green')))
-    
-        # Update layout to handle dual axes
-        fig.update_layout(
-            yaxis=dict(title='Biomass (t/ha) and Yield (t/ha)'),
-            yaxis2=dict(title='LAI', overlaying='y', side='right'),
-            title='Biomass, Yield, and LAI',
-            xaxis_title="Index",
-        )
-    
-        st.plotly_chart(fig)
-    
-    # Streamlit App UI
-    def hru_analysis():
-        st.title("HRU Data Analysis")
-    
-        # Select year
-        years = [2010, 2020]  # Add more years as needed
-        selected_year = st.sidebar.selectbox("Select Year", years)
-    
-        # Load the selected HRU file
-        df = load_hru_file(selected_year)
-    
-        if df is not None:
-            # Select variable to explore
-            variables_of_interest = [
-                'BIOMt/ha', 'LAI', 'YLDt/ha', 'W_STRS', 'TMP_STRS', 'N_STRS', 'P_STRS'
-            ]
-            selected_variable = st.sidebar.selectbox("Select Variable", variables_of_interest)
-    
-            # Display the data for the selected variable
-            st.write(f"Displaying data for {selected_variable}")
-            st.dataframe(df[[selected_variable]])
-    
-            # Add plots
-            st.write("### Plot 1: Stress Factors and Biomass")
-            plot_stress_biomass(df)
-    
-            st.write("### Plot 2: Biomass, Yield, and LAI")
-            plot_biomass_yield_lai(df)
         
-# st.title("Model Validation Report")
-
-    # # Add a short description
-    # st.markdown("""
-    # This report provides a comprehensive validation of the SWAT-MODFLOW model 
-    # implemented for groundwater and surface water interactions. It includes 
-    # detailed analysis of the model's performance, statistical metrics, and 
-    # visualizations that illustrate the model's predictions against observed data.
-    # """)
-
-    # PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
-    # with open(PDF_FILE, "rb") as f:
-    #     pdf_data = f.read()
-    #     pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
-
-    # st.download_button(
-    #     label="Download PDF",
-    #     data=pdf_data,
-    #     file_name="koki_swatmf_report.pdf",
-    #     mime="application/pdf"
-    # )
+        iframe_width, iframe_height = get_iframe_dimensions()
+        st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
     
-    # iframe_width, iframe_height = get_iframe_dimensions()
-    # st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
-
 #Extra comments ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     # # Initialize the map centered on Duncan
