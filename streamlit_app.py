@@ -43,26 +43,28 @@ selected_option = st.sidebar.radio(
     ("Watershed models", "GW/SW validation", "Groundwater / Surface water interactions", "Recharge", "Report")
 )
 
-# Decade Selection for each feature
-st.sidebar.title("Model selection")
-st.sidebar.subheader("Climate")
-selected_decade_climate = st.sidebar.selectbox(
-    "Choose a decade for Climate:",
-    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-)
+# Conditional Model Selection Display
+if selected_option == "Groundwater / Surface water interactions" or selected_option == "Recharge":
+    # Display Model selection part only when these options are selected
+    st.sidebar.title("Model selection")
+    st.sidebar.subheader("Climate")
+    selected_decade_climate = st.sidebar.selectbox(
+        "Choose a decade for Climate:",
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+    )
 
-st.sidebar.subheader("Land Use")
-selected_decade_land_use = st.sidebar.selectbox(
-    "Choose a decade for Land Use:",
-    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-)
+    st.sidebar.subheader("Land Use")
+    selected_decade_land_use = st.sidebar.selectbox(
+        "Choose a decade for Land Use:",
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+    )
 
-st.sidebar.subheader("Water Use")
-selected_decade_water_use = st.sidebar.selectbox(
-    "Choose a decade for Water Use:",
-    ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
-)
-
+    st.sidebar.subheader("Water Use")
+    selected_decade_water_use = st.sidebar.selectbox(
+        "Choose a decade for Water Use:",
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+    )
+    
 # Month names for mapping
 month_names = [
     "January", "February", "March", "April", "May", "June",
