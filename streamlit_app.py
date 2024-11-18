@@ -50,21 +50,21 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     st.sidebar.subheader("Climate")
     selected_decade_climate = st.sidebar.selectbox(
         "Choose a decade for Climate:",
-        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Land Use")
     selected_decade_land_use = st.sidebar.selectbox(
         "Choose a decade for Land Use:",
-        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Water Use")
     selected_decade_water_use = st.sidebar.selectbox(
         "Choose a decade for Water Use:",
-        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s']
+        ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
         index=6  # Default to 2010s (index 6)
     )
     
