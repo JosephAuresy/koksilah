@@ -70,6 +70,9 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     # Define a function to generate folder path based on selected decade
     def get_folder_path(land_use, climate, water_use):
         # Assuming data folder structure is like: 'data/L{land_use}_C{climate}_W{water_use}'
+        land_use_code = land_use[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
+        climate_code = climate[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
+        water_use_code = water_use[-2:]         
         folder_name = f'L{land_use}_C{climate}_W{water_use}'
         return Path(__file__).parent / 'data' / folder_name
 
