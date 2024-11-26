@@ -497,6 +497,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     
         # Get the value for the selected month
         value = row_vals[selected_month - 1]
+        grid[row_idx, col_idx] = row_vals[selected_month - 1]
         # Get the previous month value (December if January)
         prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
 
@@ -524,35 +525,6 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Add hover text for the grid cell
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
 
-
-        # # Classify as positive or negative
-        # if value < 0:
-        #     grid[row_idx, col_idx] = 0  # Negative
-        # elif value > 0:
-        #     grid[row_idx, col_idx] = 1  # Positive
-    
-        # # Classify based on the value ranges and changes between months:
-        # if value < -50:
-        #     grid[row_idx, col_idx] = 0  # Dark Blue (strong negative)
-        # elif -50 <= value < -10:
-        #     grid[row_idx, col_idx] = 1  # Light Blue (moderate negative)
-        # elif -10 <= value <= 1:
-        #     grid[row_idx, col_idx] = 2  # Yellow (near-zero)
-        # elif value > 1:
-        #     grid[row_idx, col_idx] = 3  # Brown (positive, to aquifer)
-    
-        # # Check for changes in sign between months and assign green colors
-        # if prev_month_value > 0 and value < 0:
-        #     grid[row_idx, col_idx] = 4  # Shiny Green (positive to negative)
-        # elif prev_month_value < 0 and value > 0:
-        #     grid[row_idx, col_idx] = 5  # Green (negative to positive)
-    
-        # Create hover text for the real values
-        # hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
-
-    # # Set the title of the Streamlit app
-    # st.title("Hotspot Data Processing")
-    
     # # Path to your data file
     # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
     
