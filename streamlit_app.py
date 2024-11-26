@@ -744,10 +744,15 @@ elif selected_option == "Groundwater / Surface water interactions":
     # color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
     # color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
     color_names = [
-        'Strong Negative', 'Moderate Negative', 'Negative Closer to Zero',
-        'Mild Negative', 'Near Zero', 'Light Positive', 'Positive', 'Strong Positive'
+        'Less than -50',               # Dark Blue (strong negative)
+        'Between -50 and -20',         # Light Blue (moderate negative)
+        'Between -20 and -10',         # Cyan (negative but closer to zero)
+        'Between -10 and -5',          # Light Blue (mild negative)
+        'Between -5 and -1',           # Yellow (near-zero fluctuation)
+        'Between -1 and 1',            # Orange (light positive)
+        'Between 1 and 5',             # Brown (positive, to aquifer)
+        'Higher positive > 5'          # Dark Red (strong positive)
     ]
-    
     color_values = [
         color_counts['strong_negative'], color_counts['moderate_negative'], color_counts['negative_closer_to_zero'],
         color_counts['mild_negative'], color_counts['near_zero'], color_counts['light_positive'],
