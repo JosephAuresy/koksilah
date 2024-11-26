@@ -499,22 +499,28 @@ elif selected_option == "Groundwater / Surface water interactions":
         value = row_vals[selected_month - 1]
         # Get the previous month value (December if January)
         prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
+
+        # Classify as positive or negative
+        if value < 0:
+            grid[row_idx, col_idx] = 0  # Negative
+        elif value > 0:
+            grid[row_idx, col_idx] = 1  # Positive
     
-        # Classify based on the value ranges and changes between months:
-        if value < -50:
-            grid[row_idx, col_idx] = 0  # Dark Blue (strong negative)
-        elif -50 <= value < -10:
-            grid[row_idx, col_idx] = 1  # Light Blue (moderate negative)
-        elif -10 <= value <= 1:
-            grid[row_idx, col_idx] = 2  # Yellow (near-zero)
-        elif value > 1:
-            grid[row_idx, col_idx] = 3  # Brown (positive, to aquifer)
+        # # Classify based on the value ranges and changes between months:
+        # if value < -50:
+        #     grid[row_idx, col_idx] = 0  # Dark Blue (strong negative)
+        # elif -50 <= value < -10:
+        #     grid[row_idx, col_idx] = 1  # Light Blue (moderate negative)
+        # elif -10 <= value <= 1:
+        #     grid[row_idx, col_idx] = 2  # Yellow (near-zero)
+        # elif value > 1:
+        #     grid[row_idx, col_idx] = 3  # Brown (positive, to aquifer)
     
-        # Check for changes in sign between months and assign green colors
-        if prev_month_value > 0 and value < 0:
-            grid[row_idx, col_idx] = 4  # Shiny Green (positive to negative)
-        elif prev_month_value < 0 and value > 0:
-            grid[row_idx, col_idx] = 5  # Green (negative to positive)
+        # # Check for changes in sign between months and assign green colors
+        # if prev_month_value > 0 and value < 0:
+        #     grid[row_idx, col_idx] = 4  # Shiny Green (positive to negative)
+        # elif prev_month_value < 0 and value > 0:
+        #     grid[row_idx, col_idx] = 5  # Green (negative to positive)
     
         # Create hover text for the real values
         hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
@@ -582,13 +588,18 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(grid, selected_month_name, hover_text):
         # Step 6: Define a custom color scale
         colorscale = [
-            [0.0, 'darkblue'],   # Strong groundwater to river
-            [0.2, 'lightblue'],  # Moderate groundwater to river
-            [0.4, 'yellow'],     # Near-zero fluctuation
-            [0.6, 'brown'],      # Groundwater going into aquifer
-            [0.8, 'limegreen'],  # Change from positive to negative interaction
-            [1.0, 'lightpink']   # Change from negative to positive interaction
+            [0.0, 'brown'],  # Negative values
+            [1.0, 'blue']    # Positive values
         ]
+
+        # colorscale = [
+        #     [0.0, 'darkblue'],   # Strong groundwater to river
+        #     [0.2, 'lightblue'],  # Moderate groundwater to river
+        #     [0.4, 'yellow'],     # Near-zero fluctuation
+        #     [0.6, 'brown'],      # Groundwater going into aquifer
+        #     [0.8, 'limegreen'],  # Change from positive to negative interaction
+        #     [1.0, 'lightpink']   # Change from negative to positive interaction
+        # ]
     
         # Step 7: Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
@@ -629,23 +640,32 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Create a function to count cells per color
     def count_cells_per_color(grid):
-        color_counts = {
-            'dark_blue': np.sum(grid == 0),
-            'light_blue': np.sum(grid == 1),
-            'yellow': np.sum(grid == 2),
-            'brown': np.sum(grid == 3),
-            'limegreen': np.sum(grid == 4),
-            'lightpink': np.sum(grid == 5),
-        }
-        return color_counts
+    color_counts = {
+        'gaining_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
+        'losing_positive': np.sum(grid == 1),   # Brown (positive)
+    }
+    return color_counts
+    
+    # def count_cells_per_color(grid):
+    #     color_counts = {
+    #         'dark_blue': np.sum(grid == 0),
+    #         'light_blue': np.sum(grid == 1),
+    #         'yellow': np.sum(grid == 2),
+    #         'brown': np.sum(grid == 3),
+    #         'limegreen': np.sum(grid == 4),
+    #         'lightpink': np.sum(grid == 5),
+    #     }
+    #     return color_counts
     
     # Count the colors for the selected month
     color_counts = count_cells_per_color(grid)
     
     # Prepare data for pie chart
-    color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
-    color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
-                    color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
+    color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
+    color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
+    # color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
+    # color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
+    #                 color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
     
     total_cells = sum(color_values)
     
@@ -653,7 +673,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
     
     # Create a pie chart with formatted percentages
-    pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
+    pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
+    # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
     
     fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
     # fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='none')])
