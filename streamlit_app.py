@@ -616,15 +616,19 @@ elif selected_option == "Groundwater / Surface water interactions":
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black')
+            clickmode='event+select'  # Enable click event capturing
         )
         
-        # Display the heatmap and capture click events
+        # Display the heatmap and capture click events    
         click_data = st.plotly_chart(fig, use_container_width=True)
-        if click_data:
-            # Capture the row and column from the click event
+        
+        # Check if click_data is None or empty
+        if click_data and 'points' in click_data:
             row = click_data['points'][0]['y']
             column = click_data['points'][0]['x']
             plot_bar_chart(row, column)
+        else:
+            st.write("Click on a cell in the heatmap to view details.")
     
     # Function to plot a bar chart for a selected cell
     def plot_bar_chart(row, column):
