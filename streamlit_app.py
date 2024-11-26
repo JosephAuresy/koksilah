@@ -517,14 +517,11 @@ elif selected_option == "Groundwater / Surface water interactions":
             elif value > 5:
                 return 6  # Dark Red (strong positive)
         
-        # Update the grid based on the defined classifications
-        def classify_grid(grid):
-            classified_grid = np.zeros_like(grid, dtype=int)
-            for row_idx in range(grid.shape[0]):
-                for col_idx in range(grid.shape[1]):
-                    value = grid[row_idx, col_idx]
-                    classified_grid[row_idx, col_idx] = classify_based_on_value_range(value)
-            return classified_grid
+        # Classify the current value and assign to the grid
+        grid[row_idx, col_idx] = classify_based_on_value_range(value)
+        # Add hover text for the grid cell
+        hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
+
 
         # # Classify as positive or negative
         # if value < 0:
@@ -549,7 +546,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         #     grid[row_idx, col_idx] = 5  # Green (negative to positive)
     
         # Create hover text for the real values
-        hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
+        # hover_text[row_idx, col_idx] = f"Row: {row['Row']}, Column: {row['Column']}, Value: {value:.2f}"
 
     # # Set the title of the Streamlit app
     # st.title("Hotspot Data Processing")
@@ -775,7 +772,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     # pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
     pie_colors = ['#00008B', '#ADD8E6', '#00FFFF', '#A52A2A', '#FFFF00', '#8B4513', '#8B0000']  # Dark Blue, Light Blue, Cyan, Brown, Yellow, Dark Red
     # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
-    
+
+    # Create the pie chart
     fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
     # fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='none')])
 
