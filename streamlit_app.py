@@ -588,26 +588,17 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(grid, selected_month_name, hover_text):
         # Step 6: Define a custom color scale
         colorscale = [
-            [0.0, 'blue'],  # Negative values
-            [1.0, 'brown']    # Positive values
+            [0.0, 'blue'],  # Negative values (blue)
+            [1.0, 'brown']   # Positive values (brown)
         ]
-  
-        # colorscale = [
-        #     [0.0, 'darkblue'],   # Strong groundwater to river
-        #     [0.2, 'lightblue'],  # Moderate groundwater to river
-        #     [0.4, 'yellow'],     # Near-zero fluctuation
-        #     [0.6, 'brown'],      # Groundwater going into aquifer
-        #     [0.8, 'limegreen'],  # Change from positive to negative interaction
-        #     [1.0, 'lightpink']   # Change from negative to positive interaction
-        # ]
-    
+        
         # Step 7: Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
             z=grid,
             colorscale=colorscale,
-            zmin=0,  # Minimum category (dark blue)
-            zmax=5,  # Maximum category (light pink)
-            showscale=False,  # Hide scale since colors represent categories
+            zmin=-1,  # Minimum value to map to blue (negative)
+            zmax=1,   # Maximum value to map to brown (positive)
+            showscale=False,  # Hide scale since we're only using two colors
             hoverinfo='text',  # Show real values in hover
             text=hover_text  # Hover text with real values
         ))
@@ -623,9 +614,22 @@ elif selected_option == "Groundwater / Surface water interactions":
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black')
         )
+
+    # Step 9: Display the heatmap
+    st.plotly_chart(fig)
+
+    # Function to create heatmap
+    # def create_heatmap(grid, selected_month_name, hover_text):
+        # Step 6: Define a custom color scale
+        # colorscale = [
+        #     [0.0, 'darkblue'],   # Strong groundwater to river
+        #     [0.2, 'lightblue'],  # Moderate groundwater to river
+        #     [0.4, 'yellow'],     # Near-zero fluctuation
+        #     [0.6, 'brown'],      # Groundwater going into aquifer
+        #     [0.8, 'limegreen'],  # Change from positive to negative interaction
+        #     [1.0, 'lightpink']   # Change from negative to positive interaction
+        # ]
     
-        # Step 9: Display the heatmap
-        st.plotly_chart(fig)
     
         # # Step 10: Add a legend to explain the color coding
         # st.markdown("""
