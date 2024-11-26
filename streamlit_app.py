@@ -562,6 +562,8 @@ elif selected_option == "Groundwater / Surface water interactions":
             font=dict(family='Arial, sans-serif', size=8, color='black'),
             # clickmode='event+select'  # Enable click event capturing
         )
+        
+        st.plotly_chart(fig)
             
         # # Display the heatmap and capture click events    
         # click_data = st.plotly_chart(fig, use_container_width=True)
