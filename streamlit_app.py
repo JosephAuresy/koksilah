@@ -627,7 +627,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     selected_month_index = month_names.index(selected_month)
     
     # Create heatmap for the selected month
-    create_heatmap(grid[:, :, selected_month_index], selected_month, hover_text)
+    # create_heatmap(grid[:, :, selected_month_index], selected_month, hover_text)
     
     # Function to count cells per classification
     def count_cells_per_color(grid):
@@ -685,7 +685,9 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Display pie chart
     st.plotly_chart(fig)
-    
+
+    create_heatmap(grid, selected_month_name, hover_text)
+
     # # Function to create the heatmap
     # def create_heatmap(classified_grid, selected_month_name, hover_text):
     #     # Define a color scale for the classified ranges
