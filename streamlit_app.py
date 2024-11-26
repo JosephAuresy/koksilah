@@ -562,19 +562,21 @@ elif selected_option == "Groundwater / Surface water interactions":
             font=dict(family='Arial, sans-serif', size=8, color='black'),
             clickmode='event+select'  # Enable click event capturing
         )
-        
+            
         # Display the heatmap and capture click events    
         click_data = st.plotly_chart(fig, use_container_width=True)
     
         # Debug click_data
-        st.write(click_data)
-    
-        # Handle click event
-        if click_data and 'points' in click_data and click_data['points']:
-            # Process click data
-            row = click_data['points'][0]['y']
-            column = click_data['points'][0]['x']
-            plot_bar_chart(row, column)
+        if click_data:
+            st.write("Click Data Received:", click_data)
+            
+            # Check if the click_data has points and process it
+            if 'points' in click_data and click_data['points']:
+                row = click_data['points'][0]['y']
+                column = click_data['points'][0]['x']
+                plot_bar_chart(row, column)
+            else:
+                st.write("No valid click data detected.")
         else:
             st.write("Click on a cell in the heatmap to view details.")
     
