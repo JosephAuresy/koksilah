@@ -925,52 +925,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     summary_table = summarize_histograms(monthly_stats)
     st.write("Summary of Histograms Data across Months:")
     st.dataframe(summary_table)
-    
-    # # Function to plot the histogram for a selected month
-    # def plot_histogram(data, selected_month_name):
-    #     """
-    #     Plots a histogram of the 'Rate' values for the selected month.
-    #     Args:
-    #         data (pd.DataFrame): Data for the selected month.
-    #         selected_month_name (str): Name of the selected month.
-    #     """
-    #     mean_rate = data['Rate'].mean()  # Calculate the mean
-    #     std_rate = data['Rate'].std()   # Calculate the standard deviation
-        
-    #     plt.figure(figsize=(10, 6))  # Set figure size
-    #     plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
-        
-    #     # Add mean line
-    #     plt.axvline(mean_rate, color='red', linestyle='dashed', linewidth=1, label=f'Mean: {mean_rate:.2f}')
-    #     plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', 
-    #              color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))
-        
-    #     # Add confidence interval lines
-    #     upper_ci = mean_rate + 1.96 * std_rate
-    #     lower_ci = mean_rate - 1.96 * std_rate
-    #     plt.axvline(upper_ci, color='green', linestyle='dashed', linewidth=1, label=f'95% CI Upper: {upper_ci:.2f}')
-    #     plt.axvline(lower_ci, color='green', linestyle='dashed', linewidth=1, label=f'95% CI Lower: {lower_ci:.2f}')
-        
-    #     # Title and labels
-    #     plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
-    #     plt.xlabel('Rate')  # X-axis label
-    #     plt.ylabel('Frequency')  # Y-axis label
-        
-    #     plt.legend()  # Show legend
-    #     st.pyplot(plt)  # Render the plot within the Streamlit app
-    #     plt.clf()  # Clear the current figure to avoid overlapping plots
-    
-    # # Example Button to plot histogram
-    # if st.button('Plot Histogram'):
-    #     try:
-    #         # Assume `selected_month_data` and `selected_month_name` are defined
-    #         # Replace these placeholders with your actual variables
-    #         plot_histogram(selected_month_data, selected_month_name)
-    #     except Exception as e:
-    #         st.error(f"Error while plotting histogram: {e}")
-
-
-
+   
         
 elif selected_option == "Recharge":
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
