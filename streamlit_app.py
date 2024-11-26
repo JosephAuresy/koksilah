@@ -560,7 +560,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black'),
-            clickmode='event+select'  # Enable click event capturing
+            # clickmode='event+select'  # Enable click event capturing
         )
             
         # # Display the heatmap and capture click events    
@@ -608,8 +608,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Initial Setup: Find a default clickable grid (first grid with data)
     def get_default_grid_position():
         default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
-        default_row += 1  # Adjust for 1-indexing
-        default_column += 1  # Adjust for 1-indexing
+        default_row += 4  # Adjust for 1-indexing
+        default_column += 54  # Adjust for 1-indexing
         return default_row, default_column
     
     # Get default grid position
