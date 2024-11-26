@@ -617,9 +617,9 @@ elif selected_option == "Groundwater / Surface water interactions":
             [0.28, 'cyan'],      # Between -20 and -10
             [0.42, 'lightblue'], # Between -10 and -5
             [0.57, 'yellow'],    # Between -5 and -1
-            [0.71, 'lightyellow'], # Between -1 and 1 (new range, light yellow)
+            [0.71, 'orange'], # Between -1 and 1 (new range, light yellow)
             [0.85, 'brown'],     # Between 1 and 5
-            [1.0, 'darkred']     # Higher positive > 5
+            [1.0, 'purple']     # Higher positive > 5
         ]
         
         # Create the heatmap
