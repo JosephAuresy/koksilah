@@ -647,6 +647,43 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         # Display the heatmap
         st.plotly_chart(fig)
+
+    # Function to plot a bar chart for a selected cell
+    def plot_bar_chart(row, column):
+        # Filter data for the specific Row and Column
+        cell_data = monthly_stats[(monthly_stats['Row'] == row) & (monthly_stats['Column'] == column)]
+        
+        # Plot a bar chart showing the 'Rate' for this cell over the 12 months
+        fig = go.Figure(data=go.Bar(
+            x=[month_names[m - 1] for m in cell_data['Month']],  # Get the month names
+            y=cell_data['Rate'],
+            marker_color='blue'
+        ))
+        
+        # Update layout
+        fig.update_layout(
+            title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
+            xaxis_title="Month",
+            yaxis_title="Rate",
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            paper_bgcolor='white',
+            font=dict(family='Arial, sans-serif', size=12, color='black')
+        )
+        
+        st.plotly_chart(fig)
+    
+    # Step 3: Display the heatmap
+    selected_month_name = 'All Months'  # You can select a specific month if needed
+    create_heatmap(classified_grid, hover_text, selected_month_name)
+    
+    # Step 4: Capture click event on the heatmap
+    click_data = st.session_state.get('click_data', None)
+    
+    # If a cell is clicked, show the bar chart below
+    if click_data:
+        row = click_data['points'][0]['y']
+        column = click_data['points'][0]['x']
+        plot_bar_chart(row, column)
         
     # Function to count cells per classification
     def count_cells_per_color(grid):
