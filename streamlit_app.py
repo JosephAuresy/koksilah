@@ -524,7 +524,8 @@ elif selected_option == "Groundwater / Surface water interactions":
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
         # Add hover text for the grid cell
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
-
+    
+    # Function to create heatmap
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
@@ -548,34 +549,39 @@ elif selected_option == "Groundwater / Surface water interactions":
             hoverinfo='text',
             text=hover_text
         ))
-        
+    
         # Update the layout of the heatmap
         fig.update_layout(
             title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
             xaxis_title='Column',
             yaxis_title='Row',
-            xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-            yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black'),
             clickmode='event+select'  # Enable click event capturing
         )
+        
+        # Display the heatmap and capture click events    
+        click_data = st.plotly_chart(fig, use_container_width=True)
     
-        # Display the heatmap (click event handling should be done separately)
-        st.plotly_chart(fig, use_container_width=True)
+        # Debug click_data
+        st.write(click_data)
     
-        # Handle clicks through a button or other method (Streamlit doesn't capture click data directly)
-        if st.button("Show details for selected grid cell"):
-            click_row = st.number_input('Enter Row', min_value=1, max_value=rows)
-            click_col = st.number_input('Enter Column', min_value=1, max_value=cols)
-            plot_bar_chart(click_row - 1, click_col - 1)  # Adjust for zero-based index
-    
+        # Handle click event
+        if click_data and 'points' in click_data and click_data['points']:
+            # Process click data
+            row = click_data['points'][0]['y']
+            column = click_data['points'][0]['x']
+            plot_bar_chart(row, column)
+        else:
+            st.write("Click on a cell in the heatmap to view details.")
     
     # Function to plot a bar chart for a selected cell
     def plot_bar_chart(row, column):
         # Filter data for the specific Row and Column
-        cell_data = monthly_stats[(monthly_stats['Row'] == row + 1) & (monthly_stats['Column'] == column + 1)]
+        cell_data = monthly_stats[(monthly_stats['Row'] == row) & (monthly_stats['Column'] == column)]
         
         # Plot a bar chart showing the 'Rate' for this cell over the 12 months
         fig = go.Figure(data=go.Bar(
@@ -586,7 +592,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         # Update layout
         fig.update_layout(
-            title=f"Rate for Cell (Row {row + 1}, Column {column + 1}) Over 12 Months",
+            title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
             xaxis_title="Month",
             yaxis_title="Rate",
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
@@ -596,7 +602,16 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         st.plotly_chart(fig)
     
-    # Display the heatmap
+    
+    # Initial Setup: Find a default clickable grid (first grid with data)
+    default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
+    default_row += 1  # Adjust for 1-indexing
+    default_column += 1  # Adjust for 1-indexing
+    
+    # Update hover text for default grid
+    hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
+    
+    # Show initial heatmap
     create_heatmap(grid, selected_month_name, hover_text)
 
 # def create_heatmap(classified_grid, selected_month_name, hover_text):
