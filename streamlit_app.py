@@ -556,20 +556,6 @@ elif selected_option == "Groundwater / Surface water interactions":
             [0.85, 'blue'],         # Very strong negative (-175 > value > -225)
             [1.0, 'darkblue']       # Extreme negative (value <= -225)
         ]
-    
-    # # Function to create the heatmap
-    # def create_heatmap(classified_grid, selected_month_name, hover_text):
-    #     # Define a color scale for the classified ranges
-    #     colorscale = [
-    #         [0.0, 'darkblue'],   # Less than -50
-    #         [0.14, 'blue'],      # Between -50 and -20
-    #         [0.28, 'cyan'],      # Between -20 and -10
-    #         [0.42, 'lightblue'], # Between -10 and -5
-    #         [0.57, 'yellow'],    # Between -5 and -1
-    #         [0.71, 'orange'],    # Between -1 and 1 (new range, light yellow)
-    #         [0.85, 'brown'],     # Between 1 and 5
-    #         [1.0, 'purple']      # Higher positive > 5
-    #     ]
         
         # Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
