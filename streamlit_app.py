@@ -616,7 +616,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     # default_row, default_column = get_default_grid_position()
     
     # Update hover text for default grid
-    hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
+    # hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
     
     # Show initial heatmap with default month and row/column
     selected_month_name = month_names[0]  # Set the default selected month (e.g., Jan)
