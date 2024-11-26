@@ -566,44 +566,44 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Display the heatmap and capture click events    
         click_data = st.plotly_chart(fig, use_container_width=True)
         
-        # Debug click_data
-        if click_data:
-            st.write("Click Data Received:", click_data)
+        # # Debug click_data
+        # if click_data:
+        #     st.write("Click Data Received:", click_data)
             
-            # Check if the click_data has points and process it
-            if 'points' in click_data and click_data['points']:
-                row = click_data['points'][0]['y']
-                column = click_data['points'][0]['x']
-                plot_bar_chart(row, column)
-            else:
-                st.write("No valid click data detected.")
-        else:
-            st.write("Click on a cell in the heatmap to view details.")
+        #     # Check if the click_data has points and process it
+        #     if 'points' in click_data and click_data['points']:
+        #         row = click_data['points'][0]['y']
+        #         column = click_data['points'][0]['x']
+        #         plot_bar_chart(row, column)
+        #     else:
+        #         st.write("No valid click data detected.")
+        # else:
+        #     st.write("Click on a cell in the heatmap to view details.")
             
     # Function to plot a bar chart for a selected cell
-    def plot_bar_chart(row, column):
-        # Filter data for the specific Row and Column
-        selected_values = grid[row, column, :]
-        selected_data = {month_names[m]: selected_values[m] for m in range(12)}
+    # def plot_bar_chart(row, column):
+    #     # Filter data for the specific Row and Column
+    #     selected_values = grid[row, column, :]
+    #     selected_data = {month_names[m]: selected_values[m] for m in range(12)}
     
-        # Plot a bar chart showing the 'Rate' for this cell over the 12 months
-        fig = go.Figure(data=go.Bar(
-            x=[month_names[m] for m in range(12)],  # Get the month names
-            y=selected_values,
-            marker_color='blue'
-        ))
+    #     # Plot a bar chart showing the 'Rate' for this cell over the 12 months
+    #     fig = go.Figure(data=go.Bar(
+    #         x=[month_names[m] for m in range(12)],  # Get the month names
+    #         y=selected_values,
+    #         marker_color='blue'
+    #     ))
         
-        # Update layout
-        fig.update_layout(
-            title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
-            xaxis_title="Month",
-            yaxis_title="Rate",
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
-            paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=12, color='black')
-        )
+    #     # Update layout
+    #     fig.update_layout(
+    #         title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
+    #         xaxis_title="Month",
+    #         yaxis_title="Rate",
+    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #         paper_bgcolor='white',
+    #         font=dict(family='Arial, sans-serif', size=12, color='black')
+    #     )
         
-        st.plotly_chart(fig)
+    #     st.plotly_chart(fig)
     
     # Initial Setup: Find a default clickable grid (first grid with data)
     def get_default_grid_position():
