@@ -929,7 +929,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         plt.clf()  # Clear the current figure to avoid overlapping plots
     
     # Generate the summary table
-    summary_table = summarize_histograms(data)
+    summary_table = summarize_histograms(data['Rate'])
     
     # Streamlit App
     st.title("Histogram Analysis by Month")
