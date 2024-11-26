@@ -615,8 +615,8 @@ elif selected_option == "Groundwater / Surface water interactions":
             font=dict(family='Arial, sans-serif', size=8, color='black')
         )
 
-    # Step 9: Display the heatmap
-    st.plotly_chart(fig)
+        # Step 9: Display the heatmap
+        st.plotly_chart(fig)
 
     # Function to create heatmap
     # def create_heatmap(grid, selected_month_name, hover_text):
