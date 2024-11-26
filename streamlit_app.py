@@ -705,14 +705,26 @@ elif selected_option == "Groundwater / Surface water interactions":
         # - **Shiny Green**: Change from positive to negative interaction
         # - **Light Pink**: Change from negative to positive interaction
         # """)
-    
-    # Create a function to count cells per color
+
+    # Function to count cells per classification
     def count_cells_per_color(grid):
         color_counts = {
-            'gaining_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
-            'losing_positive': np.sum(grid == 1),   # Brown (positive)
+            'strong_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
+            'moderate_negative': np.sum(grid == 1),  # Light Blue (moderate negative)
+            'negative_closer_to_zero': np.sum(grid == 2),  # Cyan (negative but closer to zero)
+            'mild_negative': np.sum(grid == 3),  # Light Blue (mild negative)
+            'near_zero': np.sum(grid == 4),  # Yellow (near-zero fluctuation)
+            'positive': np.sum(grid == 5),  # Brown (positive, to aquifer)
+            'strong_positive': np.sum(grid == 6),  # Dark Red (strong positive)
         }
         return color_counts
+    # # Create a function to count cells per color
+    # def count_cells_per_color(grid):
+    #     color_counts = {
+    #         'gaining_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
+    #         'losing_positive': np.sum(grid == 1),   # Brown (positive)
+    #     }
+    #     return color_counts
     
     # def count_cells_per_color(grid):
     #     color_counts = {
@@ -741,7 +753,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
     
     # Create a pie chart with formatted percentages
-    pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
+    # pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
+    pie_colors = ['#00008B', '#ADD8E6', '#00FFFF', '#A52A2A', '#FFFF00', '#8B4513', '#8B0000']  # Dark Blue, Light Blue, Cyan, Brown, Yellow, Dark Red
     # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
     
     fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
