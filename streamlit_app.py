@@ -644,7 +644,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             'gaining_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
             'losing_positive': np.sum(grid == 1),   # Brown (positive)
         }
-    return color_counts
+        return color_counts
     
     # def count_cells_per_color(grid):
     #     color_counts = {
