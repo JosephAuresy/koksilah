@@ -500,25 +500,43 @@ elif selected_option == "Groundwater / Surface water interactions":
         grid[row_idx, col_idx] = row_vals[selected_month - 1]
         # Get the previous month value (December if January)
         prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
-
-        # Classify based on the value ranges and changes between months:
+    
+        # Function to classify values based on the provided ranges (from positive to negative)
         def classify_based_on_value_range(value):
-            if value < -50:
-                return 0  # Dark Blue (strong negative)
-            elif -50 <= value < -20:
-                return 1  # Light Blue (moderate negative)
-            elif -20 <= value < -10:
-                return 2  # Cyan (negative but closer to zero)
-            elif -10 <= value < -5:
-                return 3  # Light Blue (mild negative)
-            elif -5 <= value < -1:  # Adjusted range for mild negative
-                return 4  # Yellow (near-zero)
-            elif -1 <= value <= 1:  # New range for values between -1 and 1
-                return 5  # Light Yellow (near-zero, including positive and negative fluctuations)
-            elif 1 < value <= 5:
-                return 6  # Brown (positive, to aquifer)
-            elif value > 5:
-                return 7  # Dark Red (strong positive)
+            if value > 0:  # All positive values
+                return 0  # Brown (strong positive)
+            elif 0 >= value > -5:
+                return 1  # Dark Yellow (slightly positive)
+            elif -5 >= value > -25:
+                return 2  # Yellow (near-zero positive)
+            elif -25 >= value > -75:
+                return 3  # Light Green (mildly negative)
+            elif -75 >= value > -125:
+                return 4  # Green (moderately negative)
+            elif -125 >= value > -175:
+                return 5  # Cyan (strong negative)
+            elif -175 >= value > -225:
+                return 6  # Blue (very strong negative)
+            else:
+                return 7  # Dark Blue (extreme negative)
+        # # Classify based on the value ranges and changes between months:
+        # def classify_based_on_value_range(value):
+        #     if value < -50:
+        #         return 0  # Dark Blue (strong negative)
+        #     elif -50 <= value < -20:
+        #         return 1  # Light Blue (moderate negative)
+        #     elif -20 <= value < -10:
+        #         return 2  # Cyan (negative but closer to zero)
+        #     elif -10 <= value < -5:
+        #         return 3  # Light Blue (mild negative)
+        #     elif -5 <= value < -1:  # Adjusted range for mild negative
+        #         return 4  # Yellow (near-zero)
+        #     elif -1 <= value <= 1:  # New range for values between -1 and 1
+        #         return 5  # Light Yellow (near-zero, including positive and negative fluctuations)
+        #     elif 1 < value <= 5:
+        #         return 6  # Brown (positive, to aquifer)
+        #     elif value > 5:
+        #         return 7  # Dark Red (strong positive)
         
         # Classify the current value and assign to the grid
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
@@ -529,15 +547,29 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
-            [0.0, 'darkblue'],   # Less than -50
-            [0.14, 'blue'],      # Between -50 and -20
-            [0.28, 'cyan'],      # Between -20 and -10
-            [0.42, 'lightblue'], # Between -10 and -5
-            [0.57, 'yellow'],    # Between -5 and -1
-            [0.71, 'orange'],    # Between -1 and 1 (new range, light yellow)
-            [0.85, 'brown'],     # Between 1 and 5
-            [1.0, 'purple']      # Higher positive > 5
+            [0.0, 'brown'],         # Strong positive (value > 0)
+            [0.14, 'darkyellow'],   # Slightly positive (0 > value > -5)
+            [0.28, 'yellow'],       # Near-zero positive (-5 > value > -25)
+            [0.42, 'lightgreen'],   # Mildly negative (-25 > value > -75)
+            [0.57, 'green'],        # Moderately negative (-75 > value > -125)
+            [0.71, 'cyan'],    # Strong negative (-125 > value > -175)
+            [0.85, 'blue'],         # Very strong negative (-175 > value > -225)
+            [1.0, 'darkblue']       # Extreme negative (value <= -225)
         ]
+    
+    # # Function to create the heatmap
+    # def create_heatmap(classified_grid, selected_month_name, hover_text):
+    #     # Define a color scale for the classified ranges
+    #     colorscale = [
+    #         [0.0, 'darkblue'],   # Less than -50
+    #         [0.14, 'blue'],      # Between -50 and -20
+    #         [0.28, 'cyan'],      # Between -20 and -10
+    #         [0.42, 'lightblue'], # Between -10 and -5
+    #         [0.57, 'yellow'],    # Between -5 and -1
+    #         [0.71, 'orange'],    # Between -1 and 1 (new range, light yellow)
+    #         [0.85, 'brown'],     # Between 1 and 5
+    #         [1.0, 'purple']      # Higher positive > 5
+    #     ]
         
         # Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
@@ -564,106 +596,46 @@ elif selected_option == "Groundwater / Surface water interactions":
         )
         
         st.plotly_chart(fig)
-            
-        # # Display the heatmap and capture click events    
-        # click_data = st.plotly_chart(fig, use_container_width=True)
-        
-        # # Debug click_data
-        # if click_data:
-        #     st.write("Click Data Received:", click_data)
-            
-        #     # Check if the click_data has points and process it
-        #     if 'points' in click_data and click_data['points']:
-        #         row = click_data['points'][0]['y']
-        #         column = click_data['points'][0]['x']
-        #         plot_bar_chart(row, column)
-        #     else:
-        #         st.write("No valid click data detected.")
-        # else:
-        #     st.write("Click on a cell in the heatmap to view details.")
-            
-    # Function to plot a bar chart for a selected cell
-    # def plot_bar_chart(row, column):
-    #     # Filter data for the specific Row and Column
-    #     selected_values = grid[row, column, :]
-    #     selected_data = {month_names[m]: selected_values[m] for m in range(12)}
-    
-    #     # Plot a bar chart showing the 'Rate' for this cell over the 12 months
-    #     fig = go.Figure(data=go.Bar(
-    #         x=[month_names[m] for m in range(12)],  # Get the month names
-    #         y=selected_values,
-    #         marker_color='blue'
-    #     ))
-        
-    #     # Update layout
-    #     fig.update_layout(
-    #         title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
-    #         xaxis_title="Month",
-    #         yaxis_title="Rate",
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=12, color='black')
-    #     )
-        
-    #     st.plotly_chart(fig)
-    
-    # # Initial Setup: Find a default clickable grid (first grid with data)
-    # def get_default_grid_position():
-    #     default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
-    #     default_row += 1  # Adjust for 1-indexing
-    #     default_column += 1  # Adjust for 1-indexing
-    #     return default_row, default_column
-    
-    # # Get default grid position
-    # default_row, default_column = get_default_grid_position()
-    
-    # Update hover text for default grid
-    # hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
-    
-    # Show initial heatmap with default month and row/column
-    # selected_month_name = month_names[0]  # Set the default selected month (e.g., Jan)
-    # create_heatmap(grid[:, :, 0], selected_month_name, hover_text)
-    
-    # Allow user to change the selected month dynamically
-    # selected_month = st.selectbox("Select a Month", month_names)
-    # selected_month_index = month_names.index(selected_month)
-    
-    # Create heatmap for the selected month
-    # create_heatmap(grid[:, :, selected_month_index], selected_month, hover_text)
-    
-    # Function to count cells per classification
+                
     def count_cells_per_color(grid):
         color_counts = {
-            'strong_negative': np.sum(grid == 0),  # Dark Blue (strong negative, < -50)
-            'moderate_negative': np.sum(grid == 1),  # Light Blue (moderate negative, -50 to -20)
-            'negative_closer_to_zero': np.sum(grid == 2),  # Cyan (negative but closer to zero, -20 to -10)
-            'mild_negative': np.sum(grid == 3),  # Light Blue (mild negative, -10 to -5)
-            'near_zero': np.sum(grid == 4),  # Yellow (near-zero fluctuation, -5 to 1)
-            'light_positive': np.sum(grid == 5),  # Light Yellow (positive, -1 to 1)
-            'positive': np.sum(grid == 6),  # Brown (positive, to aquifer, 1 to 5)
-            'strong_positive': np.sum(grid == 7),  # Dark Red (strong positive, > 5)
+            'strong_positive': np.sum(grid == 0),  # Brown (strong positive, value > 0)
+            'slightly_positive': np.sum(grid == 1),  # Dark Yellow (slightly positive, 0 > value > -5)
+            'near_zero_positive': np.sum(grid == 2),  # Yellow (near-zero positive, -5 > value > -25)
+            'mildly_negative': np.sum(grid == 3),  # Light Green (mildly negative, -25 > value > -75)
+            'moderately_negative': np.sum(grid == 4),  # Green (moderately negative, -75 > value > -125)
+            'strong_negative': np.sum(grid == 5),  # Light Blue (strong negative, -125 > value > -175)
+            'very_strong_negative': np.sum(grid == 6),  # Cyan (very strong negative, -175 > value > -225)
+            'extreme_negative': np.sum(grid == 7),  # Dark Blue (extreme negative, value <= -225)
         }
         return color_counts
     
     # Count the colors for the selected month
     color_counts = count_cells_per_color(grid)
     
-    # Prepare data for pie chart
+   # Prepare data for pie chart with updated classification ranges
     color_names = [
-        'Less than -50',               # Dark Blue (strong negative)
-        'Between -50 and -20',         # Light Blue (moderate negative)
-        'Between -20 and -10',         # Cyan (negative but closer to zero)
-        'Between -10 and -5',          # Light Blue (mild negative)
-        'Between -5 and -1',           # Yellow (near-zero fluctuation)
-        'Between -1 and 1',            # Orange (light positive)
-        'Between 1 and 5',             # Brown (positive, to aquifer)
-        'Higher positive > 5'          # Dark Red (strong positive)
+        'Less than -225',               # Dark Blue (extreme negative, value <= -225)
+        'Between -175 and -225',        # Cyan (very strong negative, -175 > value > -225)
+        'Between -125 and -175',        # Light Blue (strong negative, -125 > value > -175)
+        'Between -75 and -125',         # Blue (moderately negative, -75 > value > -125)
+        'Between -25 and -75',          # Green (moderately negative, -25 > value > -75)
+        'Between -5 and -25',           # Light Green (mildly negative, -5 > value > -25)
+        'Between -1 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
+        'Greater than 0',               # Brown (strong positive, value > 0)
     ]
+    
     color_values = [
-        color_counts['strong_negative'], color_counts['moderate_negative'], color_counts['negative_closer_to_zero'],
-        color_counts['mild_negative'], color_counts['near_zero'], color_counts['light_positive'],
-        color_counts['positive'], color_counts['strong_positive']
+        color_counts['extreme_negative'],  # Dark Blue (extreme negative, value <= -225)
+        color_counts['very_strong_negative'],  # Cyan (very strong negative, -175 > value > -225)
+        color_counts['strong_negative'],  # Light Blue (strong negative, -125 > value > -175)
+        color_counts['moderately_negative'],  # Blue (moderately negative, -75 > value > -125)
+        color_counts['moderately_negative'],  # Green (moderately negative, -25 > value > -75)
+        color_counts['mildly_negative'],  # Light Green (mildly negative, -5 > value > -25)
+        color_counts['near_zero_positive'],  # Yellow (near-zero fluctuation, -5 > value > -1)
+        color_counts['strong_positive'],  # Brown (strong positive, value > 0)
     ]
+
     
     total_cells = sum(color_values)
     
@@ -672,14 +644,14 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Create a pie chart with formatted percentages
     pie_colors = [
-        '#00008B',  # Dark Blue (strong negative)
-        '#ADD8E6',  # Light Blue (moderate negative)
-        '#00FFFF',  # Cyan (negative but closer to zero)
-        '#E0FFFF',  # Light Cyan (mild negative)
-        '#FFFF00',  # Yellow (near-zero fluctuation)
-        '#FFA500',  # Orange (light positive)
-        '#8B4513',  # Brown (positive, to aquifer)
-        '#800080'   # Purple (strong positive)
+        '#8B4513',  # Brown (strong positive)
+        '#FFD700',  # Dark Yellow (slightly positive)
+        '#FFFF00',  # Yellow (near-zero positive)
+        '#90EE90',  # Light Green (mildly negative)
+        '#008000',  # Green (moderately negative)
+        '#00FFFF',  # Light Blue (strong negative) 
+        '#0000FF',  # Cyan (very strong negative)
+        '#00008B'   # Dark Blue (extreme negative)
     ]
     
     # Create the pie chart
