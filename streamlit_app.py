@@ -741,8 +741,27 @@ elif selected_option == "Groundwater / Surface water interactions":
     color_counts = count_cells_per_color(grid)
     
     # Prepare data for pie chart
-    color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
-    color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
+    # color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
+    # color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
+    color_names = [
+        'Strong Negative',             # Dark Blue (strong negative)
+        'Moderate Negative',           # Light Blue (moderate negative)
+        'Negative Closer to Zero',     # Cyan (negative but closer to zero)
+        'Mild Negative',               # Light Blue (mild negative)
+        'Near Zero',                   # Yellow (near-zero fluctuation)
+        'Positive',                    # Brown (positive, to aquifer)
+        'Strong Positive'              # Dark Red (strong positive)
+    ]
+    
+    color_values = [
+        color_counts['strong_negative'],       # Dark Blue (strong negative)
+        color_counts['moderate_negative'],     # Light Blue (moderate negative)
+        color_counts['negative_closer_to_zero'],  # Cyan (negative but closer to zero)
+        color_counts['mild_negative'],         # Light Blue (mild negative)
+        color_counts['near_zero'],             # Yellow (near-zero fluctuation)
+        color_counts['positive'],              # Brown (positive, to aquifer)
+        color_counts['strong_positive']        # Dark Red (strong positive)
+    ]
     # color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
     # color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
     #                 color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
