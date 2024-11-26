@@ -615,7 +615,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=8, color='black')
+            font=dict(family='Arial, sans-serif', size=8, color='black'),
             clickmode='event+select'  # Enable click event capturing
         )
         
