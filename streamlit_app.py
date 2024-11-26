@@ -623,8 +623,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     # create_heatmap(grid[:, :, 0], selected_month_name, hover_text)
     
     # Allow user to change the selected month dynamically
-    selected_month = st.selectbox("Select a Month", month_names)
-    selected_month_index = month_names.index(selected_month)
+    # selected_month = st.selectbox("Select a Month", month_names)
+    # selected_month_index = month_names.index(selected_month)
     
     # Create heatmap for the selected month
     # create_heatmap(grid[:, :, selected_month_index], selected_month, hover_text)
