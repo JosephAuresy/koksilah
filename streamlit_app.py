@@ -779,7 +779,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         '#FFFF00',  # Yellow (near-zero fluctuation)
         '#FFA500',  # Orange (light positive)
         '#8B4513',  # Brown (positive, to aquifer)
-        '#8B0000'   # Dark Red (strong positive)
+        '#800080'   # Purple (strong positive)
     ]
     # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
 
