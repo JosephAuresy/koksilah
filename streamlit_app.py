@@ -907,6 +907,36 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Button to plot histogram
     if st.button('Plot Histogram'):
         plot_histogram(selected_month_data)  # Call the histogram plotting function
+
+    def summarize_histograms(data):
+        """
+        Summarizes histogram statistics for each month and displays them in a table.
+        """
+        # Group data by month
+        grouped = data.groupby('Month')
+        
+        # Calculate statistics for each month
+        summary = grouped['Rate'].agg(
+            Frequency='count',  # Total count of observations
+            Min='min',          # Minimum value
+            Max='max',          # Maximum value
+            Mean='mean',        # Mean rate
+            StdDev='std'        # Standard deviation
+        ).reset_index()
+        
+        # Add Range column
+        summary['Range'] = summary['Max'] - summary['Min']
+        
+        # Display table in Streamlit
+        st.subheader("Monthly Histogram Summary Table")
+        st.dataframe(summary)
+        
+        return summary
+    
+    # Button to generate the summary table
+    if st.button('Generate Monthly Histogram Summary'):
+        summary_table = summarize_histograms(data)  # Assuming `data` is your dataset
+
         
 elif selected_option == "Recharge":
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
