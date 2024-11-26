@@ -613,16 +613,33 @@ elif selected_option == "Groundwater / Surface water interactions":
         ))
     
         # Step 8: Update the layout of the heatmap
+        # Step 8: Update the layout of the heatmap
         fig.update_layout(
             title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
             xaxis_title='Column',
             yaxis_title='Row',
-            xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-            yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
+            plot_bgcolor='white',
             paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=8, color='black')
+            font=dict(family='Arial, sans-serif', size=10, color='black'),
+            coloraxis_colorbar=dict(
+                title="Interaction",
+                titleside="right",
+                tickvals=[0, 1],
+                ticktext=["Negative", "Positive"]
+            )
         )
+        # fig.update_layout(
+        #     title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+        #     xaxis_title='Column',
+        #     yaxis_title='Row',
+        #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+        #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+        #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
+        #     paper_bgcolor='white',
+        #     font=dict(family='Arial, sans-serif', size=8, color='black')
+        # )
     
         # Step 9: Display the heatmap
         st.plotly_chart(fig)
