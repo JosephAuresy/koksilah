@@ -500,11 +500,37 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Get the previous month value (December if January)
         prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
 
-        # Classify as positive or negative
-        if value < 0:
-            grid[row_idx, col_idx] = 0  # Negative
-        elif value > 0:
-            grid[row_idx, col_idx] = 1  # Positive
+        # Classify based on the value ranges and changes between months:
+        def classify_based_on_value_range(value):
+            if value < -50:
+                return 0  # Dark Blue (strong negative)
+            elif -50 <= value < -20:
+                return 1  # Light Blue (moderate negative)
+            elif -20 <= value < -10:
+                return 2  # Cyan (negative but closer to zero)
+            elif -10 <= value < -5:
+                return 3  # Light Blue (mild negative)
+            elif -5 <= value <= 1:
+                return 4  # Yellow (near-zero)
+            elif 1 < value <= 5:
+                return 5  # Brown (positive, to aquifer)
+            elif value > 5:
+                return 6  # Dark Red (strong positive)
+        
+        # Update the grid based on the defined classifications
+        def classify_grid(grid):
+            classified_grid = np.zeros_like(grid, dtype=int)
+            for row_idx in range(grid.shape[0]):
+                for col_idx in range(grid.shape[1]):
+                    value = grid[row_idx, col_idx]
+                    classified_grid[row_idx, col_idx] = classify_based_on_value_range(value)
+            return classified_grid
+
+        # # Classify as positive or negative
+        # if value < 0:
+        #     grid[row_idx, col_idx] = 0  # Negative
+        # elif value > 0:
+        #     grid[row_idx, col_idx] = 1  # Positive
     
         # # Classify based on the value ranges and changes between months:
         # if value < -50:
@@ -584,26 +610,31 @@ elif selected_option == "Groundwater / Surface water interactions":
     # st.write('Hotspot Data with Grid Positions:')
     # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
 
-    # Function to create heatmap
-    def create_heatmap(grid, selected_month_name, hover_text):
-        # Step 6: Define a custom color scale
+    def create_heatmap(classified_grid, selected_month_name, hover_text):
+        # Define a color scale for the classified ranges
         colorscale = [
-            [0.0, 'blue'],  # Negative values (blue)
-            [1.0, 'brown']   # Positive values (brown)
+            [0.0, 'darkblue'],  # Less than -50
+            [0.14, 'blue'],     # Between -50 and -20
+            [0.28, 'cyan'],     # Between -20 and -10
+            [0.42, 'lightblue'],# Between -10 and -5
+            [0.57, 'yellow'],   # Between -5 and -1
+            [0.71, 'orange'],   # Between -1 and 1
+            [0.85, 'brown'],    # Between 1 and 5
+            [1.0, 'darkred']    # Higher positive > 5
         ]
         
-        # Step 7: Create the heatmap for the selected month
+        # Create the heatmap
         fig = go.Figure(data=go.Heatmap(
-            z=grid,
+            z=classified_grid,
             colorscale=colorscale,
-            zmin=-1,  # Minimum value to map to blue (negative)
-            zmax=1,   # Maximum value to map to brown (positive)
-            showscale=False,  # Hide scale since we're only using two colors
-            hoverinfo='text',  # Show real values in hover
-            text=hover_text  # Hover text with real values
+            zmin=0,
+            zmax=7,
+            showscale=False,  # Hide scale since categories are defined
+            hoverinfo='text',
+            text=hover_text
         ))
-    
-        # Step 8: Update the layout of the heatmap
+        
+        # Update the layout of the heatmap
         fig.update_layout(
             title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
             xaxis_title='Column',
@@ -614,9 +645,42 @@ elif selected_option == "Groundwater / Surface water interactions":
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black')
         )
-
-        # Step 9: Display the heatmap
+        
+        # Display the heatmap
         st.plotly_chart(fig)
+    # Function to create heatmap
+    # def create_heatmap(grid, selected_month_name, hover_text):
+    #     # Step 6: Define a custom color scale
+    #     colorscale = [
+    #         [0.0, 'blue'],  # Negative values (blue)
+    #         [1.0, 'brown']   # Positive values (brown)
+    #     ]
+        
+    #     # Step 7: Create the heatmap for the selected month
+    #     fig = go.Figure(data=go.Heatmap(
+    #         z=grid,
+    #         colorscale=colorscale,
+    #         zmin=-1,  # Minimum value to map to blue (negative)
+    #         zmax=1,   # Maximum value to map to brown (positive)
+    #         showscale=False,  # Hide scale since we're only using two colors
+    #         hoverinfo='text',  # Show real values in hover
+    #         text=hover_text  # Hover text with real values
+    #     ))
+    
+    #     # Step 8: Update the layout of the heatmap
+    #     fig.update_layout(
+    #         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+    #         xaxis_title='Column',
+    #         yaxis_title='Row',
+    #         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+    #         yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #         paper_bgcolor='white',
+    #         font=dict(family='Arial, sans-serif', size=8, color='black')
+    #     )
+
+    #     # Step 9: Display the heatmap
+    #     st.plotly_chart(fig)
 
     # Function to create heatmap
     # def create_heatmap(grid, selected_month_name, hover_text):
