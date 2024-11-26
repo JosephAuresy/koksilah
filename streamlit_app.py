@@ -525,63 +525,6 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Add hover text for the grid cell
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
 
-    # # Path to your data file
-    # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
-    
-    # # Load hotspot data
-    # hotspots_df = pd.read_csv(DATA_FILENAME)
-    
-    # # Define grid origin (top-left corner in meters) and cell size
-    # origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
-    # cell_size = 300  # cell size in meters
-    # num_cols = 94  # number of columns
-    # num_rows = 68  # number of rows
-    
-    # # Define the projection systems
-    # latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
-    # meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
-    
-    # # Create a transformer
-    # transformer = Transformer.from_proj(latlng_proj, meters_proj)
-    
-    # # Function to convert lat/lng to x/y coordinates in meters
-    # def convert_latlng_to_meters(lat, lng):
-    #     x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
-    #     return x, y
-    
-    # # Convert lat/lng coordinates to x/y in meters
-    # hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
-    
-    # # Calculate grid cell centers
-    # grid_centers = []
-    # for row in range(num_rows):
-    #     for col in range(num_cols):
-    #         center_x = origin_x + (col * cell_size) + (cell_size / 2)
-    #         center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
-    #         grid_centers.append((center_x, center_y))
-    
-    # # Create a DataFrame for grid centers
-    # grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
-    # grid_centers_df['row'] = grid_centers_df.index // num_cols
-    # grid_centers_df['col'] = grid_centers_df.index % num_cols
-    
-    # # Determine the position of hotspots relative to the grid
-    # def find_grid_cell(hotspot_x, hotspot_y):
-    #     for _, row in grid_centers_df.iterrows():
-    #         if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
-    #             row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
-    #             return row['row'], row['col']
-    #     return None, None
-    
-    # # Find grid positions for each hotspot
-    # hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
-    
-    # # Streamlit display
-    # st.title('Hotspot Coordinates Transformation and Grid Positions')
-    # st.write('Hotspot Data with Grid Positions:')
-    # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
-
-
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
@@ -618,25 +561,21 @@ elif selected_option == "Groundwater / Surface water interactions":
             font=dict(family='Arial, sans-serif', size=8, color='black'),
             clickmode='event+select'  # Enable click event capturing
         )
-        
-        # Display the heatmap and capture click events    
-        click_data = st.plotly_chart(fig, use_container_width=True)
-
-        # Debug click_data
-        st.write(click_data)
-                
-        if click_data and 'points' in click_data and click_data['points']:
-            # Process click data
-            row = click_data['points'][0]['y']
-            column = click_data['points'][0]['x']
-            plot_bar_chart(row, column)
-        else:
-            st.write("Click on a cell in the heatmap to view details.")
+    
+        # Display the heatmap (click event handling should be done separately)
+        st.plotly_chart(fig, use_container_width=True)
+    
+        # Handle clicks through a button or other method (Streamlit doesn't capture click data directly)
+        if st.button("Show details for selected grid cell"):
+            click_row = st.number_input('Enter Row', min_value=1, max_value=rows)
+            click_col = st.number_input('Enter Column', min_value=1, max_value=cols)
+            plot_bar_chart(click_row - 1, click_col - 1)  # Adjust for zero-based index
+    
     
     # Function to plot a bar chart for a selected cell
     def plot_bar_chart(row, column):
         # Filter data for the specific Row and Column
-        cell_data = monthly_stats[(monthly_stats['Row'] == row) & (monthly_stats['Column'] == column)]
+        cell_data = monthly_stats[(monthly_stats['Row'] == row + 1) & (monthly_stats['Column'] == column + 1)]
         
         # Plot a bar chart showing the 'Rate' for this cell over the 12 months
         fig = go.Figure(data=go.Bar(
@@ -647,7 +586,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         # Update layout
         fig.update_layout(
-            title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
+            title=f"Rate for Cell (Row {row + 1}, Column {column + 1}) Over 12 Months",
             xaxis_title="Month",
             yaxis_title="Rate",
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
@@ -657,7 +596,10 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         st.plotly_chart(fig)
     
-    # def create_heatmap(classified_grid, selected_month_name, hover_text):
+    # Display the heatmap
+    create_heatmap(grid, selected_month_name, hover_text)
+
+# def create_heatmap(classified_grid, selected_month_name, hover_text):
     #     # Define a color scale for the classified ranges
     #     colorscale = [
     #         [0.0, 'darkblue'],   # Less than -50
@@ -1877,3 +1819,59 @@ elif selected_option == "Report":
     # # Display the heatmap
     # st.plotly_chart(fig)
 
+
+    # # Path to your data file
+    # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
+    
+    # # Load hotspot data
+    # hotspots_df = pd.read_csv(DATA_FILENAME)
+    
+    # # Define grid origin (top-left corner in meters) and cell size
+    # origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
+    # cell_size = 300  # cell size in meters
+    # num_cols = 94  # number of columns
+    # num_rows = 68  # number of rows
+    
+    # # Define the projection systems
+    # latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
+    # meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
+    
+    # # Create a transformer
+    # transformer = Transformer.from_proj(latlng_proj, meters_proj)
+    
+    # # Function to convert lat/lng to x/y coordinates in meters
+    # def convert_latlng_to_meters(lat, lng):
+    #     x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
+    #     return x, y
+    
+    # # Convert lat/lng coordinates to x/y in meters
+    # hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
+    
+    # # Calculate grid cell centers
+    # grid_centers = []
+    # for row in range(num_rows):
+    #     for col in range(num_cols):
+    #         center_x = origin_x + (col * cell_size) + (cell_size / 2)
+    #         center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
+    #         grid_centers.append((center_x, center_y))
+    
+    # # Create a DataFrame for grid centers
+    # grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
+    # grid_centers_df['row'] = grid_centers_df.index // num_cols
+    # grid_centers_df['col'] = grid_centers_df.index % num_cols
+    
+    # # Determine the position of hotspots relative to the grid
+    # def find_grid_cell(hotspot_x, hotspot_y):
+    #     for _, row in grid_centers_df.iterrows():
+    #         if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
+    #             row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
+    #             return row['row'], row['col']
+    #     return None, None
+    
+    # # Find grid positions for each hotspot
+    # hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
+    
+    # # Streamlit display
+    # st.title('Hotspot Coordinates Transformation and Grid Positions')
+    # st.write('Hotspot Data with Grid Positions:')
+    # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
