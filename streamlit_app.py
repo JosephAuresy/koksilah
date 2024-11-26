@@ -770,7 +770,17 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Create a pie chart with formatted percentages
     # pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
-    pie_colors = ['#00008B', '#ADD8E6', '#00FFFF', '#ADD8E6', '#FFFF00', '#8B4513', '#8B0000']    
+    # Color scheme matching the value ranges
+    pie_colors = [
+        '#00008B',  # Dark Blue (strong negative)
+        '#ADD8E6',  # Light Blue (moderate negative)
+        '#00FFFF',  # Cyan (negative but closer to zero)
+        '#A52A2A',  # Brown (positive, to aquifer)
+        '#FFFF00',  # Yellow (near-zero fluctuation)
+        '#FFA500',  # Orange (light positive)
+        '#8B4513',  # Brown (positive, to aquifer)
+        '#8B0000'   # Dark Red (strong positive)
+    ]
     # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
 
     # Create the pie chart
