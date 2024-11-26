@@ -588,8 +588,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(grid, selected_month_name, hover_text):
         # Step 6: Define a custom color scale
         colorscale = [
-            [0.0, 'brown'],  # Negative values
-            [1.0, 'blue']    # Positive values
+            [0.0, 'blue'],  # Negative values
+            [1.0, 'brown']    # Positive values
         ]
 
         # colorscale = [
@@ -613,33 +613,16 @@ elif selected_option == "Groundwater / Surface water interactions":
         ))
     
         # Step 8: Update the layout of the heatmap
-        # Step 8: Update the layout of the heatmap
         fig.update_layout(
             title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
             xaxis_title='Column',
             yaxis_title='Row',
-            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
-            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
-            plot_bgcolor='white',
+            xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=10, color='black'),
-            coloraxis_colorbar=dict(
-                title="Interaction",
-                titleside="right",
-                tickvals=[0, 1],
-                ticktext=["Negative", "Positive"]
-            )
+            font=dict(family='Arial, sans-serif', size=8, color='black')
         )
-        # fig.update_layout(
-        #     title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-        #     xaxis_title='Column',
-        #     yaxis_title='Row',
-        #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-        #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-        #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
-        #     paper_bgcolor='white',
-        #     font=dict(family='Arial, sans-serif', size=8, color='black')
-        # )
     
         # Step 9: Display the heatmap
         st.plotly_chart(fig)
