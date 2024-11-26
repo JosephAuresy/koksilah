@@ -775,7 +775,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         '#00008B',  # Dark Blue (strong negative)
         '#ADD8E6',  # Light Blue (moderate negative)
         '#00FFFF',  # Cyan (negative but closer to zero)
-        '#A52A2A',  # Brown (positive, to aquifer)
+        '#E0FFFF',  # Light Cyan (mild negative)
         '#FFFF00',  # Yellow (near-zero fluctuation)
         '#FFA500',  # Orange (light positive)
         '#8B4513',  # Brown (positive, to aquifer)
