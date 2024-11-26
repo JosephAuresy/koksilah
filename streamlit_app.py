@@ -510,12 +510,14 @@ elif selected_option == "Groundwater / Surface water interactions":
                 return 2  # Cyan (negative but closer to zero)
             elif -10 <= value < -5:
                 return 3  # Light Blue (mild negative)
-            elif -5 <= value <= 1:
+            elif -5 <= value < -1:  # Adjusted range for mild negative
                 return 4  # Yellow (near-zero)
+            elif -1 <= value <= 1:  # New range for values between -1 and 1
+                return 5  # Light Yellow (near-zero, including positive and negative fluctuations)
             elif 1 < value <= 5:
-                return 5  # Brown (positive, to aquifer)
+                return 6  # Brown (positive, to aquifer)
             elif value > 5:
-                return 6  # Dark Red (strong positive)
+                return 7  # Dark Red (strong positive)
         
         # Classify the current value and assign to the grid
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
@@ -610,14 +612,14 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
-            [0.0, 'darkblue'],  # Less than -50
-            [0.14, 'blue'],     # Between -50 and -20
-            [0.28, 'cyan'],     # Between -20 and -10
-            [0.42, 'lightblue'],# Between -10 and -5
-            [0.57, 'yellow'],   # Between -5 and -1
-            [0.71, 'orange'],   # Between -1 and 1
-            [0.85, 'brown'],    # Between 1 and 5
-            [1.0, 'darkred']    # Higher positive > 5
+            [0.0, 'darkblue'],   # Less than -50
+            [0.14, 'blue'],      # Between -50 and -20
+            [0.28, 'cyan'],      # Between -20 and -10
+            [0.42, 'lightblue'], # Between -10 and -5
+            [0.57, 'yellow'],    # Between -5 and -1
+            [0.71, 'lightyellow'], # Between -1 and 1 (new range, light yellow)
+            [0.85, 'brown'],     # Between 1 and 5
+            [1.0, 'darkred']     # Higher positive > 5
         ]
         
         # Create the heatmap
@@ -706,13 +708,14 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Function to count cells per classification
     def count_cells_per_color(grid):
         color_counts = {
-            'strong_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
-            'moderate_negative': np.sum(grid == 1),  # Light Blue (moderate negative)
-            'negative_closer_to_zero': np.sum(grid == 2),  # Cyan (negative but closer to zero)
-            'mild_negative': np.sum(grid == 3),  # Light Blue (mild negative)
-            'near_zero': np.sum(grid == 4),  # Yellow (near-zero fluctuation)
-            'positive': np.sum(grid == 5),  # Brown (positive, to aquifer)
-            'strong_positive': np.sum(grid == 6),  # Dark Red (strong positive)
+            'strong_negative': np.sum(grid == 0),  # Dark Blue (strong negative, < -50)
+            'moderate_negative': np.sum(grid == 1),  # Light Blue (moderate negative, -50 to -20)
+            'negative_closer_to_zero': np.sum(grid == 2),  # Cyan (negative but closer to zero, -20 to -10)
+            'mild_negative': np.sum(grid == 3),  # Light Blue (mild negative, -10 to -5)
+            'near_zero': np.sum(grid == 4),  # Yellow (near-zero fluctuation, -5 to 1)
+            'light_positive': np.sum(grid == 5),  # Light Yellow (positive, -1 to 1)
+            'positive': np.sum(grid == 6),  # Brown (positive, to aquifer, 1 to 5)
+            'strong_positive': np.sum(grid == 7),  # Dark Red (strong positive, > 5)
         }
         return color_counts
     # # Create a function to count cells per color
@@ -741,24 +744,16 @@ elif selected_option == "Groundwater / Surface water interactions":
     # color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
     # color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
     color_names = [
-        'Strong Negative',             # Dark Blue (strong negative)
-        'Moderate Negative',           # Light Blue (moderate negative)
-        'Negative Closer to Zero',     # Cyan (negative but closer to zero)
-        'Mild Negative',               # Light Blue (mild negative)
-        'Near Zero',                   # Yellow (near-zero fluctuation)
-        'Positive',                    # Brown (positive, to aquifer)
-        'Strong Positive'              # Dark Red (strong positive)
+        'Strong Negative', 'Moderate Negative', 'Negative Closer to Zero',
+        'Mild Negative', 'Near Zero', 'Light Positive', 'Positive', 'Strong Positive'
     ]
     
     color_values = [
-        color_counts['strong_negative'],       # Dark Blue (strong negative)
-        color_counts['moderate_negative'],     # Light Blue (moderate negative)
-        color_counts['negative_closer_to_zero'],  # Cyan (negative but closer to zero)
-        color_counts['mild_negative'],         # Light Blue (mild negative)
-        color_counts['near_zero'],             # Yellow (near-zero fluctuation)
-        color_counts['positive'],              # Brown (positive, to aquifer)
-        color_counts['strong_positive']        # Dark Red (strong positive)
+        color_counts['strong_negative'], color_counts['moderate_negative'], color_counts['negative_closer_to_zero'],
+        color_counts['mild_negative'], color_counts['near_zero'], color_counts['light_positive'],
+        color_counts['positive'], color_counts['strong_positive']
     ]
+
     # color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
     # color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
     #                 color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
@@ -770,7 +765,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Create a pie chart with formatted percentages
     # pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
-    pie_colors = ['#00008B', '#ADD8E6', '#00FFFF', '#A52A2A', '#FFFF00', '#8B4513', '#8B0000']  # Dark Blue, Light Blue, Cyan, Brown, Yellow, Dark Red
+    pie_colors = ['#00008B', '#ADD8E6', '#00FFFF', '#ADD8E6', '#FFFF00', '#8B4513', '#8B0000']    
     # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
 
     # Create the pie chart
