@@ -893,6 +893,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         plt.figure(figsize=(10, 6))  # Set figure size
         plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
         plt.axvline(data['Rate'].mean(), color='red', linestyle='dashed', linewidth=1, label='Mean')  # Add mean line
+        plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))   
         plt.axvline(data['Rate'].mean() + 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
         plt.axvline(data['Rate'].mean() - 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
         plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
