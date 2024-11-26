@@ -605,15 +605,15 @@ elif selected_option == "Groundwater / Surface water interactions":
         
     #     st.plotly_chart(fig)
     
-    # Initial Setup: Find a default clickable grid (first grid with data)
-    def get_default_grid_position():
-        default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
-        default_row += 4  # Adjust for 1-indexing
-        default_column += 54  # Adjust for 1-indexing
-        return default_row, default_column
+    # # Initial Setup: Find a default clickable grid (first grid with data)
+    # def get_default_grid_position():
+    #     default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
+    #     default_row += 1  # Adjust for 1-indexing
+    #     default_column += 1  # Adjust for 1-indexing
+    #     return default_row, default_column
     
-    # Get default grid position
-    default_row, default_column = get_default_grid_position()
+    # # Get default grid position
+    # default_row, default_column = get_default_grid_position()
     
     # Update hover text for default grid
     hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
