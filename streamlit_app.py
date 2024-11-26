@@ -908,31 +908,49 @@ elif selected_option == "Groundwater / Surface water interactions":
     if st.button('Plot Histogram'):
         plot_histogram(selected_month_data)  # Call the histogram plotting function
 
-    def plot_all_histograms(data):
+    # Function to plot the histogram for a selected month
+    def plot_histogram(data, selected_month_name):
         """
-        Plots histograms for all months side-by-side for visual comparison.
+        Plots a histogram of the 'Rate' values for the selected month.
+        Args:
+            data (pd.DataFrame): Data for the selected month.
+            selected_month_name (str): Name of the selected month.
         """
-        months = data['Month'].unique()
-        n_months = len(months)
+        mean_rate = data['Rate'].mean()  # Calculate the mean
+        std_rate = data['Rate'].std()   # Calculate the standard deviation
         
-        # Set up subplots
-        fig, axes = plt.subplots(n_months, 1, figsize=(10, n_months * 4), sharex=True)
+        plt.figure(figsize=(10, 6))  # Set figure size
+        plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
         
-        for i, month in enumerate(months):
-            month_data = data[data['Month'] == month]
-            axes[i].hist(month_data['Rate'], bins=30, color='blue', alpha=0.7)
-            axes[i].axvline(month_data['Rate'].mean(), color='red', linestyle='dashed', linewidth=1, label='Mean')
-            axes[i].set_title(f'Histogram for {month}')
-            axes[i].set_xlabel('Rate')
-            axes[i].set_ylabel('Frequency')
-            axes[i].legend()
+        # Add mean line
+        plt.axvline(mean_rate, color='red', linestyle='dashed', linewidth=1, label=f'Mean: {mean_rate:.2f}')
+        plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', 
+                 color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))
         
-        st.pyplot(fig)
-        plt.clf()
+        # Add confidence interval lines
+        upper_ci = mean_rate + 1.96 * std_rate
+        lower_ci = mean_rate - 1.96 * std_rate
+        plt.axvline(upper_ci, color='green', linestyle='dashed', linewidth=1, label=f'95% CI Upper: {upper_ci:.2f}')
+        plt.axvline(lower_ci, color='green', linestyle='dashed', linewidth=1, label=f'95% CI Lower: {lower_ci:.2f}')
+        
+        # Title and labels
+        plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
+        plt.xlabel('Rate')  # X-axis label
+        plt.ylabel('Frequency')  # Y-axis label
+        
+        plt.legend()  # Show legend
+        st.pyplot(plt)  # Render the plot within the Streamlit app
+        plt.clf()  # Clear the current figure to avoid overlapping plots
     
-    # Button to plot all histograms
-    if st.button('Plot All Monthly Histograms'):
-        plot_all_histograms(data)
+    # Example Button to plot histogram
+    if st.button('Plot Histogram'):
+        try:
+            # Assume `selected_month_data` and `selected_month_name` are defined
+            # Replace these placeholders with your actual variables
+            plot_histogram(selected_month_data, selected_month_name)
+        except Exception as e:
+            st.error(f"Error while plotting histogram: {e}")
+
 
 
         
