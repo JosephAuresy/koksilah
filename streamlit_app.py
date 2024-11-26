@@ -885,28 +885,28 @@ elif selected_option == "Groundwater / Surface water interactions":
         changes = change_detection(selected_month_data)  # Call the change detection function
         st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
     
-    # Additional: Plotting Histogram for Selected Month
-    def plot_histogram(data):
-        """
-        This function plots a histogram of the 'Rate' values for the selected month.
-        """
-        mean_rate = data['Rate'].mean()  # Calculate the mean
-        plt.figure(figsize=(10, 6))  # Set figure size
-        plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
-        plt.axvline(mean_rate, color='red', linestyle='dashed', linewidth=1, label='Mean')  # Add mean line
-        plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))   
-        plt.axvline(data['Rate'].mean() + 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
-        plt.axvline(data['Rate'].mean() - 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
-        plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
-        plt.xlabel('Rate')  # X-axis label
-        plt.ylabel('Frequency')  # Y-axis label
-        plt.legend()  # Show legend
-        st.pyplot(plt)  # Render the plot within the Streamlit app
-        plt.clf()  # Clear the current figure to avoid overlapping plots
+    # # Additional: Plotting Histogram for Selected Month
+    # def plot_histogram(data):
+    #     """
+    #     This function plots a histogram of the 'Rate' values for the selected month.
+    #     """
+    #     mean_rate = data['Rate'].mean()  # Calculate the mean
+    #     plt.figure(figsize=(10, 6))  # Set figure size
+    #     plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
+    #     plt.axvline(mean_rate, color='red', linestyle='dashed', linewidth=1, label='Mean')  # Add mean line
+    #     plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))   
+    #     plt.axvline(data['Rate'].mean() + 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
+    #     plt.axvline(data['Rate'].mean() - 1.96 * data['Rate'].std(), color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
+    #     plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
+    #     plt.xlabel('Rate')  # X-axis label
+    #     plt.ylabel('Frequency')  # Y-axis label
+    #     plt.legend()  # Show legend
+    #     st.pyplot(plt)  # Render the plot within the Streamlit app
+    #     plt.clf()  # Clear the current figure to avoid overlapping plots
     
-    # Button to plot histogram
-    if st.button('Plot Histogram'):
-        plot_histogram(selected_month_data)  # Call the histogram plotting function
+    # # Button to plot histogram
+    # if st.button('Plot Histogram'):
+    #     plot_histogram(selected_month_data)  # Call the histogram plotting function
 
     # Function to plot the histogram for a selected month
     def plot_histogram(data, selected_month_name):
