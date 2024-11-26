@@ -647,64 +647,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         # Display the heatmap
         st.plotly_chart(fig)
-    # Function to create heatmap
-    # def create_heatmap(grid, selected_month_name, hover_text):
-    #     # Step 6: Define a custom color scale
-    #     colorscale = [
-    #         [0.0, 'blue'],  # Negative values (blue)
-    #         [1.0, 'brown']   # Positive values (brown)
-    #     ]
         
-    #     # Step 7: Create the heatmap for the selected month
-    #     fig = go.Figure(data=go.Heatmap(
-    #         z=grid,
-    #         colorscale=colorscale,
-    #         zmin=-1,  # Minimum value to map to blue (negative)
-    #         zmax=1,   # Maximum value to map to brown (positive)
-    #         showscale=False,  # Hide scale since we're only using two colors
-    #         hoverinfo='text',  # Show real values in hover
-    #         text=hover_text  # Hover text with real values
-    #     ))
-    
-    #     # Step 8: Update the layout of the heatmap
-    #     fig.update_layout(
-    #         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-    #         xaxis_title='Column',
-    #         yaxis_title='Row',
-    #         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-    #         yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=8, color='black')
-    #     )
-
-    #     # Step 9: Display the heatmap
-    #     st.plotly_chart(fig)
-
-    # Function to create heatmap
-    # def create_heatmap(grid, selected_month_name, hover_text):
-        # Step 6: Define a custom color scale
-        # colorscale = [
-        #     [0.0, 'darkblue'],   # Strong groundwater to river
-        #     [0.2, 'lightblue'],  # Moderate groundwater to river
-        #     [0.4, 'yellow'],     # Near-zero fluctuation
-        #     [0.6, 'brown'],      # Groundwater going into aquifer
-        #     [0.8, 'limegreen'],  # Change from positive to negative interaction
-        #     [1.0, 'lightpink']   # Change from negative to positive interaction
-        # ]
-    
-    
-        # # Step 10: Add a legend to explain the color coding
-        # st.markdown("""
-        # ### Color Legend:
-        # - **Dark Blue**: Strong negative interaction (groundwater going to river, -50 to -1000)
-        # - **Light Blue**: Moderate negative interaction (groundwater going to river, -10 to -50)
-        # - **Yellow**: Near-zero fluctuation (groundwater level stable, -10 to 1)
-        # - **Brown**: Positive interaction (groundwater going into aquifer, >1)
-        # - **Shiny Green**: Change from positive to negative interaction
-        # - **Light Pink**: Change from negative to positive interaction
-        # """)
-
     # Function to count cells per classification
     def count_cells_per_color(grid):
         color_counts = {
@@ -718,31 +661,11 @@ elif selected_option == "Groundwater / Surface water interactions":
             'strong_positive': np.sum(grid == 7),  # Dark Red (strong positive, > 5)
         }
         return color_counts
-    # # Create a function to count cells per color
-    # def count_cells_per_color(grid):
-    #     color_counts = {
-    #         'gaining_negative': np.sum(grid == 0),  # Dark Blue (strong negative)
-    #         'losing_positive': np.sum(grid == 1),   # Brown (positive)
-    #     }
-    #     return color_counts
-    
-    # def count_cells_per_color(grid):
-    #     color_counts = {
-    #         'dark_blue': np.sum(grid == 0),
-    #         'light_blue': np.sum(grid == 1),
-    #         'yellow': np.sum(grid == 2),
-    #         'brown': np.sum(grid == 3),
-    #         'limegreen': np.sum(grid == 4),
-    #         'lightpink': np.sum(grid == 5),
-    #     }
-    #     return color_counts
-    
+        
     # Count the colors for the selected month
     color_counts = count_cells_per_color(grid)
     
     # Prepare data for pie chart
-    # color_names = ['Gaining Negative (Strong Negative)', 'Losing Positive (Moderate Negative)']
-    # color_values = [color_counts['gaining_negative'], color_counts['losing_positive']]
     color_names = [
         'Less than -50',               # Dark Blue (strong negative)
         'Between -50 and -20',         # Light Blue (moderate negative)
@@ -758,19 +681,13 @@ elif selected_option == "Groundwater / Surface water interactions":
         color_counts['mild_negative'], color_counts['near_zero'], color_counts['light_positive'],
         color_counts['positive'], color_counts['strong_positive']
     ]
-
-    # color_names = ['Strongly gaining', 'Gaining', 'No significants contributions', 'Losing', 'Changing to gaining', 'Changing to losing']
-    # color_values = [color_counts['dark_blue'], color_counts['light_blue'], color_counts['yellow'],
-    #                 color_counts['brown'], color_counts['limegreen'], color_counts['lightpink']]
-    
+     
     total_cells = sum(color_values)
     
     # Avoid division by zero
     percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
     
     # Create a pie chart with formatted percentages
-    # pie_colors = ['#00008B', '#A52A2A']  # Dark Blue for negative, Brown for positive
-    # Color scheme matching the value ranges
     pie_colors = [
         '#00008B',  # Dark Blue (strong negative)
         '#ADD8E6',  # Light Blue (moderate negative)
@@ -781,12 +698,9 @@ elif selected_option == "Groundwater / Surface water interactions":
         '#8B4513',  # Brown (positive, to aquifer)
         '#800080'   # Purple (strong positive)
     ]
-    # pie_colors = ['#00008B', '#ADD8E6', '#FFFF00', '#A52A2A', '#00FF00', '#FFB6C1']  # Ensure the colors are correct
 
     # Create the pie chart
     fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
-    # fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='none')])
-
     
     # Update pie chart layout with formatted percentages
     # fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
