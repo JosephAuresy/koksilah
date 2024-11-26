@@ -563,8 +563,8 @@ elif selected_option == "Groundwater / Surface water interactions":
             clickmode='event+select'  # Enable click event capturing
         )
             
-        # Display the heatmap and capture click events    
-        click_data = st.plotly_chart(fig, use_container_width=True)
+        # # Display the heatmap and capture click events    
+        # click_data = st.plotly_chart(fig, use_container_width=True)
         
         # # Debug click_data
         # if click_data:
