@@ -591,7 +591,11 @@ elif selected_option == "Groundwater / Surface water interactions":
             [0.0, 'blue'],  # Negative values
             [1.0, 'brown']    # Positive values
         ]
-
+        zmin=0,  # Minimum category (blue for negative)
+        zmax=1,  # Maximum category (brown for positive)
+        showscale=False,  # Hide scale since we're using only two categories
+        hoverinfo='text',  # Show real values in hover
+        text=hover_text  # Hover text with real values
         # colorscale = [
         #     [0.0, 'darkblue'],   # Strong groundwater to river
         #     [0.2, 'lightblue'],  # Moderate groundwater to river
@@ -601,16 +605,16 @@ elif selected_option == "Groundwater / Surface water interactions":
         #     [1.0, 'lightpink']   # Change from negative to positive interaction
         # ]
     
-        # Step 7: Create the heatmap for the selected month
-        fig = go.Figure(data=go.Heatmap(
-            z=grid,
-            colorscale=colorscale,
-            zmin=0,  # Minimum category (dark blue)
-            zmax=5,  # Maximum category (light pink)
-            showscale=False,  # Hide scale since colors represent categories
-            hoverinfo='text',  # Show real values in hover
-            text=hover_text  # Hover text with real values
-        ))
+        # # Step 7: Create the heatmap for the selected month
+        # fig = go.Figure(data=go.Heatmap(
+        #     z=grid,
+        #     colorscale=colorscale,
+        #     zmin=0,  # Minimum category (dark blue)
+        #     zmax=5,  # Maximum category (light pink)
+        #     showscale=False,  # Hide scale since colors represent categories
+        #     hoverinfo='text',  # Show real values in hover
+        #     text=hover_text  # Hover text with real values
+        # ))
     
         # Step 8: Update the layout of the heatmap
         fig.update_layout(
