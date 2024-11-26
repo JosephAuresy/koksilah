@@ -908,34 +908,32 @@ elif selected_option == "Groundwater / Surface water interactions":
     if st.button('Plot Histogram'):
         plot_histogram(selected_month_data)  # Call the histogram plotting function
 
-    def summarize_histograms(data):
+    def plot_all_histograms(data):
         """
-        Summarizes histogram statistics for each month and displays them in a table.
+        Plots histograms for all months side-by-side for visual comparison.
         """
-        # Group data by month
-        grouped = data.groupby('Month')
+        months = data['Month'].unique()
+        n_months = len(months)
         
-        # Calculate statistics for each month
-        summary = grouped['Rate'].agg(
-            Frequency='count',  # Total count of observations
-            Min='min',          # Minimum value
-            Max='max',          # Maximum value
-            Mean='mean',        # Mean rate
-            StdDev='std'        # Standard deviation
-        ).reset_index()
+        # Set up subplots
+        fig, axes = plt.subplots(n_months, 1, figsize=(10, n_months * 4), sharex=True)
         
-        # Add Range column
-        summary['Range'] = summary['Max'] - summary['Min']
+        for i, month in enumerate(months):
+            month_data = data[data['Month'] == month]
+            axes[i].hist(month_data['Rate'], bins=30, color='blue', alpha=0.7)
+            axes[i].axvline(month_data['Rate'].mean(), color='red', linestyle='dashed', linewidth=1, label='Mean')
+            axes[i].set_title(f'Histogram for {month}')
+            axes[i].set_xlabel('Rate')
+            axes[i].set_ylabel('Frequency')
+            axes[i].legend()
         
-        # Display table in Streamlit
-        st.subheader("Monthly Histogram Summary Table")
-        st.dataframe(summary)
-        
-        return summary
+        st.pyplot(fig)
+        plt.clf()
     
-    # Button to generate the summary table
-    if st.button('Generate Monthly Histogram Summary'):
-        summary_table = summarize_histograms(data)  # Assuming `data` is your dataset
+    # Button to plot all histograms
+    if st.button('Plot All Monthly Histograms'):
+        plot_all_histograms(data)
+
 
         
 elif selected_option == "Recharge":
