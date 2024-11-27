@@ -540,11 +540,11 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
-        [0.0, '#8B4513'],  # Strongly gaining - Brown
-        [0.33, '#FFD700'],  # Gaining - Dark Yellow
-        [0.66, '#0000FF'],  # No significant contributions - Blue
-        [1.0, '#00008B'],   # Losing - Dark Blue
-]
+            [0.0, '#8B4513'],  # Strongly gaining - Brown
+            [0.33, '#FFD700'],  # Gaining - Dark Yellow
+            [0.66, '#0000FF'],  # No significant contributions - Blue
+            [1.0, '#00008B'],   # Losing - Dark Blue
+        ]
         # colorscale = [
         #     [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
         #     [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
