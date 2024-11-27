@@ -588,7 +588,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         'Between -75 and -125',         # Blue (moderately negative, -75 > value > -125)
         'Between -25 and -75',          # Green (moderately negative, -25 > value > -75)
         'Between -5 and -25',           # Light Green (mildly negative, -5 > value > -25)
-        'Between -1 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
+        'Between 0 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
         'Greater than 0',               # Brown (strong positive, value > 0)
     ]
     
