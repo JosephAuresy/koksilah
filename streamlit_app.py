@@ -561,7 +561,7 @@ elif selected_option == "Groundwater / Surface water interactions":
             z=classified_grid,
             colorscale=colorscale,
             zmin=0,
-            zmax=7,
+            zmax=3,
             showscale=False,  # Hide scale since categories are defined
             hoverinfo='text',
             text=hover_text
