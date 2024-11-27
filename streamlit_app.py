@@ -1,4 +1,3 @@
-if selected_option == "Groundwater / Surface water interactions", selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
 import streamlit as st
 import pandas as pd
 import numpy as np
