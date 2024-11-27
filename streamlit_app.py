@@ -564,45 +564,73 @@ elif selected_option == "Groundwater / Surface water interactions":
         )
         
         st.plotly_chart(fig)
-                
-    def count_cells_per_color(grid):
-        color_counts = {
-            'strong_positive': np.sum(grid == 0),  # Brown (strong positive, value > 0)
-            'slightly_positive': np.sum(grid == 1),  # Dark Yellow (slightly positive, 0 > value > -5)
-            'near_zero_positive': np.sum(grid == 2),  # Yellow (near-zero positive, -5 > value > -25)
-            'mildly_negative': np.sum(grid == 3),  # Light Green (mildly negative, -25 > value > -75)
-            'moderately_negative': np.sum(grid == 4),  # Green (moderately negative, -75 > value > -125)
-            'strong_negative': np.sum(grid == 5),  # Light Blue (strong negative, -125 > value > -175)
-            'very_strong_negative': np.sum(grid == 6),  # Cyan (very strong negative, -175 > value > -225)
-            'extreme_negative': np.sum(grid == 7),  # Dark Blue (extreme negative, value <= -225)
+
+    def count_cells_per_class(grid):
+        # Combine categories into four main classifications
+        class_counts = {
+            'strongly_gaining': np.sum((grid == 7) | (grid == 6) | (grid == 5)),  # Combine strong, slightly, and near-zero positive
+            'gaining': np.sum((grid == 4) | (grid == 3) | (grid == 2)),  # Combine mild, moderate, and strong negative
+            'no_significant_contributions': np.sum(grid == 1),  # Combine very strong and extreme negative
+            'losing': np.sum(grid == 0),  # Losing category for extreme negative
         }
-        return color_counts
+        return class_counts
     
-    # Count the colors for the selected month
-    color_counts = count_cells_per_color(grid)
+    # Count the cells for the grid based on new classifications
+    class_counts = count_cells_per_class(grid)
     
     # Prepare data for pie chart with updated classification ranges
-    color_names = [
-        'Less than -225',               # Dark Blue (extreme negative, value <= -225)
-        'Between -175 and -225',        # Cyan (very strong negative, -175 > value > -225)
-        'Between -125 and -175',        # Light Blue (strong negative, -125 > value > -175)
-        'Between -75 and -125',         # Blue (moderately negative, -75 > value > -125)
-        'Between -25 and -75',          # Green (moderately negative, -25 > value > -75)
-        'Between -5 and -25',           # Light Green (mildly negative, -5 > value > -25)
-        'Between 0 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
-        'Greater than 0',               # Brown (strong positive, value > 0)
+    class_labels = [
+        'Strongly Gaining',  # Categories 0, 1, 2 combined
+        'Gaining',           # Categories 3, 4, 5 combined
+        'No Significant Contributions',  # Categories 6, 7 combined
+        'Losing',            # Category below -225
     ]
     
-    color_values = [
-        color_counts['extreme_negative'],  # Dark Blue (extreme negative, value <= -225)
-        color_counts['very_strong_negative'],  # Cyan (very strong negative, -175 > value > -225)
-        color_counts['strong_negative'],  # Light Blue (strong negative, -125 > value > -175)
-        color_counts['moderately_negative'],  # Blue (moderately negative, -75 > value > -125)
-        color_counts['moderately_negative'],  # Green (moderately negative, -25 > value > -75)
-        color_counts['mildly_negative'],  # Light Green (mildly negative, -5 > value > -25)
-        color_counts['near_zero_positive'],  # Yellow (near-zero fluctuation, -5 > value > -1)
-        color_counts['strong_positive'],  # Brown (strong positive, value > 0)
+    class_values = [
+        class_counts['strongly_gaining'],  # Strongly gaining
+        class_counts['gaining'],          # Gaining
+        class_counts['no_significant_contributions'],  # No significant contributions
+        class_counts['losing'],           # Losing
     ]
+                
+    # def count_cells_per_color(grid):
+    #     color_counts = {
+    #         'strong_positive': np.sum(grid == 0),  # Brown (strong positive, value > 0)
+    #         'slightly_positive': np.sum(grid == 1),  # Dark Yellow (slightly positive, 0 > value > -5)
+    #         'near_zero_positive': np.sum(grid == 2),  # Yellow (near-zero positive, -5 > value > -25)
+    #         'mildly_negative': np.sum(grid == 3),  # Light Green (mildly negative, -25 > value > -75)
+    #         'moderately_negative': np.sum(grid == 4),  # Green (moderately negative, -75 > value > -125)
+    #         'strong_negative': np.sum(grid == 5),  # Light Blue (strong negative, -125 > value > -175)
+    #         'very_strong_negative': np.sum(grid == 6),  # Cyan (very strong negative, -175 > value > -225)
+    #         'extreme_negative': np.sum(grid == 7),  # Dark Blue (extreme negative, value <= -225)
+    #     }
+    #     return color_counts
+    
+    # # Count the colors for the selected month
+    # color_counts = count_cells_per_color(grid)
+    
+    # # Prepare data for pie chart with updated classification ranges
+    # color_names = [
+    #     'Less than -225',               # Dark Blue (extreme negative, value <= -225)
+    #     'Between -175 and -225',        # Cyan (very strong negative, -175 > value > -225)
+    #     'Between -125 and -175',        # Light Blue (strong negative, -125 > value > -175)
+    #     'Between -75 and -125',         # Blue (moderately negative, -75 > value > -125)
+    #     'Between -25 and -75',          # Green (moderately negative, -25 > value > -75)
+    #     'Between -5 and -25',           # Light Green (mildly negative, -5 > value > -25)
+    #     'Between 0 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
+    #     'Greater than 0',               # Brown (strong positive, value > 0)
+    # ]
+    
+    # color_values = [
+    #     color_counts['extreme_negative'],  # Dark Blue (extreme negative, value <= -225)
+    #     color_counts['very_strong_negative'],  # Cyan (very strong negative, -175 > value > -225)
+    #     color_counts['strong_negative'],  # Light Blue (strong negative, -125 > value > -175)
+    #     color_counts['moderately_negative'],  # Blue (moderately negative, -75 > value > -125)
+    #     color_counts['moderately_negative'],  # Green (moderately negative, -25 > value > -75)
+    #     color_counts['mildly_negative'],  # Light Green (mildly negative, -5 > value > -25)
+    #     color_counts['near_zero_positive'],  # Yellow (near-zero fluctuation, -5 > value > -1)
+    #     color_counts['strong_positive'],  # Brown (strong positive, value > 0)
+    # ]
 
     
     # Prepare the pie chart data
