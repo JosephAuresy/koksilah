@@ -77,7 +77,7 @@ def process_swatmf_data(file_path):
     return df
 
 # Conditional Model Selection Display
-if selected_option == "Groundwater / Surface water interactions", selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
+if selected_option == "Groundwater / Surface water interactions" or selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
     # Display Model selection part only when these options are selected
     st.sidebar.title("Model selection")
     st.sidebar.subheader("Climate")
