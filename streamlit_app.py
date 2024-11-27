@@ -1691,9 +1691,11 @@ elif selected_option == "Scenario Breakdown":
         hovermode='closest',  # Show tooltip closest to the cursor
     )
     
-    # Create figure and plot
+    # Create figure and display in Streamlit
     fig = go.Figure(data=[trace1, trace2], layout=layout)
-    fig.show()
+    
+    # Display the figure in Streamlit
+    st.plotly_chart(fig)
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
