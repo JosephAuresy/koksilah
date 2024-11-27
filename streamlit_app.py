@@ -535,6 +535,51 @@ elif selected_option == "Groundwater / Surface water interactions":
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
         # Add hover text for the grid cell
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
+    
+    # Function to create the heatmap
+    def create_heatmap(classified_grid, selected_month_name, hover_text):
+        # Define a color scale for the classified ranges
+        colorscale = [
+            [0.0, '#8B4513'],  # Strongly gaining - Brown
+            [0.33, '#FFD700'],  # Gaining - Dark Yellow
+            [0.66, '#0000FF'],  # No significant contributions - Blue
+            [1.0, '#00008B'],   # Losing - Dark Blue
+        ]
+        # colorscale = [
+        #     [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
+        #     [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
+        #     [0.28, '#FFFF00'],      # Near-zero positive (-5 > value > -25) - Yellow
+        #     [0.42, '#90EE90'],      # Mildly negative (-25 > value > -75) - Light Green
+        #     [0.57, '#008000'],      # Moderately negative (-75 > value > -125) - Green
+        #     [0.71, '#00FFFF'],      # Strong negative (-125 > value > -175) - Cyan
+        #     [0.85, '#0000FF'],      # Very strong negative (-175 > value > -225) - Blue
+        #     [1.0, '#00008B']        # Extreme negative (value <= -225) - Dark Blue
+        # ]
+        
+        # Create the heatmap for the selected month
+        fig = go.Figure(data=go.Heatmap(
+            z=classified_grid,
+            colorscale=colorscale,
+            zmin=0,
+            zmax=3,
+            showscale=False,  # Hide scale since categories are defined
+            hoverinfo='text',
+            text=hover_text
+        ))
+    
+        # Update the layout of the heatmap
+        fig.update_layout(
+            title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+            xaxis_title='Column',
+            yaxis_title='Row',
+            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            paper_bgcolor='white',
+            font=dict(family='Arial, sans-serif', size=8, color='black'),
+        )
+        
+        st.plotly_chart(fig)
 
     # Step 6: Add interactivity to select a specific cell
     st.subheader("Cell-Specific Analysis")
@@ -590,52 +635,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         st.write(f"**Cell ({selected_row}, {selected_col}) Changes (ΔRate):** {monthly_changes}")
     else:
         st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
-        
-    # Function to create the heatmap
-    def create_heatmap(classified_grid, selected_month_name, hover_text):
-        # Define a color scale for the classified ranges
-        colorscale = [
-            [0.0, '#8B4513'],  # Strongly gaining - Brown
-            [0.33, '#FFD700'],  # Gaining - Dark Yellow
-            [0.66, '#0000FF'],  # No significant contributions - Blue
-            [1.0, '#00008B'],   # Losing - Dark Blue
-        ]
-        # colorscale = [
-        #     [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
-        #     [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
-        #     [0.28, '#FFFF00'],      # Near-zero positive (-5 > value > -25) - Yellow
-        #     [0.42, '#90EE90'],      # Mildly negative (-25 > value > -75) - Light Green
-        #     [0.57, '#008000'],      # Moderately negative (-75 > value > -125) - Green
-        #     [0.71, '#00FFFF'],      # Strong negative (-125 > value > -175) - Cyan
-        #     [0.85, '#0000FF'],      # Very strong negative (-175 > value > -225) - Blue
-        #     [1.0, '#00008B']        # Extreme negative (value <= -225) - Dark Blue
-        # ]
-        
-        # Create the heatmap for the selected month
-        fig = go.Figure(data=go.Heatmap(
-            z=classified_grid,
-            colorscale=colorscale,
-            zmin=0,
-            zmax=3,
-            showscale=False,  # Hide scale since categories are defined
-            hoverinfo='text',
-            text=hover_text
-        ))
     
-        # Update the layout of the heatmap
-        fig.update_layout(
-            title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-            xaxis_title='Column',
-            yaxis_title='Row',
-            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
-            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
-            paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=8, color='black'),
-        )
-        
-        st.plotly_chart(fig)
-
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
         color_counts = {
