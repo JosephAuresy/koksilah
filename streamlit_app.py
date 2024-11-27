@@ -40,7 +40,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Report")
+    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Water balance", "Report")
 )
 
 def process_swatmf_data(file_path):
@@ -456,7 +456,7 @@ elif selected_option == "Field data validation":
     # Display the plot in the Streamlit app
     st.plotly_chart(fig)
         
-elif selected_option == "Groundwater / Surface water interactions":
+
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
     st.markdown("""
@@ -642,174 +642,6 @@ elif selected_option == "Groundwater / Surface water interactions":
     st.plotly_chart(fig)
 
     create_heatmap(grid, selected_month_name, hover_text)
-
-    # # Function to create the heatmap
-    # def create_heatmap(classified_grid, selected_month_name, hover_text):
-    #     # Define a color scale for the classified ranges
-    #     colorscale = [
-    #         [0.0, 'darkblue'],   # Less than -50
-    #         [0.14, 'blue'],      # Between -50 and -20
-    #         [0.28, 'cyan'],      # Between -20 and -10
-    #         [0.42, 'lightblue'], # Between -10 and -5
-    #         [0.57, 'yellow'],    # Between -5 and -1
-    #         [0.71, 'orange'],    # Between -1 and 1 (new range, light yellow)
-    #         [0.85, 'brown'],     # Between 1 and 5
-    #         [1.0, 'purple']      # Higher positive > 5
-    #     ]
-        
-    #     # Create the heatmap for the selected month
-    #     fig = go.Figure(data=go.Heatmap(
-    #         z=classified_grid,
-    #         colorscale=colorscale,
-    #         zmin=0,
-    #         zmax=7,
-    #         showscale=False,  # Hide scale since categories are defined
-    #         hoverinfo='text',
-    #         text=hover_text
-    #     ))
-    
-    #     # Update the layout of the heatmap
-    #     fig.update_layout(
-    #         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-    #         xaxis_title='Column',
-    #         yaxis_title='Row',
-    #         xaxis=dict(showticklabels=True, ticks='', showgrid=False),
-    #         yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=8, color='black'),
-    #         clickmode='event+select'  # Enable click event capturing
-    #     )
-            
-    #     # Display the heatmap and capture click events    
-    #     click_data = st.plotly_chart(fig, use_container_width=True)
-        
-    #     # Debug click_data
-    #     if click_data:
-    #         st.write("Click Data Received:", click_data)
-            
-    #         # Check if the click_data has points and process it
-    #         if 'points' in click_data and click_data['points']:
-    #             row = click_data['points'][0]['y']
-    #             column = click_data['points'][0]['x']
-    #             plot_bar_chart(row, column)
-    #         else:
-    #             st.write("No valid click data detected.")
-    #     else:
-    #         st.write("Click on a cell in the heatmap to view details.")
-        
-    # # Function to plot a bar chart for a selected cell
-    # def plot_bar_chart(row, column):
-    #     # Filter data for the specific Row and Column
-    #     selected_values = grid[row, column, :]
-    #     selected_data = {month_names[m]: selected_values[m] for m in range(12)}
-    
-    #     # Plot a bar chart showing the 'Rate' for this cell over the 12 months
-    #     fig = go.Figure(data=go.Bar(
-    #         x=[month_names[m] for m in range(12)],  # Get the month names
-    #         y=selected_values,
-    #         marker_color='blue'
-    #     ))
-        
-    #     # Update layout
-    #     fig.update_layout(
-    #         title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
-    #         xaxis_title="Month",
-    #         yaxis_title="Rate",
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=12, color='black')
-    #     )
-        
-    #     st.plotly_chart(fig)
-    
-    # # Initial Setup: Find a default clickable grid (first grid with data)
-    # def get_default_grid_position():
-    #     default_row, default_column = np.unravel_index(np.nanargmin(np.isnan(grid)), grid.shape)
-    #     default_row += 1  # Adjust for 1-indexing
-    #     default_column += 1  # Adjust for 1-indexing
-    #     return default_row, default_column
-    
-    # # Get default grid position
-    # default_row, default_column = get_default_grid_position()
-    
-    # # Update hover text for default grid
-    # hover_text[default_row-1, default_column-1] = f'Row: {default_row}, Column: {default_column}, Default Selected'
-    
-    # # Show initial heatmap with default month and row/column
-    # selected_month_name = month_names[0]  # Set the default selected month (e.g., Jan)
-    # create_heatmap(grid[:, :, 0], selected_month_name, hover_text)
-    
-    # # Allow user to change the selected month dynamically
-    # selected_month = st.selectbox("Select a Month", month_names)
-    # selected_month_index = month_names.index(selected_month)
-    
-    # # Create heatmap for the selected month
-    # create_heatmap(grid[:, :, selected_month_index], selected_month, hover_text)
-       
-    # # Function to count cells per classification
-    # def count_cells_per_color(grid):
-    #     color_counts = {
-    #         'strong_negative': np.sum(grid == 0),  # Dark Blue (strong negative, < -50)
-    #         'moderate_negative': np.sum(grid == 1),  # Light Blue (moderate negative, -50 to -20)
-    #         'negative_closer_to_zero': np.sum(grid == 2),  # Cyan (negative but closer to zero, -20 to -10)
-    #         'mild_negative': np.sum(grid == 3),  # Light Blue (mild negative, -10 to -5)
-    #         'near_zero': np.sum(grid == 4),  # Yellow (near-zero fluctuation, -5 to 1)
-    #         'light_positive': np.sum(grid == 5),  # Light Yellow (positive, -1 to 1)
-    #         'positive': np.sum(grid == 6),  # Brown (positive, to aquifer, 1 to 5)
-    #         'strong_positive': np.sum(grid == 7),  # Dark Red (strong positive, > 5)
-    #     }
-    #     return color_counts
-        
-    # # Count the colors for the selected month
-    # color_counts = count_cells_per_color(grid)
-    
-    # # Prepare data for pie chart
-    # color_names = [
-    #     'Less than -50',               # Dark Blue (strong negative)
-    #     'Between -50 and -20',         # Light Blue (moderate negative)
-    #     'Between -20 and -10',         # Cyan (negative but closer to zero)
-    #     'Between -10 and -5',          # Light Blue (mild negative)
-    #     'Between -5 and -1',           # Yellow (near-zero fluctuation)
-    #     'Between -1 and 1',            # Orange (light positive)
-    #     'Between 1 and 5',             # Brown (positive, to aquifer)
-    #     'Higher positive > 5'          # Dark Red (strong positive)
-    # ]
-    # color_values = [
-    #     color_counts['strong_negative'], color_counts['moderate_negative'], color_counts['negative_closer_to_zero'],
-    #     color_counts['mild_negative'], color_counts['near_zero'], color_counts['light_positive'],
-    #     color_counts['positive'], color_counts['strong_positive']
-    # ]
-     
-    # total_cells = sum(color_values)
-    
-    # # Avoid division by zero
-    # percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
-    
-    # # Create a pie chart with formatted percentages
-    # pie_colors = [
-    #     '#00008B',  # Dark Blue (strong negative)
-    #     '#ADD8E6',  # Light Blue (moderate negative)
-    #     '#00FFFF',  # Cyan (negative but closer to zero)
-    #     '#E0FFFF',  # Light Cyan (mild negative)
-    #     '#FFFF00',  # Yellow (near-zero fluctuation)
-    #     '#FFA500',  # Orange (light positive)
-    #     '#8B4513',  # Brown (positive, to aquifer)
-    #     '#800080'   # Purple (strong positive)
-    # ]
-
-    # # Create the pie chart
-    # fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
-    
-    # # Update pie chart layout with formatted percentages
-    # # fig.update_traces(texttemplate='%{label}: %{percent:.2f}%', textfont_size=14)  # Display both label and percentage
-    # # fig.update_layout(title_text='Percentage of Each Color by Month', annotations=[dict(text='Percentage', font_size=20, showarrow=False)])
-    
-    # # Display pie chart
-    # st.plotly_chart(fig)
-    
-    # # Create the heatmap and pass in the grid and hover text
-    # create_heatmap(grid, selected_month_name, hover_text)
 
     # Define the main path and image path
     main_path = Path(__file__).parent
@@ -1764,6 +1596,47 @@ elif selected_option == "Recharge":
 #                                 legend_title='Components',
 #                                 template='plotly_white')
 #     st.plotly_chart(fig_hydrology)
+
+elif selected_option == "Scenario Breakdown":
+    st.title("Watershed Summary")
+    # Input data for monthly basin values
+    data = {
+        'Month': ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+        'Rainfall (mm)': [240.74, 120.73, 124.14, 85.84, 45.46, 35.79, 15.70, 18.55, 89.53, 152.66, 228.13, 212.18],
+        'Snowfall (mm)': [28.98, 16.99, 1.91, 0.43, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 7.98, 34.25],
+        'Surface Q (mm)': [43.34, 13.65, 11.05, 4.95, 0.66, 0.53, 0.10, 0.13, 3.30, 7.94, 26.30, 28.33],
+        'Lateral Q (mm)': [153.89, 83.01, 83.26, 49.41, 21.27, 13.44, 5.40, 5.64, 38.53, 88.14, 147.77, 137.69],
+        'Yield (mm)': [202.87, 101.17, 99.24, 58.36, 25.60, 17.30, 8.76, 8.90, 44.75, 99.25, 178.13, 170.52],
+        'ET (mm)': [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57],
+        'PET (mm)': [1.05, 0.39, 0.41, 0.27, 0.10, 0.08, 0.02, 0.00, 0.09, 0.20, 0.89, 0.81],
+    }
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+    
+    # Calculate the water balance
+    df['Water Input (mm)'] = df['Rainfall (mm)'] + df['Snowfall (mm)']
+    df['Water Output (mm)'] = df['Surface Q (mm)'] + df['Lateral Q (mm)'] + df['ET (mm)']
+    df['Net Water (mm)'] = df['Water Input (mm)'] - df['Water Output (mm)'] + df['Yield (mm)']
+    
+    # Display the data in Streamlit
+    st.title("Monthly Watershed Water Balance")
+    st.write(df)
+    
+    # Plotting the water balance
+    plt.figure(figsize=(10, 6))
+    plt.plot(df['Month'], df['Water Input (mm)'], label='Water Input', marker='o')
+    plt.plot(df['Month'], df['Water Output (mm)'], label='Water Output', marker='o')
+    plt.plot(df['Month'], df['Net Water (mm)'], label='Net Water', marker='o')
+    plt.xlabel('Month')
+    plt.ylabel('Water (mm)')
+    plt.title('Monthly Water Balance')
+    plt.legend()
+    plt.grid(True)
+    
+    # Show the plot in Streamlit
+    st.pyplot(plt)
+
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
