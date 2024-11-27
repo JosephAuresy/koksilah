@@ -587,10 +587,10 @@ elif selected_option == "Groundwater / Surface water interactions":
     ]
     
     color_values = [
-        class_counts['strongly_gaining'],  # Strongly gaining
-        class_counts['gaining'],          # Gaining
-        class_counts['no_significant_contributions'],  # No significant contributions
-        class_counts['losing'],           # Losing
+        color_counts['strongly_gaining'],  # Strongly gaining
+        color_counts['gaining'],          # Gaining
+        color_counts['no_significant_contributions'],  # No significant contributions
+        color_counts['losing'],           # Losing
     ]
                 
     # def count_cells_per_color(grid):
