@@ -580,61 +580,6 @@ elif selected_option == "Groundwater / Surface water interactions":
         )
         
         st.plotly_chart(fig)
-
-    # Step 6: Add interactivity to select a specific cell
-    st.subheader("Cell-Specific Analysis")
-    selected_row = st.slider("Select Row Index", min_value=1, max_value=rows, value=1)
-    selected_col = st.slider("Select Column Index", min_value=1, max_value=cols, value=1)
-    
-    # Extract data for the selected cell
-    selected_cell_data = pivoted[(pivoted['Row'] == selected_row) & (pivoted['Column'] == selected_col)]
-    if not selected_cell_data.empty:
-        monthly_rates = selected_cell_data.iloc[0, 2:].values  # Skip 'Row' and 'Column'
-        monthly_changes = np.diff(monthly_rates)  # Calculate differences between months
-    
-        # Create a plot to visualize rates and changes
-        fig = go.Figure()
-    
-        # Add monthly rates line
-        fig.add_trace(go.Scatter(
-            x=unique_months,
-            y=monthly_rates,
-            mode='lines+markers',
-            name='Rate',
-            line=dict(color='blue'),
-            marker=dict(size=8)
-        ))
-    
-        # Add changes line (for months 2 to n, as changes are calculated from differences)
-        fig.add_trace(go.Scatter(
-            x=unique_months[1:],  # Skip the first month for changes
-            y=monthly_changes,
-            mode='lines+markers',
-            name='Change (ΔRate)',
-            line=dict(color='red', dash='dot'),
-            marker=dict(size=8)
-        ))
-    
-        # Update layout for better visualization
-        fig.update_layout(
-            title=f"Rate and Change Over Time for Cell ({selected_row}, {selected_col})",
-            xaxis_title="Month",
-            yaxis_title="Rate / Change",
-            xaxis=dict(tickmode='linear', title='Month'),
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
-            paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=12, color='black'),
-            legend=dict(x=0.1, y=0.9),
-        )
-    
-        # Display the plot in Streamlit
-        st.plotly_chart(fig)
-    
-        # Display data values for reference
-        st.write(f"**Cell ({selected_row}, {selected_col}) Rate Values:** {monthly_rates}")
-        st.write(f"**Cell ({selected_row}, {selected_col}) Changes (ΔRate):** {monthly_changes}")
-    else:
-        st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
     
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
@@ -742,6 +687,61 @@ elif selected_option == "Groundwater / Surface water interactions":
     st.plotly_chart(fig)
 
     create_heatmap(grid, selected_month_name, hover_text)
+
+    # Step 6: Add interactivity to select a specific cell
+    st.subheader("Cell-Specific Analysis")
+    selected_row = st.slider("Select Row Index", min_value=1, max_value=rows, value=1)
+    selected_col = st.slider("Select Column Index", min_value=1, max_value=cols, value=1)
+    
+    # Extract data for the selected cell
+    selected_cell_data = pivoted[(pivoted['Row'] == selected_row) & (pivoted['Column'] == selected_col)]
+    if not selected_cell_data.empty:
+        monthly_rates = selected_cell_data.iloc[0, 2:].values  # Skip 'Row' and 'Column'
+        monthly_changes = np.diff(monthly_rates)  # Calculate differences between months
+    
+        # Create a plot to visualize rates and changes
+        fig = go.Figure()
+    
+        # Add monthly rates line
+        fig.add_trace(go.Scatter(
+            x=unique_months,
+            y=monthly_rates,
+            mode='lines+markers',
+            name='Rate',
+            line=dict(color='blue'),
+            marker=dict(size=8)
+        ))
+    
+        # Add changes line (for months 2 to n, as changes are calculated from differences)
+        fig.add_trace(go.Scatter(
+            x=unique_months[1:],  # Skip the first month for changes
+            y=monthly_changes,
+            mode='lines+markers',
+            name='Change (ΔRate)',
+            line=dict(color='red', dash='dot'),
+            marker=dict(size=8)
+        ))
+    
+        # Update layout for better visualization
+        fig.update_layout(
+            title=f"Rate and Change Over Time for Cell ({selected_row}, {selected_col})",
+            xaxis_title="Month",
+            yaxis_title="Rate / Change",
+            xaxis=dict(tickmode='linear', title='Month'),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            paper_bgcolor='white',
+            font=dict(family='Arial, sans-serif', size=12, color='black'),
+            legend=dict(x=0.1, y=0.9),
+        )
+    
+        # Display the plot in Streamlit
+        st.plotly_chart(fig)
+    
+        # Display data values for reference
+        st.write(f"**Cell ({selected_row}, {selected_col}) Rate Values:** {monthly_rates}")
+        st.write(f"**Cell ({selected_row}, {selected_col}) Changes (ΔRate):** {monthly_changes}")
+    else:
+        st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
 
     # Define the main path and image path
     main_path = Path(__file__).parent
