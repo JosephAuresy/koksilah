@@ -690,8 +690,8 @@ elif selected_option == "Groundwater / Surface water interactions":
 
     # Step 6: Add interactivity to select a specific cell
     st.subheader("Cell-Specific Analysis")
-    selected_row = st.slider("Select Row Index", min_value=1, max_value=rows, value=1)
-    selected_col = st.slider("Select Column Index", min_value=1, max_value=cols, value=1)
+    selected_row = st.slider("Select Row Index", min_value=0, max_value=rows - 1, value=0)
+    selected_col = st.slider("Select Column Index", min_value=0, max_value=cols - 1, value=0)
     
     # Extract data for the selected cell
     selected_cell_data = pivoted[(pivoted['Row'] == selected_row) & (pivoted['Column'] == selected_col)]
