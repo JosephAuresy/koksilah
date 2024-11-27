@@ -603,10 +603,17 @@ elif selected_option == "Groundwater / Surface water interactions":
         color_counts['strong_positive'],  # Brown (strong positive, value > 0)
     ]
 
-    total_cells = sum(color_values)
     
-    # Avoid division by zero
+    # Prepare the pie chart data
+    total_cells = sum(color_values)
     percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
+    cell_counts = [str(count) for count in color_values]
+
+    # Combine percentages and cell counts for display in the labels
+    labels_with_counts = [
+        f"{name}: {count} cells ({percentage:.1f}%)"
+        for name, count, percentage in zip(color_names, cell_counts, percentages)
+    ]
     
     # Create a pie chart with formatted percentages
     pie_colors = [
@@ -621,7 +628,15 @@ elif selected_option == "Groundwater / Surface water interactions":
     ]
     
     # Create the pie chart
-    fig = go.Figure(data=[go.Pie(labels=color_names, values=percentages, hole=.3, marker=dict(colors=pie_colors), textinfo='percent')])
+    # Create the pie chart
+    fig = go.Figure(data=[go.Pie(
+        labels=color_names,
+        values=color_values,
+        hole=0.3,  # Optional donut chart
+        marker=dict(colors=pie_colors),
+        textinfo='percent',  # Display only the percentage
+        hoverinfo='label+value+percent',  # Display label, value, and percent on hover
+    )])
     
     # Display pie chart
     st.plotly_chart(fig)
