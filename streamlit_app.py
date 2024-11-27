@@ -1614,28 +1614,25 @@ elif selected_option == "Scenario Breakdown":
     # Convert to DataFrame
     df = pd.DataFrame(data)
     
-    # Calculate the water balance
-    df['Water Input (mm)'] = df['Rainfall (mm)'] + df['Snowfall (mm)']
-    df['Water Output (mm)'] = df['Surface Q (mm)'] + df['Lateral Q (mm)'] + df['ET (mm)']
-    df['Net Water (mm)'] = df['Water Input (mm)'] - df['Water Output (mm)'] + df['Yield (mm)']
+    # Streamlit app title
+    st.title('Water Balance Interactive Visualization')
     
-    # Display the data in Streamlit
-    st.title("Monthly Watershed Water Balance")
-    st.write(df)
+    # Create an interactive bar chart using Plotly
+    fig = px.bar(df, 
+                 x='Month', 
+                 y=['Rainfall (mm)', 'Snowfall (mm)', 'Surface Q (mm)', 'Lateral Q (mm)', 'Yield (mm)', 'ET (mm)', 'PET (mm)'],
+                 barmode='group', 
+                 title="Monthly Water Balance Components",
+                 labels={'value': 'Millimeters (mm)', 'variable': 'Water Balance Components'})
     
-    # Plotting the water balance
-    plt.figure(figsize=(10, 6))
-    plt.plot(df['Month'], df['Water Input (mm)'], label='Water Input', marker='o')
-    plt.plot(df['Month'], df['Water Output (mm)'], label='Water Output', marker='o')
-    plt.plot(df['Month'], df['Net Water (mm)'], label='Net Water', marker='o')
-    plt.xlabel('Month')
-    plt.ylabel('Water (mm)')
-    plt.title('Monthly Water Balance')
-    plt.legend()
-    plt.grid(True)
+    # Add hover data for better interactivity
+    fig.update_traces(hovertemplate='%{x}: %{y} mm')
     
-    # Show the plot in Streamlit
-    st.pyplot(plt)
+    # Show the plot in the Streamlit app
+    st.plotly_chart(fig)
+    
+    # Display the DataFrame as a table
+    st.write("### Water Balance Data", df)
 
     # Filter data for August
     august_data = df[df['Month'] == 'Aug']
