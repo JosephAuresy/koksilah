@@ -1650,13 +1650,18 @@ elif selected_option == "Scenario Breakdown":
     st.write(f"**Evapotranspiration (ET):** {et_august} mm")
     st.write(f"**Average Streamflow:** {streamflow_august} mm")
     st.write(f"**Baseflow:** {baseflow_august} mm")
-
+    
+    # Reorder months to start from October
+    month_order = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+    df['Month'] = pd.Categorical(df['Month'], categories=month_order, ordered=True)
+    df = df.sort_values('Month')
+    
     # Plotting ET as bars
     plt.figure(figsize=(10, 6))
     plt.bar(df['Month'], df['ET (mm)'], color='skyblue', edgecolor='black')
     plt.xlabel('Month', fontsize=12)
     plt.ylabel('Evapotranspiration (mm)', fontsize=12)
-    plt.title('Monthly Evapotranspiration (ET)', fontsize=14)
+    plt.title('Monthly Evapotranspiration (ET) (Starting from October)', fontsize=14)
     plt.xticks(rotation=45)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     
