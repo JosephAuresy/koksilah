@@ -503,23 +503,33 @@ elif selected_option == "Groundwater / Surface water interactions":
         prev_month_value = row_vals[selected_month - 2] if selected_month > 1 else row_vals[-1]
     
         # Function to classify values based on the provided ranges (from positive to negative)
+        # Function to classify values based on simplified ranges
         def classify_based_on_value_range(value):
-            if value > 0:  # All positive values
-                return 0  # Brown (strong positive)
-            elif 0 >= value > -5:
-                return 1  # Dark Yellow (slightly positive)
-            elif -5 >= value > -25:
-                return 2  # Yellow (near-zero positive)
-            elif -25 >= value > -75:
-                return 3  # Light Green (mildly negative)
-            elif -75 >= value > -125:
-                return 4  # Green (moderately negative)
-            elif -125 >= value > -175:
-                return 5  # Cyan (strong negative)
-            elif -175 >= value > -225:
-                return 6  # Blue (very strong negative)
-            else:
-                return 7  # Dark Blue (extreme negative)
+            if value > 0:  
+                return 0  # Brown
+            elif 0 >= value > -5:  
+                return 1  # Dark Yellow
+            elif -5 >= value > -125:  # No significant contributions (strong negatives)
+                return 2  # Blue
+            else:  # Losing (extreme negatives)
+                return 3  # Dark Blue
+        # def classify_based_on_value_range(value):
+        #     if value > 0:  # All positive values
+        #         return 0  # Brown (strong positive)
+        #     elif 0 >= value > -5:
+        #         return 1  # Dark Yellow (slightly positive)
+        #     elif -5 >= value > -25:
+        #         return 2  # Yellow (near-zero positive)
+        #     elif -25 >= value > -75:
+        #         return 3  # Light Green (mildly negative)
+        #     elif -75 >= value > -125:
+        #         return 4  # Green (moderately negative)
+        #     elif -125 >= value > -175:
+        #         return 5  # Cyan (strong negative)
+        #     elif -175 >= value > -225:
+        #         return 6  # Blue (very strong negative)
+        #     else:
+        #         return 7  # Dark Blue (extreme negative)
                
         # Classify the current value and assign to the grid
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
@@ -574,8 +584,8 @@ elif selected_option == "Groundwater / Surface water interactions":
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
         color_counts = {
-            'strongly_gaining': np.sum((grid == 7) | (grid == 6) | (grid == 5)),  # Combine strong, slightly, and near-zero positive
-            'gaining': np.sum((grid == 4) | (grid == 3) | (grid == 2)),  # Combine mild, moderate, and strong negative
+            'strongly_gaining': np.sum(grid == 3),  # Combine strong, slightly, and near-zero positive
+            'gaining': np.sum(grid == 2),  # Combine mild, moderate, and strong negative
             'no_significant_contributions': np.sum(grid == 1),  # Combine very strong and extreme negative
             'losing': np.sum(grid == 0),  # Losing category for extreme negative
         }
