@@ -1651,6 +1651,18 @@ elif selected_option == "Scenario Breakdown":
     st.write(f"**Average Streamflow:** {streamflow_august} mm")
     st.write(f"**Baseflow:** {baseflow_august} mm")
 
+    # Plotting ET as bars
+    plt.figure(figsize=(10, 6))
+    plt.bar(df['Month'], df['ET (mm)'], color='skyblue', edgecolor='black')
+    plt.xlabel('Month', fontsize=12)
+    plt.ylabel('Evapotranspiration (mm)', fontsize=12)
+    plt.title('Monthly Evapotranspiration (ET)', fontsize=14)
+    plt.xticks(rotation=45)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # Display the plot in Streamlit
+    st.pyplot(plt)
+
 elif selected_option == "Report":   
     st.title("Model Validation Report")
     
