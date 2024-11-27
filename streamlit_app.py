@@ -1,3 +1,4 @@
+if selected_option == "Groundwater / Surface water interactions", selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -1608,7 +1609,7 @@ elif selected_option == "Scenario Breakdown":
         'Lateral Q (mm)': [153.89, 83.01, 83.26, 49.41, 21.27, 13.44, 5.40, 5.64, 38.53, 88.14, 147.77, 137.69],
         'Yield (mm)': [202.87, 101.17, 99.24, 58.36, 25.60, 17.30, 8.76, 8.90, 44.75, 99.25, 178.13, 170.52],
         'ET (mm)': [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57],
-        'PET (mm)': [1.05, 0.39, 0.41, 0.27, 0.10, 0.08, 0.02, 0.00, 0.09, 0.20, 0.89, 0.81],
+        'PET (mm)': [10.56, 16.75, 35.28, 62.37, 103.80, 117.40, 140.06, 118.15, 63.65, 33.25, 14.04, 9.02],
     }
     
     # Convert to DataFrame
@@ -1637,6 +1638,19 @@ elif selected_option == "Scenario Breakdown":
     # Show the plot in Streamlit
     st.pyplot(plt)
 
+    # Filter data for August
+    august_data = df[df['Month'] == 'Aug']
+    
+    # Calculate values for August
+    et_august = august_data['ET (mm)'].values[0]
+    streamflow_august = august_data['Surface Q (mm)'].values[0] + august_data['Lateral Q (mm)'].values[0]
+    baseflow_august = august_data['Lateral Q (mm)'].values[0]
+
+    # Display the results
+    st.subheader("August Metrics")
+    st.write(f"**Evapotranspiration (ET):** {et_august} mm")
+    st.write(f"**Average Streamflow:** {streamflow_august} mm")
+    st.write(f"**Baseflow:** {baseflow_august} mm")
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
