@@ -565,28 +565,28 @@ elif selected_option == "Groundwater / Surface water interactions":
         
         st.plotly_chart(fig)
 
-    def count_cells_per_class(grid):
+    def count_cells_per_color(grid):
         # Combine categories into four main classifications
-        class_counts = {
+        color_counts = {
             'strongly_gaining': np.sum((grid == 7) | (grid == 6) | (grid == 5)),  # Combine strong, slightly, and near-zero positive
             'gaining': np.sum((grid == 4) | (grid == 3) | (grid == 2)),  # Combine mild, moderate, and strong negative
             'no_significant_contributions': np.sum(grid == 1),  # Combine very strong and extreme negative
             'losing': np.sum(grid == 0),  # Losing category for extreme negative
         }
-        return class_counts
-    
-    # Count the cells for the grid based on new classifications
-    class_counts = count_cells_per_class(grid)
+        return color_counts
+
+    # Count the colors for the selected month
+    color_counts = count_cells_per_color(grid)
     
     # Prepare data for pie chart with updated classification ranges
-    class_labels = [
+    color_names = [
         'Strongly Gaining',  # Categories 0, 1, 2 combined
         'Gaining',           # Categories 3, 4, 5 combined
         'No Significant Contributions',  # Categories 6, 7 combined
         'Losing',            # Category below -225
     ]
     
-    class_values = [
+    color_values = [
         class_counts['strongly_gaining'],  # Strongly gaining
         class_counts['gaining'],          # Gaining
         class_counts['no_significant_contributions'],  # No significant contributions
