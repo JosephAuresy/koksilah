@@ -519,25 +519,7 @@ elif selected_option == "Groundwater / Surface water interactions":
                 return 6  # Blue (very strong negative)
             else:
                 return 7  # Dark Blue (extreme negative)
-        # # Classify based on the value ranges and changes between months:
-        # def classify_based_on_value_range(value):
-        #     if value < -50:
-        #         return 0  # Dark Blue (strong negative)
-        #     elif -50 <= value < -20:
-        #         return 1  # Light Blue (moderate negative)
-        #     elif -20 <= value < -10:
-        #         return 2  # Cyan (negative but closer to zero)
-        #     elif -10 <= value < -5:
-        #         return 3  # Light Blue (mild negative)
-        #     elif -5 <= value < -1:  # Adjusted range for mild negative
-        #         return 4  # Yellow (near-zero)
-        #     elif -1 <= value <= 1:  # New range for values between -1 and 1
-        #         return 5  # Light Yellow (near-zero, including positive and negative fluctuations)
-        #     elif 1 < value <= 5:
-        #         return 6  # Brown (positive, to aquifer)
-        #     elif value > 5:
-        #         return 7  # Dark Red (strong positive)
-        
+               
         # Classify the current value and assign to the grid
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
         # Add hover text for the grid cell
@@ -578,7 +560,6 @@ elif selected_option == "Groundwater / Surface water interactions":
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black'),
-            # clickmode='event+select'  # Enable click event capturing
         )
         
         st.plotly_chart(fig)
@@ -599,7 +580,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Count the colors for the selected month
     color_counts = count_cells_per_color(grid)
     
-   # Prepare data for pie chart with updated classification ranges
+    # Prepare data for pie chart with updated classification ranges
     color_names = [
         'Less than -225',               # Dark Blue (extreme negative, value <= -225)
         'Between -175 and -225',        # Cyan (very strong negative, -175 > value > -225)
@@ -622,7 +603,6 @@ elif selected_option == "Groundwater / Surface water interactions":
         color_counts['strong_positive'],  # Brown (strong positive, value > 0)
     ]
 
-    
     total_cells = sum(color_values)
     
     # Avoid division by zero
@@ -635,8 +615,8 @@ elif selected_option == "Groundwater / Surface water interactions":
         '#FFFF00',  # Yellow (near-zero positive)
         '#90EE90',  # Light Green (mildly negative)
         '#008000',  # Green (moderately negative)
-        '#00FFFF',  # Light Blue (strong negative) 
-        '#0000FF',  # Cyan (very strong negative)
+        '#00FFFF',  # Cyan (strong negative) 
+        '#0000FF',  # Blue (very strong negative)
         '#00008B'   # Dark Blue (extreme negative)
     ]
     
