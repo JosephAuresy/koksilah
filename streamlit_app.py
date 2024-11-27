@@ -456,6 +456,7 @@ elif selected_option == "Field data validation":
     # Display the plot in the Streamlit app
     st.plotly_chart(fig)
         
+elif selected_option == "Groundwater / Surface water interactions":
 
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
