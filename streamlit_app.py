@@ -1651,22 +1651,49 @@ elif selected_option == "Scenario Breakdown":
     st.write(f"**Average Streamflow:** {streamflow_august} mm")
     st.write(f"**Baseflow:** {baseflow_august} mm")
     
-    # Reorder months to start from October
-    month_order = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
-    df['Month'] = pd.Categorical(df['Month'], categories=month_order, ordered=True)
-    df = df.sort_values('Month')
+    # Data
+    months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+    penman_monteith_et = [17.50, 9.95, 6.57, 7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91]
+    thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]
     
-    # Plotting ET as bars
-    plt.figure(figsize=(10, 6))
-    plt.bar(df['Month'], df['ET (mm)'], color='skyblue', edgecolor='black')
-    plt.xlabel('Month', fontsize=12)
-    plt.ylabel('Evapotranspiration (mm)', fontsize=12)
-    plt.title('Monthly Evapotranspiration (ET) (Starting from October)', fontsize=14)
-    plt.xticks(rotation=45)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    # Create DataFrame
+    et_data = pd.DataFrame({
+        'Month': months,
+        'Penman-Monteith ET (mm)': penman_monteith_et,
+        'USGS Thornthwaite ET (mm)': thornthwaite_et
+    })
     
-    # Display the plot in Streamlit
-    st.pyplot(plt)
+    # Create traces
+    trace1 = go.Bar(
+        x=months,
+        y=penman_monteith_et,
+        name='Penman-Monteith ET',
+        hovertext=penman_monteith_et,  # Hover text showing the ET values
+        hoverinfo='x+y+text',  # Show both month and ET value when hovering
+        marker=dict(color='blue', opacity=0.7)
+    )
+    
+    trace2 = go.Bar(
+        x=months,
+        y=thornthwaite_et,
+        name='USGS Thornthwaite ET',
+        hovertext=thornthwaite_et,  # Hover text showing the ET values
+        hoverinfo='x+y+text',  # Show both month and ET value when hovering
+        marker=dict(color='orange', opacity=0.7)
+    )
+    
+    # Create layout
+    layout = go.Layout(
+        title='Comparison of ET Models',
+        xaxis=dict(title='Month'),
+        yaxis=dict(title='ET (mm)'),
+        barmode='group',  # Group bars side by side
+        hovermode='closest',  # Show tooltip closest to the cursor
+    )
+    
+    # Create figure and plot
+    fig = go.Figure(data=[trace1, trace2], layout=layout)
+    fig.show()
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
