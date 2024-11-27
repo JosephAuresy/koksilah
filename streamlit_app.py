@@ -530,15 +530,21 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
-            [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
-            [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
-            [0.28, '#FFFF00'],      # Near-zero positive (-5 > value > -25) - Yellow
-            [0.42, '#90EE90'],      # Mildly negative (-25 > value > -75) - Light Green
-            [0.57, '#008000'],      # Moderately negative (-75 > value > -125) - Green
-            [0.71, '#00FFFF'],      # Strong negative (-125 > value > -175) - Cyan
-            [0.85, '#0000FF'],      # Very strong negative (-175 > value > -225) - Blue
-            [1.0, '#00008B']        # Extreme negative (value <= -225) - Dark Blue
-        ]
+        [0.0, '#8B4513'],  # Strongly gaining - Brown
+        [0.33, '#FFD700'],  # Gaining - Dark Yellow
+        [0.66, '#0000FF'],  # No significant contributions - Blue
+        [1.0, '#00008B'],   # Losing - Dark Blue
+]
+        # colorscale = [
+        #     [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
+        #     [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
+        #     [0.28, '#FFFF00'],      # Near-zero positive (-5 > value > -25) - Yellow
+        #     [0.42, '#90EE90'],      # Mildly negative (-25 > value > -75) - Light Green
+        #     [0.57, '#008000'],      # Moderately negative (-75 > value > -125) - Green
+        #     [0.71, '#00FFFF'],      # Strong negative (-125 > value > -175) - Cyan
+        #     [0.85, '#0000FF'],      # Very strong negative (-175 > value > -225) - Blue
+        #     [1.0, '#00008B']        # Extreme negative (value <= -225) - Dark Blue
+        # ]
         
         # Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
@@ -648,10 +654,10 @@ elif selected_option == "Groundwater / Surface water interactions":
     pie_colors = [
         '#00008B',  # Dark Blue (extreme negative)
         '#0000FF',  # Blue (very strong negative)
-        '#00FFFF',  # Cyan (strong negative)
-        '#008000',  # Green (moderately negative)
-        '#90EE90',  # Light Green (mildly negative)
-        '#FFFF00',  # Yellow (near-zero positive)
+        # '#00FFFF',  # Cyan (strong negative)
+        # '#008000',  # Green (moderately negative)
+        # '#90EE90',  # Light Green (mildly negative)
+        # '#FFFF00',  # Yellow (near-zero positive)
         '#FFD700',  # Dark Yellow (slightly positive)
         '#8B4513'   # Brown (strong positive)
     ]
