@@ -40,7 +40,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Water balance", "Report")
+    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
 )
 
 def process_swatmf_data(file_path):
