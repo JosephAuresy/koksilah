@@ -1762,104 +1762,46 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit page configuration
     st.set_page_config(page_title="ET Models Comparison", layout="wide")
     
-    # Data
-    months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
-    penman_monteith_et = [17.50, 9.95, 6.57, 7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91]
-    thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]
-    logged_et = [10.47, 6.20, 4.08, 4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66]
+    # Updated data based on the provided values
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    penman_monteith_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
+    thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
+    logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
     
-    # Create a DataFrame
-    et_data = pd.DataFrame({
-        "Month": months,
-        "Penman-Monteith ET": penman_monteith_et,
-        "Thornthwaite ET": thornthwaite_et,
-        "Logged Scenario ET": logged_et
-    })
-    
-    # App title
-    st.title("Comparison of ET Models")
-    st.write("This app compares Evapotranspiration (ET) values for three models: Penman-Monteith, Thornthwaite, and a logged scenario.")
-    
-    # Show the data table
-    if st.checkbox("Show Data Table"):
-        st.subheader("Monthly ET Data")
-        st.write(et_data)
-    
-    # Plotly figure
-    st.subheader("Monthly ET Comparison")
+    # Create figure
     fig = go.Figure()
     
-    # Adding traces for each model
+    # Add Penman-Monteith ET line
     fig.add_trace(go.Scatter(
-        x=et_data["Month"],
-        y=et_data["Penman-Monteith ET"],
-        mode='lines+markers',
-        name='Penman-Monteith ET'
+        x=months, y=penman_monteith_et, mode='lines+markers', name='Penman-Monteith ET',
+        line=dict(color='blue', width=2), marker=dict(symbol='circle', size=8, color='blue')
     ))
     
+    # Add Thornthwaite ET line
     fig.add_trace(go.Scatter(
-        x=et_data["Month"],
-        y=et_data["Thornthwaite ET"],
-        mode='lines+markers',
-        name='Thornthwaite ET'
+        x=months, y=thornthwaite_et, mode='lines+markers', name='Thornthwaite ET',
+        line=dict(color='green', width=2), marker=dict(symbol='square', size=8, color='green')
     ))
     
+    # Add Logged ET line
     fig.add_trace(go.Scatter(
-        x=et_data["Month"],
-        y=et_data["Logged Scenario ET"],
-        mode='lines+markers',
-        name='Logged Scenario ET'
+        x=months, y=logged_et, mode='lines+markers', name='Logged ET',
+        line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='red')
     ))
     
-    # Customize layout
+    # Update layout for better visualization
     fig.update_layout(
-        title="Monthly ET Comparison Across Models",
-        xaxis_title="Month",
-        yaxis_title="ET (mm)",
-        legend_title="Models",
-        template="plotly_white"
+        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, and Logged ET',
+        xaxis_title='Month',
+        yaxis_title='ET (mm)',
+        template='plotly_dark',
+        showlegend=True
     )
     
-    # Show the Plotly chart in Streamlit
-    st.plotly_chart(fig, use_container_width=True)
+    # Show the plot
+    fig.show()
     
-    # Statistical comparison
-    st.subheader("Statistical Analysis")
-    et_data["Penman vs Thornthwaite Diff"] = et_data["Penman-Monteith ET"] - et_data["Thornthwaite ET"]
-    et_data["Penman vs Logged Diff"] = et_data["Penman-Monteith ET"] - et_data["Logged Scenario ET"]
-    et_data["Thornthwaite vs Logged Diff"] = et_data["Thornthwaite ET"] - et_data["Logged Scenario ET"]
-    
-    # Select comparison type
-    comparison = st.radio(
-        "Choose the difference to analyze:",
-        ["Penman vs Thornthwaite", "Penman vs Logged", "Thornthwaite vs Logged"]
-    )
-    
-    # Display the selected comparison
-    comparison_column = {
-        "Penman vs Thornthwaite": "Penman vs Thornthwaite Diff",
-        "Penman vs Logged": "Penman vs Logged Diff",
-        "Thornthwaite vs Logged": "Thornthwaite vs Logged Diff"
-    }[comparison]
-    
-    # Plotly figure for differences
-    diff_fig = go.Figure()
-    diff_fig.add_trace(go.Bar(
-        x=et_data["Month"],
-        y=et_data[comparison_column],
-        name=comparison
-    ))
-    
-    # Customize layout
-    diff_fig.update_layout(
-        title=f"Monthly {comparison} Difference",
-        xaxis_title="Month",
-        yaxis_title="Difference (mm)",
-        template="plotly_white"
-    )
-    
-    # Show the Plotly chart for differences
-    st.plotly_chart(diff_fig, use_container_width=True)
+
 
 
 elif selected_option == "Report":   
