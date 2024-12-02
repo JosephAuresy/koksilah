@@ -102,12 +102,23 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     )
     # Define a function to generate folder path based on selected decade
     def get_folder_path(land_use, climate, water_use):
-        # Assuming data folder structure is like: 'data/L{land_use}_C{climate}_W{water_use}'
-        land_use_code = land_use[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
-        climate_code = climate[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
-        water_use_code = water_use[-2:]         
-        folder_name = f'L{land_use_code}_C{climate_code}_W{water_use_code}'
+        # Handle "logged" as a special case for land use
+        if land_use.lower() == "logged":
+            land_use_code = "Logged"  # Use the exact case as in the folder name
+        else:
+            land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
+        climate_code = f'C{climate[-2:]}'
+        water_use_code = f'W{water_use[-2:]}'
+        folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
         return Path(__file__).parent / 'data' / folder_name
+    
+    # def get_folder_path(land_use, climate, water_use):
+    #     # Assuming data folder structure is like: 'data/L{land_use}_C{climate}_W{water_use}'
+    #     land_use_code = land_use[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
+    #     climate_code = climate[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
+    #     water_use_code = water_use[-2:]         
+    #     folder_name = f'L{land_use_code}_C{climate_code}_W{water_use_code}'
+    #     return Path(__file__).parent / 'data' / folder_name
 
     # Get the folder based on selected decades
     data_folder = get_folder_path(selected_decade_land_use, selected_decade_climate, selected_decade_water_use)
