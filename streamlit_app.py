@@ -1814,22 +1814,23 @@ elif selected_option == "Scenario Breakdown":
     # Get the path to the CSV files relative to this script
     LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
-    
-    # Load the data
+
+    if file1 and file2:
+    # Load the data from uploaded CSV files
     data1 = pd.read_csv(LU_2010)
     data2 = pd.read_csv(LU_logged)
     
     # Add a column to differentiate datasets
     data1['Scenario'] = "Scenario 2010"
     data2['Scenario'] = "Scenario logged"
-
+    
     # Combine the datasets
     combined_data = pd.concat([data1, data2])
     
-    # Streamlit widget to choose the year
-    year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    # Year selection widget
+    year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
     
-    # Filter the data for the selected year and August (Days 213-243)
+    # Filter the data for the selected year and for August (Days 213-243)
     august_data = combined_data[
         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
     ]
@@ -1866,9 +1867,8 @@ elif selected_option == "Scenario Breakdown":
     # Set y-axis to logarithmic scale
     fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
     
-    # Show the plot
+    # Display the plot in the Streamlit app
     st.plotly_chart(fig)
-
 
 
 
