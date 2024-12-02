@@ -1890,96 +1890,64 @@ elif selected_option == "Scenario Breakdown":
     
     else:
         st.warning("Please upload both scenario Excel files to proceed.")
-
+    
+    # Load the data from the Excel files
+    if LU_2010.exists() and LU_logged.exists():
+        # Read data and add scenario labels
+        data1 = pd.read_csv(LU_2010)
+        data2 = pd.read_csv(LU_logged)
+        data1['Scenario'] = "Scenario 2010"
+        data2['Scenario'] = "Scenario logged"
+    
+        # Combine the datasets
+        combined_data = pd.concat([data1, data2])
+    
+        # Streamlit widget to choose the year
+        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    
+        # Filter the data for the selected year and August (Days 213-243)
+        filtered_data = combined_data[
+            (combined_data['YEAR'] == year)
+        ]
+    
+        # Number of seconds in a day (24 hours * 60 minutes * 60 seconds)
+        seconds_in_a_day = 24 * 60 * 60
+        filtered_data['DailyVolume_m3'] = filtered_data['FLOW_OUTcms'] * seconds_in_a_day
+    
+        # Calculate mean flow in m³/s and total flow in m³ for each month (aggregated by DAY)
+        filtered_data['Month'] = filtered_data['DAY'].apply(lambda x: (x - 1) // 30 + 1)  # Approximate month number
+    
+        # Calculate mean flow (m³/s) per month
+        monthly_mean_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
+    
+        # Calculate total flow (m³) per month
+        monthly_total_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
+    
+        # Display the results for both mean and total flow
+        st.subheader("Mean Flow (m³/s) and Total Flow (m³) per Month:")
         
-    # # Streamlit app title
-    # st.title("Flow Duration Curve (FDC) Analysis")
+        # Plot Mean Flow (m³/s)
+        fig1 = px.line(
+            monthly_mean_flow,
+            x="Month", y="FLOW_OUTcms", color="Scenario",
+            labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
+            title=f"Mean Flow per Month for Year {year}"
+        )
+        st.plotly_chart(fig1)
     
-    # # Get the path to the Excel files relative to this script
-    # LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
-    # LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
+        # Plot Total Flow (m³)
+        fig2 = px.bar(
+            monthly_total_flow,
+            x="Month", y="DailyVolume_m3", color="Scenario",
+            labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
+            title=f"Total Flow per Month for Year {year}"
+        )
+        st.plotly_chart(fig2)
     
-    # # Load the data from the Excel files
-    # data1 = pd.read_csv(LU_2010)
-    # data2 = pd.read_csv(LU_logged)
-    
-    # # Add a column to differentiate datasets
-    # data1['Scenario'] = "Scenario 2010"
-    # data2['Scenario'] = "Scenario logged"
-    
-    # # Combine the datasets
-    # combined_data = pd.concat([data1, data2])
-    
-    # # Streamlit widget to choose the year
-    # year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-    
-    # # Filter the data for the selected year and August (Days 213-243)
-    # august_data = combined_data[
-    #     (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
-    # ]
-    
-    # # Create the FDC for both scenarios
-    # fdc_data = []
-    
-    # # Process each scenario separately
-    # for scenario in august_data['Scenario'].unique():
-    #     scenario_data = august_data[august_data['Scenario'] == scenario]
-    #     sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-    #     sorted_data["Rank"] = sorted_data.index + 1
-    #     sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
-    #     sorted_data["Scenario"] = scenario
-    #     fdc_data.append(sorted_data)
-    
-    # # Combine the processed data for plotting
-    # fdc_data = pd.concat(fdc_data)
-    
-    # # Plot the FDC
-    # fig = px.line(
-    #     fdc_data,
-    #     x="ExceedanceProbability",
-    #     y="FLOW_OUTcms",
-    #     color="Scenario",
-    #     labels={
-    #         "ExceedanceProbability": "Exceedance Probability (%)",
-    #         "FLOW_OUTcms": "Flow Out (cms)",
-    #         "Scenario": "Scenario"
-    #     },
-    #     title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
-    # )
-    
-    # # Set y-axis to logarithmic scale
-    # fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-    
-    # # Show the plot in the Streamlit app
-    # st.plotly_chart(fig)
-    
-    # if LU_2010 and LU_logged:  
-    #     # Streamlit widget to choose the year
-    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-    
-    #     # Filter the data for the selected year and August (Days 213-243)
-    #     august_data = combined_data[
-    #         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
-    #     ]
-    
-    #     # List of reaches to analyze
-    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
-    
-    #     filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-    
-    #     # Create a Plotly figure for both scenarios
-    #     fig = px.line(
-    #         filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
-    #         facet_col="RCH", facet_col_wrap=4,
-    #         labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
-    #         title=f"Flow Out Comparison for Selected Reaches (Year {year}, Months 6-9)"
-    #     )
-    
-    #     # Show the plot
-    #     st.plotly_chart(fig)
-    # else:
-    #     st.warning("Please upload both scenario Excel files to proceed.")
+    else:
+        st.warning("Please upload both scenario Excel files to proceed.")
         
+   
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
