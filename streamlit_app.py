@@ -1811,75 +1811,75 @@ elif selected_option == "Scenario Breakdown":
     # Show the plot in the Streamlit app
     st.plotly_chart(fig)
     
-    # Function to load and preprocess the data
-    def load_data(file):
-        return pd.read_csv(file)
+    # Get the path to the CSV files relative to this script
+    RECHARGE_FILENAME = Path(__file__).parent / 'data/scenario_2010.csv'
+    OUTPUT_FILENAME = Path(__file__).parent / 'data/scenario_logged.csv'
     
-    # Streamlit UI components
-    st.title("Flow Duration Curve (FDC) for Different Scenarios")
-    st.write("Upload the scenario CSV files and select a year to view the FDC.")
+    # Load the data
+    data1 = pd.read_csv(RECHARGE_FILENAME)
+    data2 = pd.read_csv(OUTPUT_FILENAME)
     
-    # File uploader for CSV files
-    uploaded_file1 = st.file_uploader("scenario_2010.csv", type=["csv"])
-    uploaded_file2 = st.file_uploader("scenario_logged.csv", type=["csv"])
+    # Add a column to differentiate datasets
+    data1['Scenario'] = "Scenario 2010"
+    data2['Scenario'] = "Scenario logged"
+
+    # Combine the datasets
+    combined_data = pd.concat([data1, data2])
     
-    # Ensure both files are uploaded
-    if uploaded_file1 and uploaded_file2:
-        # Load data from the uploaded CSV files
-        data1 = load_data(uploaded_file1)
-        data2 = load_data(uploaded_file2)
+    # Load data from the GitHub repository
+    data1 = load_data_from_github(url1)
+    data2 = load_data_from_github(url2)
     
-        # Add a column to differentiate datasets
-        data1['Scenario'] = "Scenario 2010"
-        data2['Scenario'] = "Scenario logged"
+    # Add a column to differentiate datasets
+    data1['Scenario'] = "Scenario 2010"
+    data2['Scenario'] = "Scenario logged"
     
-        # Combine the datasets
-        combined_data = pd.concat([data1, data2])
+    # Combine the datasets
+    combined_data = pd.concat([data1, data2])
     
-        # Streamlit widget to choose the year
-        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    # Streamlit widget to choose the year
+    year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
     
-        # Filter the data for the selected year and August (Days 213-243)
-        august_data = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
-        ]
+    # Filter the data for the selected year and August (Days 213-243)
+    august_data = combined_data[
+        (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+    ]
     
-        # Create the FDC for both scenarios
-        fdc_data = []
+    # Create the FDC for both scenarios
+    fdc_data = []
     
-        # Process each scenario separately
-        for scenario in august_data['Scenario'].unique():
-            scenario_data = august_data[august_data['Scenario'] == scenario]
-            sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-            sorted_data["Rank"] = sorted_data.index + 1
-            sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
-            sorted_data["Scenario"] = scenario
-            fdc_data.append(sorted_data)
+    # Process each scenario separately
+    for scenario in august_data['Scenario'].unique():
+        scenario_data = august_data[august_data['Scenario'] == scenario]
+        sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+        sorted_data["Rank"] = sorted_data.index + 1
+        sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+        sorted_data["Scenario"] = scenario
+        fdc_data.append(sorted_data)
     
-        # Combine the processed data for plotting
-        fdc_data = pd.concat(fdc_data)
+    # Combine the processed data for plotting
+    fdc_data = pd.concat(fdc_data)
     
-        # Plot the FDC
-        fig = px.line(
-            fdc_data,
-            x="ExceedanceProbability",
-            y="FLOW_OUTcms",
-            color="Scenario",
-            labels={
-                "ExceedanceProbability": "Exceedance Probability (%)",
-                "FLOW_OUTcms": "Flow Out (cms)",
-                "Scenario": "Scenario"
-            },
-            title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
-        )
+    # Plot the FDC
+    fig = px.line(
+        fdc_data,
+        x="ExceedanceProbability",
+        y="FLOW_OUTcms",
+        color="Scenario",
+        labels={
+            "ExceedanceProbability": "Exceedance Probability (%)",
+            "FLOW_OUTcms": "Flow Out (cms)",
+            "Scenario": "Scenario"
+        },
+        title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
+    )
     
-        # Set y-axis to logarithmic scale
-        fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+    # Set y-axis to logarithmic scale
+    fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
     
-        # Show the plot
-        st.plotly_chart(fig)
-    else:
-        st.write("Please upload both CSV files.")
+    # Show the plot
+    st.plotly_chart(fig)
+
 
 
 
