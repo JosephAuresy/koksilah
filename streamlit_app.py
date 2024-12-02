@@ -1759,51 +1759,69 @@ elif selected_option == "Scenario Breakdown":
     st.write(f"**Average Streamflow:** {streamflow_august} mm")
     st.write(f"**Baseflow:** {baseflow_august} mm")
     
+    # Streamlit page configuration
+    st.set_page_config(page_title="ET Models Comparison", layout="wide")
+    
     # Data
     months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
     penman_monteith_et = [17.50, 9.95, 6.57, 7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91]
     thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]
+    logged_et = [10.47, 6.20, 4.08, 4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66]
     
-    # Create DataFrame
+    # Create a DataFrame
     et_data = pd.DataFrame({
-        'Month': months,
-        'Penman-Monteith ET (mm)': penman_monteith_et,
-        'USGS Thornthwaite ET (mm)': thornthwaite_et
+        "Month": months,
+        "Penman-Monteith ET": penman_monteith_et,
+        "Thornthwaite ET": thornthwaite_et,
+        "Logged Scenario ET": logged_et
     })
     
-    # Create traces
-    trace1 = go.Bar(
-        x=months,
-        y=penman_monteith_et,
-        name='Penman-Monteith ET',
-        hovertext=penman_monteith_et,  # Hover text showing the ET values
-        hoverinfo='x+y+text',  # Show both month and ET value when hovering
-        marker=dict(color='blue', opacity=0.7)
+    # App title
+    st.title("Comparison of ET Models")
+    st.write("This app compares Evapotranspiration (ET) values for three models: Penman-Monteith, Thornthwaite, and a logged scenario.")
+    
+    # Show the data table
+    if st.checkbox("Show Data Table"):
+        st.subheader("Monthly ET Data")
+        st.write(et_data)
+    
+    # Plot the data
+    st.subheader("Monthly ET Comparison")
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(et_data["Month"], et_data["Penman-Monteith ET"], label="Penman-Monteith ET", marker='o')
+    ax.plot(et_data["Month"], et_data["Thornthwaite ET"], label="Thornthwaite ET", marker='s')
+    ax.plot(et_data["Month"], et_data["Logged Scenario ET"], label="Logged Scenario ET", marker='^')
+    ax.set_title("Monthly ET Comparison Across Models")
+    ax.set_xlabel("Month")
+    ax.set_ylabel("ET (mm)")
+    ax.legend()
+    ax.grid(True)
+    
+    # Streamlit plot display
+    st.pyplot(fig)
+    
+    # Statistical comparison
+    st.subheader("Statistical Analysis")
+    et_data["Penman vs Thornthwaite Diff"] = et_data["Penman-Monteith ET"] - et_data["Thornthwaite ET"]
+    et_data["Penman vs Logged Diff"] = et_data["Penman-Monteith ET"] - et_data["Logged Scenario ET"]
+    et_data["Thornthwaite vs Logged Diff"] = et_data["Thornthwaite ET"] - et_data["Logged Scenario ET"]
+    
+    # Select comparison type
+    comparison = st.radio(
+        "Choose the difference to analyze:",
+        ["Penman vs Thornthwaite", "Penman vs Logged", "Thornthwaite vs Logged"]
     )
     
-    trace2 = go.Bar(
-        x=months,
-        y=thornthwaite_et,
-        name='USGS Thornthwaite ET',
-        hovertext=thornthwaite_et,  # Hover text showing the ET values
-        hoverinfo='x+y+text',  # Show both month and ET value when hovering
-        marker=dict(color='orange', opacity=0.7)
-    )
+    # Display the selected comparison
+    comparison_column = {
+        "Penman vs Thornthwaite": "Penman vs Thornthwaite Diff",
+        "Penman vs Logged": "Penman vs Logged Diff",
+        "Thornthwaite vs Logged": "Thornthwaite vs Logged Diff"
+    }[comparison]
     
-    # Create layout
-    layout = go.Layout(
-        title='Comparison of ET Models',
-        xaxis=dict(title='Month'),
-        yaxis=dict(title='ET (mm)'),
-        barmode='group',  # Group bars side by side
-        hovermode='closest',  # Show tooltip closest to the cursor
-    )
-    
-    # Create figure and display in Streamlit
-    fig = go.Figure(data=[trace1, trace2], layout=layout)
-    
-    # Display the figure in Streamlit
-    st.plotly_chart(fig)
+    st.write(f"**{comparison}**")
+    st.line_chart(et_data[["Month", comparison_column]].set_index("Month"))
+
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
