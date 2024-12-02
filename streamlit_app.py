@@ -1819,8 +1819,8 @@ elif selected_option == "Scenario Breakdown":
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
     
     # Load the data from the Excel files
-    data1 = pd.read_excel(LU_2010)
-    data2 = pd.read_excel(LU_logged)
+    data1 = pd.read_csv(LU_2010)
+    data2 = pd.read_csv(LU_logged)
     
     # Add a column to differentiate datasets
     data1['Scenario'] = "Scenario 2010"
