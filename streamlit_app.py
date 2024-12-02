@@ -1768,7 +1768,7 @@ elif selected_option == "Scenario Breakdown":
     thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
     logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
     
-    # Create figure
+    # Create the plotly figure
     fig = go.Figure()
     
     # Add Penman-Monteith ET line
@@ -1798,10 +1798,21 @@ elif selected_option == "Scenario Breakdown":
         showlegend=True
     )
     
-    # Show the plot
-    fig.show()
+    # Streamlit app header
+    st.title("Evapotranspiration Comparison")
     
-
+    # Streamlit app description
+    st.markdown("""
+    This app compares monthly evapotranspiration (ET) values using the following methods:
+    - **Penman-Monteith ET** (calculated using the Penman-Monteith method)
+    - **Thornthwaite ET** (calculated using the Thornthwaite method)
+    - **Logged ET** (ET from logged land cover)
+    
+    Select the chart below to explore the monthly variations in ET.
+    """)
+    
+    # Show the plot in the Streamlit app
+    st.plotly_chart(fig)
 
 
 elif selected_option == "Report":   
