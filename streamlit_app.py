@@ -1816,59 +1816,59 @@ elif selected_option == "Scenario Breakdown":
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
 
     if file1 and file2:
-    # Load the data from uploaded CSV files
-    data1 = pd.read_csv(LU_2010)
-    data2 = pd.read_csv(LU_logged)
-    
-    # Add a column to differentiate datasets
-    data1['Scenario'] = "Scenario 2010"
-    data2['Scenario'] = "Scenario logged"
-    
-    # Combine the datasets
-    combined_data = pd.concat([data1, data2])
-    
-    # Year selection widget
-    year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
-    
-    # Filter the data for the selected year and for August (Days 213-243)
-    august_data = combined_data[
-        (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
-    ]
-    
-    # Create the FDC for both scenarios
-    fdc_data = []
-    
-    # Process each scenario separately
-    for scenario in august_data['Scenario'].unique():
-        scenario_data = august_data[august_data['Scenario'] == scenario]
-        sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-        sorted_data["Rank"] = sorted_data.index + 1
-        sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
-        sorted_data["Scenario"] = scenario
-        fdc_data.append(sorted_data)
-    
-    # Combine the processed data for plotting
-    fdc_data = pd.concat(fdc_data)
-    
-    # Plot the FDC
-    fig = px.line(
-        fdc_data,
-        x="ExceedanceProbability",
-        y="FLOW_OUTcms",
-        color="Scenario",
-        labels={
-            "ExceedanceProbability": "Exceedance Probability (%)",
-            "FLOW_OUTcms": "Flow Out (cms)",
-            "Scenario": "Scenario"
-        },
-        title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
-    )
-    
-    # Set y-axis to logarithmic scale
-    fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-    
-    # Display the plot in the Streamlit app
-    st.plotly_chart(fig)
+        # Load the data from uploaded CSV files
+        data1 = pd.read_csv(LU_2010)
+        data2 = pd.read_csv(LU_logged)
+        
+        # Add a column to differentiate datasets
+        data1['Scenario'] = "Scenario 2010"
+        data2['Scenario'] = "Scenario logged"
+        
+        # Combine the datasets
+        combined_data = pd.concat([data1, data2])
+        
+        # Year selection widget
+        year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
+        
+        # Filter the data for the selected year and for August (Days 213-243)
+        august_data = combined_data[
+            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+        ]
+        
+        # Create the FDC for both scenarios
+        fdc_data = []
+        
+        # Process each scenario separately
+        for scenario in august_data['Scenario'].unique():
+            scenario_data = august_data[august_data['Scenario'] == scenario]
+            sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+            sorted_data["Rank"] = sorted_data.index + 1
+            sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+            sorted_data["Scenario"] = scenario
+            fdc_data.append(sorted_data)
+        
+        # Combine the processed data for plotting
+        fdc_data = pd.concat(fdc_data)
+        
+        # Plot the FDC
+        fig = px.line(
+            fdc_data,
+            x="ExceedanceProbability",
+            y="FLOW_OUTcms",
+            color="Scenario",
+            labels={
+                "ExceedanceProbability": "Exceedance Probability (%)",
+                "FLOW_OUTcms": "Flow Out (cms)",
+                "Scenario": "Scenario"
+            },
+            title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
+        )
+        
+        # Set y-axis to logarithmic scale
+        fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+        
+        # Display the plot in the Streamlit app
+        st.plotly_chart(fig)
 
 
 
