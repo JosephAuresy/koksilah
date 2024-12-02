@@ -1872,18 +1872,7 @@ elif selected_option == "Scenario Breakdown":
     # Show the plot in the Streamlit app
     st.plotly_chart(fig)
     
-    if LU_2010_file and LU_logged_file:
-        # Load the data from the uploaded files
-        data1 = pd.read_excel(LU_2010_file)
-        data2 = pd.read_excel(LU_logged_file)
-    
-        # Add a column to differentiate datasets
-        data1['Scenario'] = "Scenario 2010"
-        data2['Scenario'] = "Scenario logged"
-    
-        # Combine the datasets
-        combined_data = pd.concat([data1, data2])
-    
+    if LU_2010 and LU_logged:  
         # Streamlit widget to choose the year
         year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
     
