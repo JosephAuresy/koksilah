@@ -1815,7 +1815,7 @@ elif selected_option == "Scenario Breakdown":
     LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
 
-    if file1 and file2:
+    if LU_2010 and LU_logged:
         # Load the data from uploaded CSV files
         data1 = pd.read_csv(LU_2010)
         data2 = pd.read_csv(LU_logged)
