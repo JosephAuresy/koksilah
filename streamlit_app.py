@@ -1871,7 +1871,45 @@ elif selected_option == "Scenario Breakdown":
     
     # Show the plot in the Streamlit app
     st.plotly_chart(fig)
-
+    
+    if LU_2010_file and LU_logged_file:
+        # Load the data from the uploaded files
+        data1 = pd.read_excel(LU_2010_file)
+        data2 = pd.read_excel(LU_logged_file)
+    
+        # Add a column to differentiate datasets
+        data1['Scenario'] = "Scenario 2010"
+        data2['Scenario'] = "Scenario logged"
+    
+        # Combine the datasets
+        combined_data = pd.concat([data1, data2])
+    
+        # Streamlit widget to choose the year
+        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    
+        # Filter the data for the selected year and August (Days 213-243)
+        august_data = combined_data[
+            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+        ]
+    
+        # List of reaches to analyze
+        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+    
+        filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
+    
+        # Create a Plotly figure for both scenarios
+        fig = px.line(
+            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
+            facet_col="RCH", facet_col_wrap=4,
+            labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
+            title=f"Flow Out Comparison for Selected Reaches (Year {year}, Months 6-9)"
+        )
+    
+        # Show the plot
+        st.plotly_chart(fig)
+    else:
+        st.warning("Please upload both scenario Excel files to proceed.")
+        
 
 elif selected_option == "Report":   
     st.title("Model Validation Report")
