@@ -1882,7 +1882,7 @@ elif selected_option == "Scenario Breakdown":
             filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
             facet_col="RCH", facet_col_wrap=4,
             labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
-            title=f"Flow Out Comparison for Selected Reaches (Year {year}, Months 6-9)"
+            title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
         )
     
         # Show the second plot in the Streamlit app
