@@ -1759,9 +1759,6 @@ elif selected_option == "Scenario Breakdown":
     st.write(f"**Average Streamflow:** {streamflow_august} mm")
     st.write(f"**Baseflow:** {baseflow_august} mm")
     
-    # Streamlit page configuration
-    st.set_page_config(page_title="ET Models Comparison", layout="wide")
-    
     # Updated data based on the provided values
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     penman_monteith_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
