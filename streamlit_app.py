@@ -1826,17 +1826,6 @@ elif selected_option == "Scenario Breakdown":
     # Combine the datasets
     combined_data = pd.concat([data1, data2])
     
-    # Load data from the GitHub repository
-    data1 = load_data_from_github(url1)
-    data2 = load_data_from_github(url2)
-    
-    # Add a column to differentiate datasets
-    data1['Scenario'] = "Scenario 2010"
-    data2['Scenario'] = "Scenario logged"
-    
-    # Combine the datasets
-    combined_data = pd.concat([data1, data2])
-    
     # Streamlit widget to choose the year
     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
     
