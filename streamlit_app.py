@@ -1785,20 +1785,43 @@ elif selected_option == "Scenario Breakdown":
         st.subheader("Monthly ET Data")
         st.write(et_data)
     
-    # Plot the data
+    # Plotly figure
     st.subheader("Monthly ET Comparison")
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(et_data["Month"], et_data["Penman-Monteith ET"], label="Penman-Monteith ET", marker='o')
-    ax.plot(et_data["Month"], et_data["Thornthwaite ET"], label="Thornthwaite ET", marker='s')
-    ax.plot(et_data["Month"], et_data["Logged Scenario ET"], label="Logged Scenario ET", marker='^')
-    ax.set_title("Monthly ET Comparison Across Models")
-    ax.set_xlabel("Month")
-    ax.set_ylabel("ET (mm)")
-    ax.legend()
-    ax.grid(True)
+    fig = go.Figure()
     
-    # Streamlit plot display
-    st.pyplot(fig)
+    # Adding traces for each model
+    fig.add_trace(go.Scatter(
+        x=et_data["Month"],
+        y=et_data["Penman-Monteith ET"],
+        mode='lines+markers',
+        name='Penman-Monteith ET'
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=et_data["Month"],
+        y=et_data["Thornthwaite ET"],
+        mode='lines+markers',
+        name='Thornthwaite ET'
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=et_data["Month"],
+        y=et_data["Logged Scenario ET"],
+        mode='lines+markers',
+        name='Logged Scenario ET'
+    ))
+    
+    # Customize layout
+    fig.update_layout(
+        title="Monthly ET Comparison Across Models",
+        xaxis_title="Month",
+        yaxis_title="ET (mm)",
+        legend_title="Models",
+        template="plotly_white"
+    )
+    
+    # Show the Plotly chart in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
     
     # Statistical comparison
     st.subheader("Statistical Analysis")
@@ -1819,8 +1842,24 @@ elif selected_option == "Scenario Breakdown":
         "Thornthwaite vs Logged": "Thornthwaite vs Logged Diff"
     }[comparison]
     
-    st.write(f"**{comparison}**")
-    st.line_chart(et_data[["Month", comparison_column]].set_index("Month"))
+    # Plotly figure for differences
+    diff_fig = go.Figure()
+    diff_fig.add_trace(go.Bar(
+        x=et_data["Month"],
+        y=et_data[comparison_column],
+        name=comparison
+    ))
+    
+    # Customize layout
+    diff_fig.update_layout(
+        title=f"Monthly {comparison} Difference",
+        xaxis_title="Month",
+        yaxis_title="Difference (mm)",
+        template="plotly_white"
+    )
+    
+    # Show the Plotly chart for differences
+    st.plotly_chart(diff_fig, use_container_width=True)
 
 
 elif selected_option == "Report":   
