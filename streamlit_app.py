@@ -1812,12 +1812,12 @@ elif selected_option == "Scenario Breakdown":
     st.plotly_chart(fig)
     
     # Get the path to the CSV files relative to this script
-    RECHARGE_FILENAME = Path(__file__).parent / 'data/scenario_2010.csv'
-    OUTPUT_FILENAME = Path(__file__).parent / 'data/scenario_logged.csv'
+    LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
+    LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
     
     # Load the data
-    data1 = pd.read_csv(RECHARGE_FILENAME)
-    data2 = pd.read_csv(OUTPUT_FILENAME)
+    data1 = pd.read_csv(LU_2010)
+    data2 = pd.read_csv(LU_logged)
     
     # Add a column to differentiate datasets
     data1['Scenario'] = "Scenario 2010"
