@@ -1865,7 +1865,8 @@ elif selected_option == "Scenario Breakdown":
                 "FLOW_OUTcms": "Flow Out (cms)",
                 "Scenario": "Scenario"
             },
-            title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
+            title=f"Flow Duration Curve for Year {year}",
+            # title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
         )
             
         # Set y-axis to logarithmic scale
@@ -1885,7 +1886,8 @@ elif selected_option == "Scenario Breakdown":
             filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
             facet_col="RCH", facet_col_wrap=4,
             labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
-            title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
+            title=f"Flow Out Comparison for Selected Reaches (Year {year})"
+            # title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
         )
             
         # Show the second plot in the Streamlit app
