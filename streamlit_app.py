@@ -1891,9 +1891,9 @@ elif selected_option == "Scenario Breakdown":
         # Show the second plot in the Streamlit app
         st.plotly_chart(fig2)
             
-        # Filter the combined data for the selected year and August (Days 213-243)
-        filtered_data_august = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+        # Filter for the selected year and August (Days between 213 and 243)
+        filtered_data_august = filtered_data[
+            (filtered_data['YEAR'] == year) & (filtered_data['DAY'] >= 213) & (filtered_data['DAY'] <= 243)
         ]
             
         # Calculate daily volume for total flow (m³)
@@ -1910,7 +1910,7 @@ elif selected_option == "Scenario Breakdown":
         st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
             
         # Plot Mean Flow (m³/s)
-        fig1 = px.line(
+        fig3 = px.line(
             monthly_mean_flow,
             x="Month", y="FLOW_OUTcms", color="Scenario",
             labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
@@ -1919,13 +1919,12 @@ elif selected_option == "Scenario Breakdown":
         st.plotly_chart(fig1)
             
         # Plot Total Flow (m³)
-        fig2 = px.bar(
+        fig4 = px.bar(
             monthly_total_flow,
             x="Month", y="DailyVolume_m3", color="Scenario",
             labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
             title=f"Total Flow per Month for Year {year} (August)"
         )
-        st.plotly_chart(fig2)
             
     else:
         st.warning("Please upload both scenario Excel files to proceed.")
