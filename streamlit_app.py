@@ -1909,19 +1909,19 @@ elif selected_option == "Scenario Breakdown":
         # Display the results for both mean and total flow
         st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
             
-        # Plot Mean Flow (m³/s)
-        fig3 = px.line(
+        # Plot Mean Flow (m³/s) with two bars per scenario
+        fig3 = px.bar(
             monthly_mean_flow,
-            x="Month", y="FLOW_OUTcms", color="Scenario",
+            x="Month", y="FLOW_OUTcms", color="Scenario", barmode="group",
             labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
             title=f"Mean Flow per Month for Year {year} (August)"
         )
         st.plotly_chart(fig3)
             
-        # Plot Total Flow (m³)
+        # Plot Total Flow (m³) with two bars per scenario
         fig4 = px.bar(
             monthly_total_flow,
-            x="Month", y="DailyVolume_m3", color="Scenario",
+            x="Month", y="DailyVolume_m3", color="Scenario", barmode="group",
             labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
             title=f"Total Flow per Month for Year {year} (August)"
         )
