@@ -1916,7 +1916,7 @@ elif selected_option == "Scenario Breakdown":
             labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
             title=f"Mean Flow per Month for Year {year} (August)"
         )
-        st.plotly_chart(fig1)
+        st.plotly_chart(fig3)
             
         # Plot Total Flow (m³)
         fig4 = px.bar(
@@ -1925,6 +1925,7 @@ elif selected_option == "Scenario Breakdown":
             labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
             title=f"Total Flow per Month for Year {year} (August)"
         )
+        st.plotly_chart(fig4)
             
     else:
         st.warning("Please upload both scenario Excel files to proceed.")
