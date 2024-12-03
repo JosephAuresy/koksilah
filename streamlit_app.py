@@ -1810,7 +1810,7 @@ elif selected_option == "Scenario Breakdown":
     
     # Show the plot in the Streamlit app
     st.plotly_chart(fig)
-
+    
     # Streamlit app title
     st.title("Flow Duration Curve (FDC) Analysis")
     
@@ -1820,24 +1820,25 @@ elif selected_option == "Scenario Breakdown":
     
     # Load the data from the Excel files
     if LU_2010.exists() and LU_logged.exists():
+        # Use pandas to read the Excel files (adjust to your actual file format and content)
         data1 = pd.read_csv(LU_2010)
         data2 = pd.read_csv(LU_logged)
-        
+    
         # Add a column to differentiate datasets
         data1['Scenario'] = "Scenario 2010"
         data2['Scenario'] = "Scenario logged"
-        
+    
         # Combine the datasets
         combined_data = pd.concat([data1, data2])
-        
+    
         # Streamlit widget to choose the year
         year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-        
+    
         # Filter the data for the selected year and August (Days 213-243)
         august_data = combined_data[
             (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
         ]
-        
+    
         # Create the FDC for both scenarios
         fdc_data = []
         for scenario in august_data['Scenario'].unique():
@@ -1847,10 +1848,10 @@ elif selected_option == "Scenario Breakdown":
             sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
             sorted_data["Scenario"] = scenario
             fdc_data.append(sorted_data)
-        
+    
         # Combine the processed data for plotting
         fdc_data = pd.concat(fdc_data)
-        
+    
         # Plot the FDC
         fig = px.line(
             fdc_data,
@@ -1864,19 +1865,19 @@ elif selected_option == "Scenario Breakdown":
             },
             title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
         )
-        
+    
         # Set y-axis to logarithmic scale
         fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-        
+    
         # Show the plot in the Streamlit app
         st.plotly_chart(fig)
-        
+    
         # List of reaches to analyze
         selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
-        
+    
         # Filter the data for the selected reaches
         filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-        
+    
         # Create a Plotly figure for flow out comparison by reach
         fig2 = px.line(
             filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
@@ -1884,28 +1885,28 @@ elif selected_option == "Scenario Breakdown":
             labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
             title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
         )
-        
+    
         # Show the second plot in the Streamlit app
         st.plotly_chart(fig2)
-        
+    
         # Filter the combined data for the selected year and August (Days 213-243)
         filtered_data_august = combined_data[
             (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
         ]
-        
+    
         # Calculate daily volume for total flow (m³)
         seconds_in_a_day = 24 * 60 * 60
         filtered_data_august['DailyVolume_m3'] = filtered_data_august['FLOW_OUTcms'] * seconds_in_a_day
-        
+    
         # Calculate mean flow (m³/s) per month (August only)
         monthly_mean_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
-        
+    
         # Calculate total flow (m³) per month (August only)
         monthly_total_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
-        
+    
         # Display the results for both mean and total flow
         st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
-        
+    
         # Plot Mean Flow (m³/s)
         fig1 = px.line(
             monthly_mean_flow,
@@ -1914,7 +1915,7 @@ elif selected_option == "Scenario Breakdown":
             title=f"Mean Flow per Month for Year {year} (August)"
         )
         st.plotly_chart(fig1)
-        
+    
         # Plot Total Flow (m³)
         fig2 = px.bar(
             monthly_total_flow,
@@ -1923,9 +1924,10 @@ elif selected_option == "Scenario Breakdown":
             title=f"Total Flow per Month for Year {year} (August)"
         )
         st.plotly_chart(fig2)
-        
+    
     else:
         st.warning("Please upload both scenario Excel files to proceed.")
+
 
 
     # # Streamlit app title
