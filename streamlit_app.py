@@ -1835,7 +1835,7 @@ elif selected_option == "Scenario Breakdown":
             
         # Filter the data for the selected year and August (Days 213-243)
         august_data = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 1) & (combined_data['DAY'] <= 365)
         ]
         
         # Add the Month column based on DAY (August days are between 213 and 243)
