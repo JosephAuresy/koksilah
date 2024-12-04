@@ -568,9 +568,9 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Prepare data for pie chart with updated classification ranges
     color_names = [
-        'Gaining',           # Categories 3, 4, 5 combined
-        'No Significant Contributions',  # Categories 6, 7 combined
-        'Losing',            # Category below -225
+        'Gaining > 1',           # Categories 3, 4, 5 combined
+        'No Significant Contributions 1 to -1',  # Categories 6, 7 combined
+        'Losing < -1',            # Category below -225
     ]
     
     color_values = [
