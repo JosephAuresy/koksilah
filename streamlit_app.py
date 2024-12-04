@@ -542,7 +542,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     
         # Update the layout of the heatmap
         fig.update_layout(
-            title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+            title=f'Groundwater-Surface Water Interaction for {selected_month_name} m3/day',
             xaxis_title='Column',
             yaxis_title='Row',
             xaxis=dict(showticklabels=True, ticks='', showgrid=False),
