@@ -603,7 +603,7 @@ elif selected_option == "Groundwater / Surface water interactions":
         values=color_values,
         hole=0.3,  # Optional donut chart
         marker=dict(colors=pie_colors),
-        textinfo='percent',  # Display only the percentage
+        textinfo='none',  # Display only the percentage
         hoverinfo='label+value+percent',  # Display label, value, and percent on hover
     )])
     
