@@ -111,14 +111,6 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
         water_use_code = f'W{water_use[-2:]}'
         folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
         return Path(__file__).parent / 'data' / folder_name
-    
-    # def get_folder_path(land_use, climate, water_use):
-    #     # Assuming data folder structure is like: 'data/L{land_use}_C{climate}_W{water_use}'
-    #     land_use_code = land_use[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
-    #     climate_code = climate[-2:]  # Extract the last two digits (e.g., '2010s' -> '10')
-    #     water_use_code = water_use[-2:]         
-    #     folder_name = f'L{land_use_code}_C{climate_code}_W{water_use_code}'
-    #     return Path(__file__).parent / 'data' / folder_name
 
     # Get the folder based on selected decades
     data_folder = get_folder_path(selected_decade_land_use, selected_decade_climate, selected_decade_water_use)
@@ -516,32 +508,13 @@ elif selected_option == "Groundwater / Surface water interactions":
         # Function to classify values based on the provided ranges (from positive to negative)
         # Function to classify values based on simplified ranges
         def classify_based_on_value_range(value):
-            if value > 0:  
+            if value > 1:  
                 return 0  # Brown
-            elif 0 >= value > -5:  
+            elif 1 >= value > -1:  
                 return 1  # Dark Yellow
-            elif -5 >= value > -125:  # No significant contributions (strong negatives)
-                return 2  # Blue
             else:  # Losing (extreme negatives)
-                return 3  # Dark Blue
-        # def classify_based_on_value_range(value):
-        #     if value > 0:  # All positive values
-        #         return 0  # Brown (strong positive)
-        #     elif 0 >= value > -5:
-        #         return 1  # Dark Yellow (slightly positive)
-        #     elif -5 >= value > -25:
-        #         return 2  # Yellow (near-zero positive)
-        #     elif -25 >= value > -75:
-        #         return 3  # Light Green (mildly negative)
-        #     elif -75 >= value > -125:
-        #         return 4  # Green (moderately negative)
-        #     elif -125 >= value > -175:
-        #         return 5  # Cyan (strong negative)
-        #     elif -175 >= value > -225:
-        #         return 6  # Blue (very strong negative)
-        #     else:
-        #         return 7  # Dark Blue (extreme negative)
-               
+                return 2  # Dark Blue
+
         # Classify the current value and assign to the grid
         grid[row_idx, col_idx] = classify_based_on_value_range(value)
         # Add hover text for the grid cell
@@ -551,28 +524,17 @@ elif selected_option == "Groundwater / Surface water interactions":
     def create_heatmap(classified_grid, selected_month_name, hover_text):
         # Define a color scale for the classified ranges
         colorscale = [
-            [0.0, '#8B4513'],  # Strongly gaining - Brown
-            [0.33, '#FFD700'],  # Gaining - Dark Yellow
-            [0.66, '#0000FF'],  # No significant contributions - Blue
-            [1.0, '#00008B'],   # Losing - Dark Blue
+            [0.0, '#8B4513'],  # Losing - Brown
+            [0.66, '#FFFF00'],  # No significant contributions - Yellow
+            [1.0, '#00008B'],   # Gaining - Dark Blue
         ]
-        # colorscale = [
-        #     [0.0, '#8B4513'],       # Strong positive (value > 0) - Brown
-        #     [0.14, '#FFD700'],      # Slightly positive (0 > value > -5) - Dark Yellow
-        #     [0.28, '#FFFF00'],      # Near-zero positive (-5 > value > -25) - Yellow
-        #     [0.42, '#90EE90'],      # Mildly negative (-25 > value > -75) - Light Green
-        #     [0.57, '#008000'],      # Moderately negative (-75 > value > -125) - Green
-        #     [0.71, '#00FFFF'],      # Strong negative (-125 > value > -175) - Cyan
-        #     [0.85, '#0000FF'],      # Very strong negative (-175 > value > -225) - Blue
-        #     [1.0, '#00008B']        # Extreme negative (value <= -225) - Dark Blue
-        # ]
         
         # Create the heatmap for the selected month
         fig = go.Figure(data=go.Heatmap(
             z=classified_grid,
             colorscale=colorscale,
             zmin=0,
-            zmax=3,
+            zmax=2,
             showscale=False,  # Hide scale since categories are defined
             hoverinfo='text',
             text=hover_text
@@ -595,8 +557,7 @@ elif selected_option == "Groundwater / Surface water interactions":
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
         color_counts = {
-            'strongly_gaining': np.sum(grid == 3),  # Combine strong, slightly, and near-zero positive
-            'gaining': np.sum(grid == 2),  # Combine mild, moderate, and strong negative
+            'gaining': np.sum(grid == 2),  # Combine strong, slightly, and near-zero positive
             'no_significant_contributions': np.sum(grid == 1),  # Combine very strong and extreme negative
             'losing': np.sum(grid == 0),  # Losing category for extreme negative
         }
@@ -607,58 +568,16 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Prepare data for pie chart with updated classification ranges
     color_names = [
-        'Strongly Gaining',  # Categories 0, 1, 2 combined
         'Gaining',           # Categories 3, 4, 5 combined
         'No Significant Contributions',  # Categories 6, 7 combined
         'Losing',            # Category below -225
     ]
     
     color_values = [
-        color_counts['strongly_gaining'],  # Strongly gaining
         color_counts['gaining'],          # Gaining
         color_counts['no_significant_contributions'],  # No significant contributions
         color_counts['losing'],           # Losing
     ]
-                
-    # def count_cells_per_color(grid):
-    #     color_counts = {
-    #         'strong_positive': np.sum(grid == 0),  # Brown (strong positive, value > 0)
-    #         'slightly_positive': np.sum(grid == 1),  # Dark Yellow (slightly positive, 0 > value > -5)
-    #         'near_zero_positive': np.sum(grid == 2),  # Yellow (near-zero positive, -5 > value > -25)
-    #         'mildly_negative': np.sum(grid == 3),  # Light Green (mildly negative, -25 > value > -75)
-    #         'moderately_negative': np.sum(grid == 4),  # Green (moderately negative, -75 > value > -125)
-    #         'strong_negative': np.sum(grid == 5),  # Light Blue (strong negative, -125 > value > -175)
-    #         'very_strong_negative': np.sum(grid == 6),  # Cyan (very strong negative, -175 > value > -225)
-    #         'extreme_negative': np.sum(grid == 7),  # Dark Blue (extreme negative, value <= -225)
-    #     }
-    #     return color_counts
-    
-    # # Count the colors for the selected month
-    # color_counts = count_cells_per_color(grid)
-    
-    # # Prepare data for pie chart with updated classification ranges
-    # color_names = [
-    #     'Less than -225',               # Dark Blue (extreme negative, value <= -225)
-    #     'Between -175 and -225',        # Cyan (very strong negative, -175 > value > -225)
-    #     'Between -125 and -175',        # Light Blue (strong negative, -125 > value > -175)
-    #     'Between -75 and -125',         # Blue (moderately negative, -75 > value > -125)
-    #     'Between -25 and -75',          # Green (moderately negative, -25 > value > -75)
-    #     'Between -5 and -25',           # Light Green (mildly negative, -5 > value > -25)
-    #     'Between 0 and -5',            # Yellow (near-zero fluctuation, -1 > value > -5)
-    #     'Greater than 0',               # Brown (strong positive, value > 0)
-    # ]
-    
-    # color_values = [
-    #     color_counts['extreme_negative'],  # Dark Blue (extreme negative, value <= -225)
-    #     color_counts['very_strong_negative'],  # Cyan (very strong negative, -175 > value > -225)
-    #     color_counts['strong_negative'],  # Light Blue (strong negative, -125 > value > -175)
-    #     color_counts['moderately_negative'],  # Blue (moderately negative, -75 > value > -125)
-    #     color_counts['moderately_negative'],  # Green (moderately negative, -25 > value > -75)
-    #     color_counts['mildly_negative'],  # Light Green (mildly negative, -5 > value > -25)
-    #     color_counts['near_zero_positive'],  # Yellow (near-zero fluctuation, -5 > value > -1)
-    #     color_counts['strong_positive'],  # Brown (strong positive, value > 0)
-    # ]
-
     
     # Prepare the pie chart data
     total_cells = sum(color_values)
@@ -674,16 +593,10 @@ elif selected_option == "Groundwater / Surface water interactions":
     # Create a pie chart with formatted percentages
     pie_colors = [
         '#00008B',  # Dark Blue (extreme negative)
-        '#0000FF',  # Blue (very strong negative)
-        # '#00FFFF',  # Cyan (strong negative)
-        # '#008000',  # Green (moderately negative)
-        # '#90EE90',  # Light Green (mildly negative)
-        # '#FFFF00',  # Yellow (near-zero positive)
-        '#FFD700',  # Dark Yellow (slightly positive)
+        '#FFFF00',  # Yellow (slightly positive)
         '#8B4513'   # Brown (strong positive)
     ]
     
-    # Create the pie chart
     # Create the pie chart
     fig = go.Figure(data=[go.Pie(
         labels=color_names,
@@ -977,7 +890,632 @@ elif selected_option == "Recharge":
     st_folium(m, width=700, height=600)  
 
 
+ 
+elif selected_option == "Scenario Breakdown":
+    st.title("Watershed Summary")
+    # Input data for monthly basin values
+    data = {
+        'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        'Rainfall (mm)': [240.74, 120.73, 124.14, 85.84, 45.46, 35.79, 15.70, 18.55, 89.53, 152.66, 228.13, 212.18],
+        'Snowfall (mm)': [28.98, 16.99, 1.91, 0.43, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 7.98, 34.25],
+        'Surface Q (mm)': [43.34, 13.65, 11.05, 4.95, 0.66, 0.53, 0.10, 0.13, 3.30, 7.94, 26.30, 28.33],
+        'Lateral Q (mm)': [153.89, 83.01, 83.26, 49.41, 21.27, 13.44, 5.40, 5.64, 38.53, 88.14, 147.77, 137.69],
+        'Yield (mm)': [202.87, 101.17, 99.24, 58.36, 25.60, 17.30, 8.76, 8.90, 44.75, 99.25, 178.13, 170.52],
+        'ET (mm)': [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57],
+        'PET (mm)': [10.56, 16.75, 35.28, 62.37, 103.80, 117.40, 140.06, 118.15, 63.65, 33.25, 14.04, 9.02],
+    }
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+    
+    # Streamlit app title
+    st.title('Water Balance Interactive Visualization')
+    
+    # Create an interactive bar chart using Plotly
+    fig = px.bar(df, 
+                 x='Month', 
+                 y=['Rainfall (mm)', 'Snowfall (mm)', 'Surface Q (mm)', 'Lateral Q (mm)', 'Yield (mm)', 'ET (mm)', 'PET (mm)'],
+                 barmode='group', 
+                 title="Monthly Water Balance Components",
+                 labels={'value': 'Millimeters (mm)', 'variable': 'Water Balance Components'})
+    
+    # Add hover data for better interactivity
+    fig.update_traces(hovertemplate='%{x}: %{y} mm')
+    
+    # Show the plot in the Streamlit app
+    st.plotly_chart(fig)
+    
+    # Display the DataFrame as a table
+    st.write("### Water Balance Data", df)
+
+    # Filter data for August
+    august_data = df[df['Month'] == 'Aug']
+    
+    # Calculate values for August
+    et_august = august_data['ET (mm)'].values[0]
+    streamflow_august = august_data['Surface Q (mm)'].values[0] + august_data['Lateral Q (mm)'].values[0]
+    baseflow_august = august_data['Lateral Q (mm)'].values[0]
+
+    # Display the results
+    st.subheader("August Metrics")
+    st.write(f"**Evapotranspiration (ET):** {et_august} mm")
+    st.write(f"**Average Streamflow:** {streamflow_august} mm")
+    st.write(f"**Baseflow:** {baseflow_august} mm")
+    
+    # Updated data based on the provided values
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    penman_monteith_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
+    thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
+    logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
+    
+    # Create the plotly figure
+    fig = go.Figure()
+    
+    # Add Penman-Monteith ET line
+    fig.add_trace(go.Scatter(
+        x=months, y=penman_monteith_et, mode='lines+markers', name='Penman-Monteith ET',
+        line=dict(color='blue', width=2), marker=dict(symbol='circle', size=8, color='blue')
+    ))
+    
+    # Add Thornthwaite ET line
+    fig.add_trace(go.Scatter(
+        x=months, y=thornthwaite_et, mode='lines+markers', name='Thornthwaite ET',
+        line=dict(color='green', width=2), marker=dict(symbol='square', size=8, color='green')
+    ))
+    
+    # Add Logged ET line
+    fig.add_trace(go.Scatter(
+        x=months, y=logged_et, mode='lines+markers', name='Logged ET',
+        line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='red')
+    ))
+    
+    # Update layout for better visualization
+    fig.update_layout(
+        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, and Logged ET',
+        xaxis_title='Month',
+        yaxis_title='ET (mm)',
+        template='plotly_dark',
+        showlegend=True
+    )
+    
+    # Streamlit app header
+    st.title("Evapotranspiration Comparison")
+    
+    # Streamlit app description
+    st.markdown("""
+    This app compares monthly evapotranspiration (ET) values using the following methods:
+    - **Penman-Monteith ET** (calculated using the Penman-Monteith method)
+    - **Thornthwaite ET** (calculated using the Thornthwaite method)
+    - **Logged ET** (ET from logged land cover)
+    
+    Select the chart below to explore the monthly variations in ET.
+    """)
+    
+    # Show the plot in the Streamlit app
+    st.plotly_chart(fig)
+    
+    # Streamlit app title
+    st.title("Flow Duration Curve (FDC) Analysis")
+        
+    # Get the path to the Excel files relative to this script
+    LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
+    LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
+        
+    # Load the data from the Excel files
+    if LU_2010.exists() and LU_logged.exists():
+        data1 = pd.read_csv(LU_2010)
+        data2 = pd.read_csv(LU_logged)
+            
+        # Add a column to differentiate datasets
+        data1['Scenario'] = "Scenario 2010"
+        data2['Scenario'] = "Scenario logged"
+            
+        # Combine the datasets
+        combined_data = pd.concat([data1, data2])
+            
+        # Streamlit widget to choose the year
+        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+            
+        # Filter the data for the selected year and August (Days 213-243)
+        august_data = combined_data[
+            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 1) & (combined_data['DAY'] <= 365)
+        ]
+        
+        # Add the Month column based on DAY (August days are between 213 and 243)
+        august_data['Month'] = 8  # Since we're analyzing August, we assign 8 for all rows in August.
+        
+        # Create the FDC for both scenarios
+        fdc_data = []
+        for scenario in august_data['Scenario'].unique():
+            scenario_data = august_data[august_data['Scenario'] == scenario]
+            sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+            sorted_data["Rank"] = sorted_data.index + 1
+            sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+            sorted_data["Scenario"] = scenario
+            fdc_data.append(sorted_data)
+            
+        # Combine the processed data for plotting
+        fdc_data = pd.concat(fdc_data)
+            
+        # Plot the FDC
+        fig = px.line(
+            fdc_data,
+            x="ExceedanceProbability",
+            y="FLOW_OUTcms",
+            color="Scenario",
+            labels={
+                "ExceedanceProbability": "Exceedance Probability (%)",
+                "FLOW_OUTcms": "Flow Out (cms)",
+                "Scenario": "Scenario"
+            },
+            title=f"Flow Duration Curve for Year {year}",
+            # title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
+        )
+            
+        # Set y-axis to logarithmic scale
+        fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+            
+        # Show the plot in the Streamlit app
+        st.plotly_chart(fig)
+            
+        # List of reaches to analyze
+        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+            
+        # Filter the data for the selected reaches
+        filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
+            
+        # Create a Plotly figure for flow out comparison by reach
+        fig2 = px.line(
+            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
+            facet_col="RCH", facet_col_wrap=4,
+            labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
+            title=f"Flow Out Comparison for Selected Reaches (Year {year})"
+            # title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
+        )
+            
+        # Show the second plot in the Streamlit app
+        st.plotly_chart(fig2)
+            
+        # Filter for the selected year and August (Days between 213 and 243)
+        filtered_data_august = filtered_data[
+            (filtered_data['YEAR'] == year) & (filtered_data['DAY'] >= 213) & (filtered_data['DAY'] <= 243)
+        ]
+            
+        # Calculate daily volume for total flow (m³)
+        seconds_in_a_day = 24 * 60 * 60
+        filtered_data_august['DailyVolume_m3'] = filtered_data_august['FLOW_OUTcms'] * seconds_in_a_day
+            
+        # Calculate mean flow (m³/s) per month (August only)
+        monthly_mean_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
+            
+        # Calculate total flow (m³) per month (August only)
+        monthly_total_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
+            
+        # Display the results for both mean and total flow
+        st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
+            
+        # Plot Mean Flow (m³/s) with two bars per scenario
+        fig3 = px.bar(
+            monthly_mean_flow,
+            x="Month", y="FLOW_OUTcms", color="Scenario", barmode="group",
+            labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
+            title=f"Mean Flow per Month for Year {year} (August)"
+        )
+        st.plotly_chart(fig3)
+            
+        # Plot Total Flow (m³) with two bars per scenario
+        fig4 = px.bar(
+            monthly_total_flow,
+            x="Month", y="DailyVolume_m3", color="Scenario", barmode="group",
+            labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
+            title=f"Total Flow per Month for Year {year} (August)"
+        )
+        st.plotly_chart(fig4)
+            
+    else:
+        st.warning("Please upload both scenario Excel files to proceed.")
+
+
+
+    # # Streamlit app title
+    # st.title("Flow Duration Curve (FDC) Analysis")
+    
+    # # Get the path to the Excel files relative to this script
+    # LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
+    # LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
+    
+    # # Load the data from the Excel files
+    # if LU_2010.exists() and LU_logged.exists():
+    #     data1 = pd.read_csv(LU_2010)
+    #     data2 = pd.read_csv(LU_logged)
+    
+    #     # Add a column to differentiate datasets
+    #     data1['Scenario'] = "Scenario 2010"
+    #     data2['Scenario'] = "Scenario logged"
+    
+    #     # Combine the datasets
+    #     combined_data = pd.concat([data1, data2])
+    
+    #     # Streamlit widget to choose the year
+    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    
+    #     # Filter the data for the selected year and August (Days 213-243)
+    #     august_data = combined_data[
+    #         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+    #     ]
+    
+    #     # Create the FDC for both scenarios
+    #     fdc_data = []
+    #     for scenario in august_data['Scenario'].unique():
+    #         scenario_data = august_data[august_data['Scenario'] == scenario]
+    #         sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+    #         sorted_data["Rank"] = sorted_data.index + 1
+    #         sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+    #         sorted_data["Scenario"] = scenario
+    #         fdc_data.append(sorted_data)
+    
+    #     # Combine the processed data for plotting
+    #     fdc_data = pd.concat(fdc_data)
+    
+    #     # Plot the FDC
+    #     fig = px.line(
+    #         fdc_data,
+    #         x="ExceedanceProbability",
+    #         y="FLOW_OUTcms",
+    #         color="Scenario",
+    #         labels={
+    #             "ExceedanceProbability": "Exceedance Probability (%)",
+    #             "FLOW_OUTcms": "Flow Out (cms)",
+    #             "Scenario": "Scenario"
+    #         },
+    #         title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
+    #     )
+    
+    #     # Set y-axis to logarithmic scale
+    #     fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+    
+    #     # Show the plot in the Streamlit app
+    #     st.plotly_chart(fig)
+    
+    #     # List of reaches to analyze
+    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+    
+    #     # Filter the data for the selected reaches
+    #     filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
+    
+    #     # Create a Plotly figure for flow out comparison by reach
+    #     fig2 = px.line(
+    #         filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
+    #         facet_col="RCH", facet_col_wrap=4,
+    #         labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
+    #         title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
+    #     )
+    
+    #     # Show the second plot in the Streamlit app
+    #     st.plotly_chart(fig2)
+    
+    # else:
+    #     st.warning("Please upload both scenario Excel files to proceed.")
+    
+    # # Load the data from the Excel files
+    # if LU_2010.exists() and LU_logged.exists():
+    #     # Read data and add scenario labels
+    #     data1 = pd.read_csv(LU_2010)
+    #     data2 = pd.read_csv(LU_logged)
+    #     data1['Scenario'] = "Scenario 2010"
+    #     data2['Scenario'] = "Scenario logged"
+    
+    #     # Combine the datasets
+    #     combined_data = pd.concat([data1, data2])
+    
+    #     # Streamlit widget to choose the year
+    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    
+    #     # Filter the data for the selected year and August (Days 213-243)
+    #     filtered_data = combined_data[
+    #         (combined_data['YEAR'] == year)
+    #     ]
+    
+    #     # Number of seconds in a day (24 hours * 60 minutes * 60 seconds)
+    #     seconds_in_a_day = 24 * 60 * 60
+    #     filtered_data['DailyVolume_m3'] = filtered_data['FLOW_OUTcms'] * seconds_in_a_day
+    
+    #     # Calculate mean flow in m³/s and total flow in m³ for each month (aggregated by DAY)
+    #     filtered_data['Month'] = filtered_data['DAY'].apply(lambda x: (x - 1) // 30 + 1)  # Approximate month number
+    
+    #     # Calculate mean flow (m³/s) per month
+    #     monthly_mean_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
+    
+    #     # Calculate total flow (m³) per month
+    #     monthly_total_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
+    
+    #     # Display the results for both mean and total flow
+    #     st.subheader("Mean Flow (m³/s) and Total Flow (m³) per Month:")
+        
+    #     # Plot Mean Flow (m³/s)
+    #     fig1 = px.line(
+    #         monthly_mean_flow,
+    #         x="Month", y="FLOW_OUTcms", color="Scenario",
+    #         labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
+    #         title=f"Mean Flow per Month for Year {year}"
+    #     )
+    #     st.plotly_chart(fig1)
+    
+    #     # Plot Total Flow (m³)
+    #     fig2 = px.bar(
+    #         monthly_total_flow,
+    #         x="Month", y="DailyVolume_m3", color="Scenario",
+    #         labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
+    #         title=f"Total Flow per Month for Year {year}"
+    #     )
+    #     st.plotly_chart(fig2)
+    
+    # else:
+    #     st.warning("Please upload both scenario Excel files to proceed.")
+        
+   
+
+elif selected_option == "Report":   
+    st.title("Model Validation Report")
+    
+    # Add a short description
+    st.markdown("""
+    This report provides a comprehensive validation of the SWAT-MODFLOW model 
+    implemented for groundwater and surface water interactions. It includes 
+    detailed analysis of the model's performance, statistical metrics, and 
+    visualizations that illustrate the model's predictions against observed data.
+    """)
+
+    PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
+    with open(PDF_FILE, "rb") as f:
+        pdf_data = f.read()
+        pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
+
+    st.download_button(
+        label="Download PDF",
+        data=pdf_data,
+        file_name="koki_swatmf_report.pdf",
+        mime="application/pdf"
+    )
+    
+    iframe_width, iframe_height = get_iframe_dimensions()
+    st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
+    
+#Extra comments ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     # # Initialize the map centered on Duncan
+    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+
+    # # Add the subbasins layer to the map but keep it initially turned off
+    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
+    #                                 name="Subbasins", 
+    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
+    #                                 # show=False  # Keep the layer off initially
+    #                                 ).add_to(m)
+
+    # # Add the grid layer to the map but keep it initially turned off
+    # grid_layer = folium.GeoJson(grid_gdf, 
+    #                             name="Grid", 
+    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
+    #                             show=False  # Keep the layer off initially
+    #                         ).add_to(m)
+
+    # # Add MousePosition to display coordinates
+    # MousePosition().add_to(m)
+
+    # # Add a layer control to switch between the subbasins and grid layers
+    # folium.LayerControl().add_to(m)
+
+    # # Render the Folium map in Streamlit
+    # st.title("Watershed Map")
+    # st_folium(m, width=700, height=600)  
+        
+    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
+    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
+
+    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
+    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
+
+    # unique_months = sorted(monthly_stats['Month'].unique())
+    # unique_month_names = [month_names[m - 1] for m in unique_months]
+
+    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
+    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
+    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
+
+    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
+    
+    # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
+
+    # for _, row in df_filtered.iterrows():
+    #     grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
+
+    # # Define color scale and boundaries for heatmap
+    # if stat_type == 'Standard Deviation':
+    #     zmin = 0
+    #     zmax = global_max
+    # else:
+    #     zmin = global_min
+    #     zmax = global_max
+
+    # colorbar_title = (
+    #     "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
+    #     if stat_type == 'Average Rate [m³/day]' 
+    #     else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
+    # )
+
+    # # Calculate the midpoint for the color bar (usually zero)
+    # zmid = 0
+
+    # # Create the heatmap figure
+    # fig = go.Figure(data=go.Heatmap(
+    #     z=grid,
+    #     colorscale='earth_r',
+    #     zmid=zmid,
+    #     zmin=zmin,
+    #     zmax=zmax,
+    #     colorbar=dict(
+    #         title=colorbar_title, 
+    #         orientation='h', 
+    #         x=0.5, 
+    #         y=-0.1, 
+    #         xanchor='center', 
+    #         yanchor='top',
+    #         tickvals=[zmin, 0, zmax],  # Specify tick positions
+    #         ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
+    #     ),
+    #     hovertemplate='%{z:.2f}<extra></extra>',
+    # ))
+
+    # fig.update_layout(
+    #     title=f'{stat_type} for Month {selected_month}',
+    #     xaxis_title=None,
+    #     yaxis_title=None,
+    #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+    #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #     paper_bgcolor='white',
+    #     font=dict(family='Arial, sans-serif', size=8, color='black')
+    # )
+
+    # # Display the heatmap
+    # st.plotly_chart(fig)
+
+
+    # # Path to your data file
+    # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
+    
+    # # Load hotspot data
+    # hotspots_df = pd.read_csv(DATA_FILENAME)
+    
+    # # Define grid origin (top-left corner in meters) and cell size
+    # origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
+    # cell_size = 300  # cell size in meters
+    # num_cols = 94  # number of columns
+    # num_rows = 68  # number of rows
+    
+    # # Define the projection systems
+    # latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
+    # meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
+    
+    # # Create a transformer
+    # transformer = Transformer.from_proj(latlng_proj, meters_proj)
+    
+    # # Function to convert lat/lng to x/y coordinates in meters
+    # def convert_latlng_to_meters(lat, lng):
+    #     x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
+    #     return x, y
+    
+    # # Convert lat/lng coordinates to x/y in meters
+    # hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
+    
+    # # Calculate grid cell centers
+    # grid_centers = []
+    # for row in range(num_rows):
+    #     for col in range(num_cols):
+    #         center_x = origin_x + (col * cell_size) + (cell_size / 2)
+    #         center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
+    #         grid_centers.append((center_x, center_y))
+    
+    # # Create a DataFrame for grid centers
+    # grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
+    # grid_centers_df['row'] = grid_centers_df.index // num_cols
+    # grid_centers_df['col'] = grid_centers_df.index % num_cols
+    
+    # # Determine the position of hotspots relative to the grid
+    # def find_grid_cell(hotspot_x, hotspot_y):
+    #     for _, row in grid_centers_df.iterrows():
+    #         if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
+    #             row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
+    #             return row['row'], row['col']
+    #     return None, None
+    
+    # # Find grid positions for each hotspot
+    # hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
+    
+    # # Streamlit display
+    # st.title('Hotspot Coordinates Transformation and Grid Positions')
+    # st.write('Hotspot Data with Grid Positions:')
+    # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
+
+#------
+# def create_heatmap(classified_grid, selected_month_name, hover_text):
+    #     # Define a color scale for the classified ranges
+    #     colorscale = [
+    #         [0.0, 'darkblue'],   # Less than -50
+    #         [0.14, 'blue'],      # Between -50 and -20
+    #         [0.28, 'cyan'],      # Between -20 and -10
+    #         [0.42, 'lightblue'], # Between -10 and -5
+    #         [0.57, 'yellow'],    # Between -5 and -1
+    #         [0.71, 'orange'], # Between -1 and 1 (new range, light yellow)
+    #         [0.85, 'brown'],     # Between 1 and 5
+    #         [1.0, 'purple']     # Higher positive > 5
+    #     ]
+        
+    #     # Create the heatmap
+    #     fig = go.Figure(data=go.Heatmap(
+    #         z=classified_grid,
+    #         colorscale=colorscale,
+    #         zmin=0,
+    #         zmax=7,
+    #         showscale=False,  # Hide scale since categories are defined
+    #         hoverinfo='text',
+    #         text=hover_text
+    #     ))
+        
+    #     # Update the layout of the heatmap
+    #     fig.update_layout(
+    #         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
+    #         xaxis_title='Column',
+    #         yaxis_title='Row',
+    #         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
+    #         yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
+    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #         paper_bgcolor='white',
+    #         font=dict(family='Arial, sans-serif', size=8, color='black')
+    #     )
+        
+    #     # Display the heatmap
+    #     st.plotly_chart(fig)
+
+    # # Function to plot a bar chart for a selected cell
+    # def plot_bar_chart(row, column):
+    #     # Filter data for the specific Row and Column
+    #     cell_data = monthly_stats[(monthly_stats['Row'] == row) & (monthly_stats['Column'] == column)]
+        
+    #     # Plot a bar chart showing the 'Rate' for this cell over the 12 months
+    #     fig = go.Figure(data=go.Bar(
+    #         x=[month_names[m - 1] for m in cell_data['Month']],  # Get the month names
+    #         y=cell_data['Rate'],
+    #         marker_color='blue'
+    #     ))
+        
+    #     # Update layout
+    #     fig.update_layout(
+    #         title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
+    #         xaxis_title="Month",
+    #         yaxis_title="Rate",
+    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #         paper_bgcolor='white',
+    #         font=dict(family='Arial, sans-serif', size=12, color='black')
+    #     )
+        
+    #     st.plotly_chart(fig)
+    
+    # # Step 3: Display the heatmap
+    # selected_month_name = 'All Months'  # You can select a specific month if needed
+    # create_heatmap(classified_grid, hover_text, selected_month_name)
+    
+    # # Step 4: Capture click event on the heatmap
+    # click_data = st.session_state.get('click_data', None)
+    
+    # # If a cell is clicked, show the bar chart below
+    # if click_data:
+    #     row = click_data['points'][0]['y']
+    #     column = click_data['points'][0]['x']
+    #     plot_bar_chart(row, column)
+
+   # # Initialize the map centered on Duncan
     # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
     # # Add the subbasins layer to the map with tooltips for subbasin numbers
@@ -1707,627 +2245,3 @@ elif selected_option == "Recharge":
 #                                 legend_title='Components',
 #                                 template='plotly_white')
 #     st.plotly_chart(fig_hydrology)
-
-elif selected_option == "Scenario Breakdown":
-    st.title("Watershed Summary")
-    # Input data for monthly basin values
-    data = {
-        'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        'Rainfall (mm)': [240.74, 120.73, 124.14, 85.84, 45.46, 35.79, 15.70, 18.55, 89.53, 152.66, 228.13, 212.18],
-        'Snowfall (mm)': [28.98, 16.99, 1.91, 0.43, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 7.98, 34.25],
-        'Surface Q (mm)': [43.34, 13.65, 11.05, 4.95, 0.66, 0.53, 0.10, 0.13, 3.30, 7.94, 26.30, 28.33],
-        'Lateral Q (mm)': [153.89, 83.01, 83.26, 49.41, 21.27, 13.44, 5.40, 5.64, 38.53, 88.14, 147.77, 137.69],
-        'Yield (mm)': [202.87, 101.17, 99.24, 58.36, 25.60, 17.30, 8.76, 8.90, 44.75, 99.25, 178.13, 170.52],
-        'ET (mm)': [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57],
-        'PET (mm)': [10.56, 16.75, 35.28, 62.37, 103.80, 117.40, 140.06, 118.15, 63.65, 33.25, 14.04, 9.02],
-    }
-    
-    # Convert to DataFrame
-    df = pd.DataFrame(data)
-    
-    # Streamlit app title
-    st.title('Water Balance Interactive Visualization')
-    
-    # Create an interactive bar chart using Plotly
-    fig = px.bar(df, 
-                 x='Month', 
-                 y=['Rainfall (mm)', 'Snowfall (mm)', 'Surface Q (mm)', 'Lateral Q (mm)', 'Yield (mm)', 'ET (mm)', 'PET (mm)'],
-                 barmode='group', 
-                 title="Monthly Water Balance Components",
-                 labels={'value': 'Millimeters (mm)', 'variable': 'Water Balance Components'})
-    
-    # Add hover data for better interactivity
-    fig.update_traces(hovertemplate='%{x}: %{y} mm')
-    
-    # Show the plot in the Streamlit app
-    st.plotly_chart(fig)
-    
-    # Display the DataFrame as a table
-    st.write("### Water Balance Data", df)
-
-    # Filter data for August
-    august_data = df[df['Month'] == 'Aug']
-    
-    # Calculate values for August
-    et_august = august_data['ET (mm)'].values[0]
-    streamflow_august = august_data['Surface Q (mm)'].values[0] + august_data['Lateral Q (mm)'].values[0]
-    baseflow_august = august_data['Lateral Q (mm)'].values[0]
-
-    # Display the results
-    st.subheader("August Metrics")
-    st.write(f"**Evapotranspiration (ET):** {et_august} mm")
-    st.write(f"**Average Streamflow:** {streamflow_august} mm")
-    st.write(f"**Baseflow:** {baseflow_august} mm")
-    
-    # Updated data based on the provided values
-    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    penman_monteith_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
-    thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
-    logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
-    
-    # Create the plotly figure
-    fig = go.Figure()
-    
-    # Add Penman-Monteith ET line
-    fig.add_trace(go.Scatter(
-        x=months, y=penman_monteith_et, mode='lines+markers', name='Penman-Monteith ET',
-        line=dict(color='blue', width=2), marker=dict(symbol='circle', size=8, color='blue')
-    ))
-    
-    # Add Thornthwaite ET line
-    fig.add_trace(go.Scatter(
-        x=months, y=thornthwaite_et, mode='lines+markers', name='Thornthwaite ET',
-        line=dict(color='green', width=2), marker=dict(symbol='square', size=8, color='green')
-    ))
-    
-    # Add Logged ET line
-    fig.add_trace(go.Scatter(
-        x=months, y=logged_et, mode='lines+markers', name='Logged ET',
-        line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='red')
-    ))
-    
-    # Update layout for better visualization
-    fig.update_layout(
-        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, and Logged ET',
-        xaxis_title='Month',
-        yaxis_title='ET (mm)',
-        template='plotly_dark',
-        showlegend=True
-    )
-    
-    # Streamlit app header
-    st.title("Evapotranspiration Comparison")
-    
-    # Streamlit app description
-    st.markdown("""
-    This app compares monthly evapotranspiration (ET) values using the following methods:
-    - **Penman-Monteith ET** (calculated using the Penman-Monteith method)
-    - **Thornthwaite ET** (calculated using the Thornthwaite method)
-    - **Logged ET** (ET from logged land cover)
-    
-    Select the chart below to explore the monthly variations in ET.
-    """)
-    
-    # Show the plot in the Streamlit app
-    st.plotly_chart(fig)
-    
-    # Streamlit app title
-    st.title("Flow Duration Curve (FDC) Analysis")
-        
-    # Get the path to the Excel files relative to this script
-    LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
-    LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
-        
-    # Load the data from the Excel files
-    if LU_2010.exists() and LU_logged.exists():
-        data1 = pd.read_csv(LU_2010)
-        data2 = pd.read_csv(LU_logged)
-            
-        # Add a column to differentiate datasets
-        data1['Scenario'] = "Scenario 2010"
-        data2['Scenario'] = "Scenario logged"
-            
-        # Combine the datasets
-        combined_data = pd.concat([data1, data2])
-            
-        # Streamlit widget to choose the year
-        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-            
-        # Filter the data for the selected year and August (Days 213-243)
-        august_data = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 1) & (combined_data['DAY'] <= 365)
-        ]
-        
-        # Add the Month column based on DAY (August days are between 213 and 243)
-        august_data['Month'] = 8  # Since we're analyzing August, we assign 8 for all rows in August.
-        
-        # Create the FDC for both scenarios
-        fdc_data = []
-        for scenario in august_data['Scenario'].unique():
-            scenario_data = august_data[august_data['Scenario'] == scenario]
-            sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-            sorted_data["Rank"] = sorted_data.index + 1
-            sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
-            sorted_data["Scenario"] = scenario
-            fdc_data.append(sorted_data)
-            
-        # Combine the processed data for plotting
-        fdc_data = pd.concat(fdc_data)
-            
-        # Plot the FDC
-        fig = px.line(
-            fdc_data,
-            x="ExceedanceProbability",
-            y="FLOW_OUTcms",
-            color="Scenario",
-            labels={
-                "ExceedanceProbability": "Exceedance Probability (%)",
-                "FLOW_OUTcms": "Flow Out (cms)",
-                "Scenario": "Scenario"
-            },
-            title=f"Flow Duration Curve for Year {year}",
-            # title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
-        )
-            
-        # Set y-axis to logarithmic scale
-        fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-            
-        # Show the plot in the Streamlit app
-        st.plotly_chart(fig)
-            
-        # List of reaches to analyze
-        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
-            
-        # Filter the data for the selected reaches
-        filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-            
-        # Create a Plotly figure for flow out comparison by reach
-        fig2 = px.line(
-            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
-            facet_col="RCH", facet_col_wrap=4,
-            labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
-            title=f"Flow Out Comparison for Selected Reaches (Year {year})"
-            # title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
-        )
-            
-        # Show the second plot in the Streamlit app
-        st.plotly_chart(fig2)
-            
-        # Filter for the selected year and August (Days between 213 and 243)
-        filtered_data_august = filtered_data[
-            (filtered_data['YEAR'] == year) & (filtered_data['DAY'] >= 213) & (filtered_data['DAY'] <= 243)
-        ]
-            
-        # Calculate daily volume for total flow (m³)
-        seconds_in_a_day = 24 * 60 * 60
-        filtered_data_august['DailyVolume_m3'] = filtered_data_august['FLOW_OUTcms'] * seconds_in_a_day
-            
-        # Calculate mean flow (m³/s) per month (August only)
-        monthly_mean_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
-            
-        # Calculate total flow (m³) per month (August only)
-        monthly_total_flow = filtered_data_august.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
-            
-        # Display the results for both mean and total flow
-        st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
-            
-        # Plot Mean Flow (m³/s) with two bars per scenario
-        fig3 = px.bar(
-            monthly_mean_flow,
-            x="Month", y="FLOW_OUTcms", color="Scenario", barmode="group",
-            labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
-            title=f"Mean Flow per Month for Year {year} (August)"
-        )
-        st.plotly_chart(fig3)
-            
-        # Plot Total Flow (m³) with two bars per scenario
-        fig4 = px.bar(
-            monthly_total_flow,
-            x="Month", y="DailyVolume_m3", color="Scenario", barmode="group",
-            labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
-            title=f"Total Flow per Month for Year {year} (August)"
-        )
-        st.plotly_chart(fig4)
-            
-    else:
-        st.warning("Please upload both scenario Excel files to proceed.")
-
-
-
-    # # Streamlit app title
-    # st.title("Flow Duration Curve (FDC) Analysis")
-    
-    # # Get the path to the Excel files relative to this script
-    # LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
-    # LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
-    
-    # # Load the data from the Excel files
-    # if LU_2010.exists() and LU_logged.exists():
-    #     data1 = pd.read_csv(LU_2010)
-    #     data2 = pd.read_csv(LU_logged)
-    
-    #     # Add a column to differentiate datasets
-    #     data1['Scenario'] = "Scenario 2010"
-    #     data2['Scenario'] = "Scenario logged"
-    
-    #     # Combine the datasets
-    #     combined_data = pd.concat([data1, data2])
-    
-    #     # Streamlit widget to choose the year
-    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-    
-    #     # Filter the data for the selected year and August (Days 213-243)
-    #     august_data = combined_data[
-    #         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
-    #     ]
-    
-    #     # Create the FDC for both scenarios
-    #     fdc_data = []
-    #     for scenario in august_data['Scenario'].unique():
-    #         scenario_data = august_data[august_data['Scenario'] == scenario]
-    #         sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-    #         sorted_data["Rank"] = sorted_data.index + 1
-    #         sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
-    #         sorted_data["Scenario"] = scenario
-    #         fdc_data.append(sorted_data)
-    
-    #     # Combine the processed data for plotting
-    #     fdc_data = pd.concat(fdc_data)
-    
-    #     # Plot the FDC
-    #     fig = px.line(
-    #         fdc_data,
-    #         x="ExceedanceProbability",
-    #         y="FLOW_OUTcms",
-    #         color="Scenario",
-    #         labels={
-    #             "ExceedanceProbability": "Exceedance Probability (%)",
-    #             "FLOW_OUTcms": "Flow Out (cms)",
-    #             "Scenario": "Scenario"
-    #         },
-    #         title=f"Flow Duration Curve for Year {year} - August (Low Flow Season)",
-    #     )
-    
-    #     # Set y-axis to logarithmic scale
-    #     fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-    
-    #     # Show the plot in the Streamlit app
-    #     st.plotly_chart(fig)
-    
-    #     # List of reaches to analyze
-    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
-    
-    #     # Filter the data for the selected reaches
-    #     filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-    
-    #     # Create a Plotly figure for flow out comparison by reach
-    #     fig2 = px.line(
-    #         filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
-    #         facet_col="RCH", facet_col_wrap=4,
-    #         labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
-    #         title=f"Flow Out Comparison for Selected Reaches (Year {year}, August)"
-    #     )
-    
-    #     # Show the second plot in the Streamlit app
-    #     st.plotly_chart(fig2)
-    
-    # else:
-    #     st.warning("Please upload both scenario Excel files to proceed.")
-    
-    # # Load the data from the Excel files
-    # if LU_2010.exists() and LU_logged.exists():
-    #     # Read data and add scenario labels
-    #     data1 = pd.read_csv(LU_2010)
-    #     data2 = pd.read_csv(LU_logged)
-    #     data1['Scenario'] = "Scenario 2010"
-    #     data2['Scenario'] = "Scenario logged"
-    
-    #     # Combine the datasets
-    #     combined_data = pd.concat([data1, data2])
-    
-    #     # Streamlit widget to choose the year
-    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
-    
-    #     # Filter the data for the selected year and August (Days 213-243)
-    #     filtered_data = combined_data[
-    #         (combined_data['YEAR'] == year)
-    #     ]
-    
-    #     # Number of seconds in a day (24 hours * 60 minutes * 60 seconds)
-    #     seconds_in_a_day = 24 * 60 * 60
-    #     filtered_data['DailyVolume_m3'] = filtered_data['FLOW_OUTcms'] * seconds_in_a_day
-    
-    #     # Calculate mean flow in m³/s and total flow in m³ for each month (aggregated by DAY)
-    #     filtered_data['Month'] = filtered_data['DAY'].apply(lambda x: (x - 1) // 30 + 1)  # Approximate month number
-    
-    #     # Calculate mean flow (m³/s) per month
-    #     monthly_mean_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
-    
-    #     # Calculate total flow (m³) per month
-    #     monthly_total_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
-    
-    #     # Display the results for both mean and total flow
-    #     st.subheader("Mean Flow (m³/s) and Total Flow (m³) per Month:")
-        
-    #     # Plot Mean Flow (m³/s)
-    #     fig1 = px.line(
-    #         monthly_mean_flow,
-    #         x="Month", y="FLOW_OUTcms", color="Scenario",
-    #         labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
-    #         title=f"Mean Flow per Month for Year {year}"
-    #     )
-    #     st.plotly_chart(fig1)
-    
-    #     # Plot Total Flow (m³)
-    #     fig2 = px.bar(
-    #         monthly_total_flow,
-    #         x="Month", y="DailyVolume_m3", color="Scenario",
-    #         labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
-    #         title=f"Total Flow per Month for Year {year}"
-    #     )
-    #     st.plotly_chart(fig2)
-    
-    # else:
-    #     st.warning("Please upload both scenario Excel files to proceed.")
-        
-   
-
-elif selected_option == "Report":   
-    st.title("Model Validation Report")
-    
-    # Add a short description
-    st.markdown("""
-    This report provides a comprehensive validation of the SWAT-MODFLOW model 
-    implemented for groundwater and surface water interactions. It includes 
-    detailed analysis of the model's performance, statistical metrics, and 
-    visualizations that illustrate the model's predictions against observed data.
-    """)
-
-    PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
-    with open(PDF_FILE, "rb") as f:
-        pdf_data = f.read()
-        pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
-
-    st.download_button(
-        label="Download PDF",
-        data=pdf_data,
-        file_name="koki_swatmf_report.pdf",
-        mime="application/pdf"
-    )
-    
-    iframe_width, iframe_height = get_iframe_dimensions()
-    st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
-    
-#Extra comments ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    # # Initialize the map centered on Duncan
-    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-
-    # # Add the subbasins layer to the map but keep it initially turned off
-    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
-    #                                 name="Subbasins", 
-    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
-    #                                 # show=False  # Keep the layer off initially
-    #                                 ).add_to(m)
-
-    # # Add the grid layer to the map but keep it initially turned off
-    # grid_layer = folium.GeoJson(grid_gdf, 
-    #                             name="Grid", 
-    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
-    #                             show=False  # Keep the layer off initially
-    #                         ).add_to(m)
-
-    # # Add MousePosition to display coordinates
-    # MousePosition().add_to(m)
-
-    # # Add a layer control to switch between the subbasins and grid layers
-    # folium.LayerControl().add_to(m)
-
-    # # Render the Folium map in Streamlit
-    # st.title("Watershed Map")
-    # st_folium(m, width=700, height=600)  
-        
-    # monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].agg(['mean', 'std']).reset_index()
-    # monthly_stats.columns = ['Month', 'Row', 'Column', 'Average Rate', 'Standard Deviation']
-
-    # global_min = monthly_stats[['Average Rate', 'Standard Deviation']].min().min()
-    # global_max = monthly_stats[['Average Rate', 'Standard Deviation']].max().max()
-
-    # unique_months = sorted(monthly_stats['Month'].unique())
-    # unique_month_names = [month_names[m - 1] for m in unique_months]
-
-    # selected_month_name = st.selectbox("Month", unique_month_names, index=0)
-    # selected_month = unique_months[unique_month_names.index(selected_month_name)]
-    # stat_type = st.radio("Statistic Type", ['Average Rate [m³/day]', 'Standard Deviation'], index=0)
-
-    # df_filtered = monthly_stats[monthly_stats['Month'] == selected_month]
-    
-    # grid = np.full((int(df_filtered['Row'].max()), int(df_filtered['Column'].max())), np.nan)
-
-    # for _, row in df_filtered.iterrows():
-    #     grid[int(row['Row']) - 1, int(row['Column']) - 1] = row['Average Rate'] if stat_type == 'Average Rate [m³/day]' else row['Standard Deviation']
-
-    # # Define color scale and boundaries for heatmap
-    # if stat_type == 'Standard Deviation':
-    #     zmin = 0
-    #     zmax = global_max
-    # else:
-    #     zmin = global_min
-    #     zmax = global_max
-
-    # colorbar_title = (
-    #     "Average Monthly<br> Groundwater / Surface<br> Water Interaction<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - To Stream | + To Aquifer<br> [m³/day]"
-    #     if stat_type == 'Average Rate [m³/day]' 
-    #     else '&nbsp;&nbsp;&nbsp;&nbsp;Standard Deviation'
-    # )
-
-    # # Calculate the midpoint for the color bar (usually zero)
-    # zmid = 0
-
-    # # Create the heatmap figure
-    # fig = go.Figure(data=go.Heatmap(
-    #     z=grid,
-    #     colorscale='earth_r',
-    #     zmid=zmid,
-    #     zmin=zmin,
-    #     zmax=zmax,
-    #     colorbar=dict(
-    #         title=colorbar_title, 
-    #         orientation='h', 
-    #         x=0.5, 
-    #         y=-0.1, 
-    #         xanchor='center', 
-    #         yanchor='top',
-    #         tickvals=[zmin, 0, zmax],  # Specify tick positions
-    #         ticktext=[f'{zmin:.2f}', '0', f'{zmax:.2f}'],  # Custom tick labels
-    #     ),
-    #     hovertemplate='%{z:.2f}<extra></extra>',
-    # ))
-
-    # fig.update_layout(
-    #     title=f'{stat_type} for Month {selected_month}',
-    #     xaxis_title=None,
-    #     yaxis_title=None,
-    #     xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-    #     yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #     paper_bgcolor='white',
-    #     font=dict(family='Arial, sans-serif', size=8, color='black')
-    # )
-
-    # # Display the heatmap
-    # st.plotly_chart(fig)
-
-
-    # # Path to your data file
-    # DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
-    
-    # # Load hotspot data
-    # hotspots_df = pd.read_csv(DATA_FILENAME)
-    
-    # # Define grid origin (top-left corner in meters) and cell size
-    # origin_x, origin_y = 428379.32689473, 5401283.09659084  # top-left corner coordinates in meters
-    # cell_size = 300  # cell size in meters
-    # num_cols = 94  # number of columns
-    # num_rows = 68  # number of rows
-    
-    # # Define the projection systems
-    # latlng_proj = Proj(init='EPSG:4326')  # WGS84 for latitude/longitude
-    # meters_proj = Proj(init='EPSG:32610')  # Replace with the appropriate projected CRS
-    
-    # # Create a transformer
-    # transformer = Transformer.from_proj(latlng_proj, meters_proj)
-    
-    # # Function to convert lat/lng to x/y coordinates in meters
-    # def convert_latlng_to_meters(lat, lng):
-    #     x, y = transformer.transform(lat, lng)  # Note the order: (lat, lng)
-    #     return x, y
-    
-    # # Convert lat/lng coordinates to x/y in meters
-    # hotspots_df['x'], hotspots_df['y'] = zip(*hotspots_df.apply(lambda row: convert_latlng_to_meters(row['lat'], row['lng']), axis=1))
-    
-    # # Calculate grid cell centers
-    # grid_centers = []
-    # for row in range(num_rows):
-    #     for col in range(num_cols):
-    #         center_x = origin_x + (col * cell_size) + (cell_size / 2)
-    #         center_y = origin_y - (row * cell_size) - (cell_size / 2)  # y decreases as you go down
-    #         grid_centers.append((center_x, center_y))
-    
-    # # Create a DataFrame for grid centers
-    # grid_centers_df = pd.DataFrame(grid_centers, columns=['grid_x', 'grid_y'])
-    # grid_centers_df['row'] = grid_centers_df.index // num_cols
-    # grid_centers_df['col'] = grid_centers_df.index % num_cols
-    
-    # # Determine the position of hotspots relative to the grid
-    # def find_grid_cell(hotspot_x, hotspot_y):
-    #     for _, row in grid_centers_df.iterrows():
-    #         if (row['grid_x'] - (cell_size / 2) <= hotspot_x <= row['grid_x'] + (cell_size / 2) and
-    #             row['grid_y'] - (cell_size / 2) <= hotspot_y <= row['grid_y'] + (cell_size / 2)):
-    #             return row['row'], row['col']
-    #     return None, None
-    
-    # # Find grid positions for each hotspot
-    # hotspots_df['grid_row'], hotspots_df['grid_col'] = zip(*hotspots_df.apply(lambda row: find_grid_cell(row['x'], row['y']), axis=1))
-    
-    # # Streamlit display
-    # st.title('Hotspot Coordinates Transformation and Grid Positions')
-    # st.write('Hotspot Data with Grid Positions:')
-    # st.dataframe(hotspots_df[['id', 'name', 'grid_row', 'grid_col']])
-
-#------
-# def create_heatmap(classified_grid, selected_month_name, hover_text):
-    #     # Define a color scale for the classified ranges
-    #     colorscale = [
-    #         [0.0, 'darkblue'],   # Less than -50
-    #         [0.14, 'blue'],      # Between -50 and -20
-    #         [0.28, 'cyan'],      # Between -20 and -10
-    #         [0.42, 'lightblue'], # Between -10 and -5
-    #         [0.57, 'yellow'],    # Between -5 and -1
-    #         [0.71, 'orange'], # Between -1 and 1 (new range, light yellow)
-    #         [0.85, 'brown'],     # Between 1 and 5
-    #         [1.0, 'purple']     # Higher positive > 5
-    #     ]
-        
-    #     # Create the heatmap
-    #     fig = go.Figure(data=go.Heatmap(
-    #         z=classified_grid,
-    #         colorscale=colorscale,
-    #         zmin=0,
-    #         zmax=7,
-    #         showscale=False,  # Hide scale since categories are defined
-    #         hoverinfo='text',
-    #         text=hover_text
-    #     ))
-        
-    #     # Update the layout of the heatmap
-    #     fig.update_layout(
-    #         title=f'Groundwater-Surface Water Interaction for {selected_month_name}',
-    #         xaxis_title='Column',
-    #         yaxis_title='Row',
-    #         xaxis=dict(showticklabels=False, ticks='', showgrid=False),
-    #         yaxis=dict(showticklabels=False, ticks='', autorange='reversed', showgrid=False),
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=8, color='black')
-    #     )
-        
-    #     # Display the heatmap
-    #     st.plotly_chart(fig)
-
-    # # Function to plot a bar chart for a selected cell
-    # def plot_bar_chart(row, column):
-    #     # Filter data for the specific Row and Column
-    #     cell_data = monthly_stats[(monthly_stats['Row'] == row) & (monthly_stats['Column'] == column)]
-        
-    #     # Plot a bar chart showing the 'Rate' for this cell over the 12 months
-    #     fig = go.Figure(data=go.Bar(
-    #         x=[month_names[m - 1] for m in cell_data['Month']],  # Get the month names
-    #         y=cell_data['Rate'],
-    #         marker_color='blue'
-    #     ))
-        
-    #     # Update layout
-    #     fig.update_layout(
-    #         title=f"Rate for Cell (Row {row}, Column {column}) Over 12 Months",
-    #         xaxis_title="Month",
-    #         yaxis_title="Rate",
-    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
-    #         paper_bgcolor='white',
-    #         font=dict(family='Arial, sans-serif', size=12, color='black')
-    #     )
-        
-    #     st.plotly_chart(fig)
-    
-    # # Step 3: Display the heatmap
-    # selected_month_name = 'All Months'  # You can select a specific month if needed
-    # create_heatmap(classified_grid, hover_text, selected_month_name)
-    
-    # # Step 4: Capture click event on the heatmap
-    # click_data = st.session_state.get('click_data', None)
-    
-    # # If a cell is clicked, show the bar chart below
-    # if click_data:
-    #     row = click_data['points'][0]['y']
-    #     column = click_data['points'][0]['x']
-    #     plot_bar_chart(row, column)
