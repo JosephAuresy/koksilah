@@ -900,7 +900,7 @@ elif selected_option == "Scenario Breakdown":
     # Create the data for the scenarios
     data = {
         'Scenario': ['LU_2010', 'F30', 'Logged', 'F60'],
-        'Area': [31131.45, 31131.45, 31131.45, 31131.45],
+        'Area (ha)': [31131.45, 31131.45, 31131.45, 31131.45],  # in hectares
         'GRAS': [36.81, 36.81, 36.81, 36.81],
         'AGRL': [969.66, 969.66, 969.66, 969.66],
         'DFSP': [5415.21, 5415.21, 22732.2, 0],
@@ -919,16 +919,20 @@ elif selected_option == "Scenario Breakdown":
     # Convert to DataFrame
     df = pd.DataFrame(data)
     
+    # Convert 'Area (ha)' to km² (1 km² = 100 ha)
+    df['Area (km²)'] = df['Area (ha)'] / 100
+    
     # Streamlit App
     st.title('Scenario Comparison: Land Use and Water Resources')
     
     # Display the table
-    st.subheader('Scenario Table')
-    st.dataframe(df)
+    st.subheader('Scenario Table (Area in km²)')
+    df_display = df.drop(columns=['Area (ha)'])  # Drop the original 'Area (ha)' column
+    st.dataframe(df_display)
     
     # Explanation of the scenarios
     st.subheader('Scenario Explanation')
-    
+
     # Add explanations based on the scenarios
     scenario_explanation = {
         'LU_2010': "This represents the land use scenario in the year 2010",
@@ -936,7 +940,6 @@ elif selected_option == "Scenario Breakdown":
         'Logged': "In this scenario, all subbasins with previous logged areas are fully logged",
         'F60': "The F60 scenario shows a 60 years old forest instead of logged areas",
     }
-    
     # Display description for each scenario
     scenario = st.selectbox("Select a Scenario for More Details", df['Scenario'].unique())
     st.write(scenario_explanation[scenario])
@@ -945,16 +948,19 @@ elif selected_option == "Scenario Breakdown":
     st.subheader('Scenario Differences Visualization')
     
     # Plot the data for comparison (Bar chart)
-    import matplotlib.pyplot as plt
-    
     fig, ax = plt.subplots(figsize=(10, 6))
-    df.set_index('Scenario').drop(columns=['Area']).plot(kind='bar', ax=ax)
+    df.set_index('Scenario').drop(columns=['Area (ha)', 'Area (km²)']).plot(kind='bar', ax=ax)
     ax.set_ylabel('Value')
     ax.set_title('Scenario Comparison')
     
+    # Adjusting the x-axis to display areas in km²
+    ax.set_xticklabels(df['Scenario'], rotation=45, ha='right')
+    ax.set_xlabel('Scenario')
+    ax.set_ylabel('Area (km²)')
+    
     # Display the plot in Streamlit
     st.pyplot(fig)
-    
+
     # Input data for monthly basin values
     data = {
         'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
