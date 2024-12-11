@@ -83,21 +83,21 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     st.sidebar.subheader("Climate")
     selected_decade_climate = st.sidebar.selectbox(
         "Choose a decade for Climate:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Land Use")
     selected_decade_land_use = st.sidebar.selectbox(
         "Choose a decade for Land Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Water Use")
     selected_decade_water_use = st.sidebar.selectbox(
         "Choose a decade for Water Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
         index=6  # Default to 2010s (index 6)
     )
 
@@ -108,6 +108,8 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
             land_use_code = "Logged"  # Use the exact case as in the folder name
         elif land_use.lower() == "f30":
             land_use_code = "F30"  # Directly use F30 as the folder name
+        elif land_use.lower() == "f60":
+            land_use_code = "F60"  # Directly use F30 as the folder name
         else:
             land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
         climate_code = f'C{climate[-2:]}'
