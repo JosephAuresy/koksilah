@@ -616,6 +616,22 @@ elif selected_option == "Groundwater / Surface water interactions":
     st.plotly_chart(fig)
 
     create_heatmap(grid, selected_month_name, hover_text)
+
+    def count_cells_per_color(grid):
+    color_counts = {
+        'gaining': np.sum(grid == 2),  # Values < -1
+        'no_significant_contributions': np.sum(grid == 1),  # Values -1 to 1
+        'losing': np.sum(grid == 0),  # Values > 1
+    }
+    return color_counts
+    
+    # Apply classification to the grid (based on the first month's data for example)
+    classification_grid = np.vectorize(classify_based_on_value_range)(grid_data[:, :, 0])
+    
+    # Count cells per classification
+    color_counts = count_cells_per_color(classification_grid)
+    st.write("### Cell Classification Summary")
+    st.write(color_counts)
     
     # Spaghetti graph: Plot monthly values for each category
     categories = {
