@@ -83,28 +83,31 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     st.sidebar.subheader("Climate")
     selected_decade_climate = st.sidebar.selectbox(
         "Choose a decade for Climate:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Land Use")
     selected_decade_land_use = st.sidebar.selectbox(
         "Choose a decade for Land Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
         index=6  # Default to 2010s (index 6)
     )
 
     st.sidebar.subheader("Water Use")
     selected_decade_water_use = st.sidebar.selectbox(
         "Choose a decade for Water Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30'],
         index=6  # Default to 2010s (index 6)
     )
+
     # Define a function to generate folder path based on selected decade
     def get_folder_path(land_use, climate, water_use):
         # Handle "logged" as a special case for land use
         if land_use.lower() == "logged":
             land_use_code = "Logged"  # Use the exact case as in the folder name
+        elif land_use.lower() == "f30":
+            land_use_code = "F30"  # Directly use F30 as the folder name
         else:
             land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
         climate_code = f'C{climate[-2:]}'
@@ -944,9 +947,10 @@ elif selected_option == "Scenario Breakdown":
     
     # Updated data based on the provided values
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    penman_monteith_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
+    LU_2010_et = [7.45, 10.68, 20.06, 32.73, 49.52, 43.73, 34.07, 16.55, 20.91, 17.50, 9.95, 6.57]
     thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
     logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
+    f30_et = [6.78, 9.71, 18.24, 29.66, 44.90, 40.19, 32.09, 15.96, 19.29, 15.96, 9.07, 5.98]
     
     # Create the plotly figure
     fig = go.Figure()
@@ -968,10 +972,16 @@ elif selected_option == "Scenario Breakdown":
         x=months, y=logged_et, mode='lines+markers', name='Logged ET',
         line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='red')
     ))
+
+     # Add F30 ET line
+    fig.add_trace(go.Scatter(
+        x=months, y=f30_et, mode='lines+markers', name='F30 ET',
+        line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='purple')
+    ))
     
     # Update layout for better visualization
     fig.update_layout(
-        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, and Logged ET',
+        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, F30, and Logged ET',
         xaxis_title='Month',
         yaxis_title='ET (mm)',
         template='plotly_dark',
@@ -984,9 +994,10 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app description
     st.markdown("""
     This app compares monthly evapotranspiration (ET) values using the following methods:
-    - **Penman-Monteith ET** (calculated using the Penman-Monteith method)
+    - **LU 2010 ET** (calculated using the Penman-Monteith method)
     - **Thornthwaite ET** (calculated using the Thornthwaite method)
     - **Logged ET** (ET from logged land cover)
+    - **F30 ET** (ET from F30 land cover)
     
     Select the chart below to explore the monthly variations in ET.
     """)
