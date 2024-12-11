@@ -919,47 +919,56 @@ elif selected_option == "Scenario Breakdown":
     # Convert to DataFrame
     df = pd.DataFrame(data)
     
-    # Convert 'Area (ha)' to km² (1 km² = 100 ha)
-    df['Area (km²)'] = df['Area (ha)'] / 100
-    
     # Streamlit App
     st.title('Scenario Comparison: Land Use and Water Resources')
     
     # Display the table
-    st.subheader('Scenario Table (Area in km²)')
+    st.subheader('Scenario Table (Area in ha)')
     df_display = df.drop(columns=['Area (ha)'])  # Drop the original 'Area (ha)' column
     st.dataframe(df_display)
     
     # Explanation of the scenarios
     st.subheader('Scenario Explanation')
-
+    
     # Add explanations based on the scenarios
     scenario_explanation = {
-        'LU_2010': "This represents the land use scenario in the year 2010",
-        'F30': "This scenario represents an increment in 30 years old forest (F30), changed by 60 years old",
-        'Logged': "In this scenario, all subbasins with previous logged areas are fully logged",
-        'F60': "The F60 scenario shows a 60 years old forest instead of logged areas",
+        'LU_2010': "This represents the land use scenario in the year 2010.",
+        'F30': "This scenario represents an increment in 30-year-old forest (F30), which is changed by 60-year-old forest.",
+        'Logged': "In this scenario, all subbasins with previous logged areas are fully logged.",
+        'F60': "The F60 scenario shows a 60-year-old forest instead of logged areas.",
     }
+    
     # Display description for each scenario
     scenario = st.selectbox("Select a Scenario for More Details", df['Scenario'].unique())
     st.write(scenario_explanation[scenario])
     
-    # Visualize the scenario differences
+    # Visualize the scenario differences with Plotly
     st.subheader('Scenario Differences Visualization')
     
-    # Plot the data for comparison (Bar chart)
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.set_index('Scenario').drop(columns=['Area (ha)', 'Area (km²)']).plot(kind='bar', ax=ax)
-    ax.set_ylabel('Value')
-    ax.set_title('Scenario Comparison')
+    # Reshape data for Plotly
+    df_long = df.melt(id_vars=['Scenario'], value_vars=df.columns[2:], var_name='Category', value_name='Value')
     
-    # Adjusting the x-axis to display areas in km²
-    ax.set_xticklabels(df['Scenario'], rotation=45, ha='right')
-    ax.set_xlabel('Scenario')
-    ax.set_ylabel('Area (km²)')
+    # Create Plotly bar chart
+    fig = px.bar(df_long, 
+                 x='Scenario', 
+                 y='Value', 
+                 color='Category', 
+                 barmode='group', 
+                 title='Scenario Comparison',
+                 labels={'Value': 'Value (ha)', 'Scenario': 'Scenario', 'Category': 'Category'},
+                 height=500)
     
-    # Display the plot in Streamlit
-    st.pyplot(fig)
+    # Enable legend interaction to hide or show categories
+    fig.update_layout(
+        xaxis_title='Scenario',
+        yaxis_title='Value (ha)',
+        barmode='group',
+        legend_title='Categories',
+        legend=dict(title="Category", tracegroupgap=1)
+    )
+    
+    # Display the plot
+    st.plotly_chart(fig)
 
     # Input data for monthly basin values
     data = {
