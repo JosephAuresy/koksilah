@@ -896,6 +896,65 @@ elif selected_option == "Recharge":
  
 elif selected_option == "Scenario Breakdown":
     st.title("Watershed Summary")
+
+    # Create the data for the scenarios
+    data = {
+        'Scenario': ['LU_2010', 'F30', 'Logged', 'F60'],
+        'Area': [31131.45, 31131.45, 31131.45, 31131.45],
+        'GRAS': [36.81, 36.81, 36.81, 36.81],
+        'AGRL': [969.66, 969.66, 969.66, 969.66],
+        'DFSP': [5415.21, 5415.21, 22732.2, 0],
+        'PAST': [21.6, 21.6, 21.6, 21.6],
+        'URHD': [22.59, 22.59, 22.59, 22.59],
+        'URMD': [200.34, 200.34, 200.34, 200.34],
+        'UTRN': [320.67, 320.67, 320.67, 320.67],
+        'WETF': [214.2, 214.2, 214.2, 214.2],
+        'DFSF': [22732.2, 7841.79, 5415.21, 28147.41],
+        'DFST': [483.93, 15374.34, 483.93, 483.93],
+        'DFSS': [23.58, 23.58, 23.58, 23.58],
+        'WATR': [113.85, 113.85, 113.85, 113.85],
+        'URLD': [576.81, 576.81, 576.81, 576.81],
+    }
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+    
+    # Streamlit App
+    st.title('Scenario Comparison: Land Use and Water Resources')
+    
+    # Display the table
+    st.subheader('Scenario Table')
+    st.dataframe(df)
+    
+    # Explanation of the scenarios
+    st.subheader('Scenario Explanation')
+    
+    # Add explanations based on the scenarios
+    scenario_explanation = {
+        'LU_2010': "This represents the land use scenario in the year 2010",
+        'F30': "This scenario represents an increment in 30 years old forest (F30), changed by 60 years old",
+        'Logged': "In this scenario, all subbasins with previous logged areas are fully logged",
+        'F60': "The F60 scenario shows a 60 years old forest instead of logged areas",
+    }
+    
+    # Display description for each scenario
+    scenario = st.selectbox("Select a Scenario for More Details", df['Scenario'].unique())
+    st.write(scenario_explanation[scenario])
+    
+    # Visualize the scenario differences
+    st.subheader('Scenario Differences Visualization')
+    
+    # Plot the data for comparison (Bar chart)
+    import matplotlib.pyplot as plt
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    df.set_index('Scenario').drop(columns=['Area']).plot(kind='bar', ax=ax)
+    ax.set_ylabel('Value')
+    ax.set_title('Scenario Comparison')
+    
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+    
     # Input data for monthly basin values
     data = {
         'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
