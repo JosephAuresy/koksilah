@@ -1027,13 +1027,14 @@ elif selected_option == "Scenario Breakdown":
     thornthwaite_et = [31, 16, 11, 12, 18, 27, 45, 71, 88, 102, 85, 56]  # Example Thornthwaite ET values
     logged_et = [4.51, 6.63, 13.11, 20.43, 27.24, 24.53, 19.58, 12.88, 14.66, 10.47, 6.20, 4.08]  # Example Logged ET values
     f30_et = [6.78, 9.71, 18.24, 29.66, 44.90, 40.19, 32.09, 15.96, 19.29, 15.96, 9.07, 5.98]
+    f60_et = [8.70, 12.43, 23.11, 37.77, 57.88, 50.77, 39.35, 17.98, 23.67, 20.44, 11.54, 7.64]
     
     # Create the plotly figure
     fig = go.Figure()
     
     # Add Penman-Monteith ET line
     fig.add_trace(go.Scatter(
-        x=months, y=penman_monteith_et, mode='lines+markers', name='Penman-Monteith ET',
+        x=months, y=LU_2010_et, mode='lines+markers', name='LU_2010 ET',
         line=dict(color='blue', width=2), marker=dict(symbol='circle', size=8, color='blue')
     ))
     
@@ -1054,10 +1055,16 @@ elif selected_option == "Scenario Breakdown":
         x=months, y=f30_et, mode='lines+markers', name='F30 ET',
         line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='purple')
     ))
+
+    # Add F60 ET line
+    fig.add_trace(go.Scatter(
+        x=months, y=f60_et, mode='lines+markers', name='F60 ET',
+        line=dict(color='red', width=2), marker=dict(symbol='diamond', size=8, color='purple')
+    ))
     
     # Update layout for better visualization
     fig.update_layout(
-        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, F30, and Logged ET',
+        title='Monthly ET Comparison: Penman-Monteith, Thornthwaite, F30, F60 and Logged ET',
         xaxis_title='Month',
         yaxis_title='ET (mm)',
         template='plotly_dark',
