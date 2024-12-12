@@ -724,8 +724,8 @@ elif selected_option == "Groundwater / Surface water interactions":
         font=dict(family="Arial, sans-serif", size=10)
     )
     
-    # Show the plot
-    fig.show()
+    # Display the plot in Streamlit
+    st.plotly_chart(fig)
 
     # Define the main path and image path
     main_path = Path(__file__).parent
