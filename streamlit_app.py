@@ -684,49 +684,87 @@ elif selected_option == "Groundwater / Surface water interactions":
     
     # Process data for visualization
     ranges = ['Below -1', 'Between -1 and 1', 'Above 1']
-    plot_data = {r: [] for r in ranges}
+    range_bands = {r: {'min': [], 'max': []} for r in ranges}
     
+    # Calculate bands and organize data
+    plot_data = {r: [] for r in ranges}
     for _, row in pivoted.iterrows():
         cell_id = f"Cell ({int(row['Row'])}, {int(row['Column'])})"
-        monthly_values = row.drop(['Row', 'Column']).values  # Extract monthly values
+        monthly_values = row.drop(['Row', 'Column']).values
         for range_name in ranges:
-            plot_data[range_name].append({
-                'cell_id': cell_id,
-                'values': monthly_values,
-                'range': range_name
-            })
+            if classify_value(np.mean(monthly_values)) == range_name:
+                plot_data[range_name].append({
+                    'cell_id': cell_id,
+                    'values': monthly_values
+                })
+        for i, month_value in enumerate(monthly_values):
+            range_class = classify_value(month_value)
+            range_bands[range_class]['min'].append(month_value)
+            range_bands[range_class]['max'].append(month_value)
     
-    # Create the figure
+    # Compute average bands
+    for range_name in ranges:
+        range_bands[range_name]['min'] = np.min(range_bands[range_name]['min'])
+        range_bands[range_name]['max'] = np.max(range_bands[range_name]['max'])
+    
+    # Create Plotly figure
     fig = go.Figure()
     
-    # Add traces for each range
+    # Add bands
+    for range_name in ranges:
+        fig.add_trace(go.Scatter(
+            x=[f'Month {i+1}' for i in range(12)],
+            y=[range_bands[range_name]['max']] * 12,
+            mode='lines',
+            fill=None,
+            line=dict(color='rgba(0,0,0,0)', width=0),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        fig.add_trace(go.Scatter(
+            x=[f'Month {i+1}' for i in range(12)],
+            y=[range_bands[range_name]['min']] * 12,
+            mode='lines',
+            fill='tonexty',
+            line=dict(color='rgba(0,0,0,0)', width=0),
+            name=f"{range_name} Band",
+            hoverinfo='skip'
+        ))
+    
+    # Add cell data
     for range_name, data in plot_data.items():
         for item in data:
-            # Classify each month's value and filter by range
-            if classify_value(np.mean(item['values'])) == range_name:
-                fig.add_trace(go.Scatter(
-                    x=[f'Month {i+1}' for i in range(12)],
-                    y=item['values'],
-                    mode='lines',
-                    name=f"{item['cell_id']} ({range_name})",
-                    line=dict(width=1)
-                ))
+            fig.add_trace(go.Scatter(
+                x=[f'Month {i+1}' for i in range(12)],
+                y=item['values'],
+                mode='lines',
+                name=item['cell_id'],
+                line=dict(width=1)
+            ))
     
     # Customize layout
     fig.update_layout(
-        title="Monthly Values by Cell and Range",
+        title="Monthly Values by Range and Cell",
         xaxis_title="Month",
         yaxis_title="Values",
-        xaxis=dict(tickmode='linear'),
-        yaxis=dict(title="Value Range"),
         plot_bgcolor='rgba(240, 240, 240, 0.8)',
         legend_title="Cell and Range",
         font=dict(family="Arial, sans-serif", size=10)
     )
     
-    # Display the plot in Streamlit
+    # Streamlit UI for toggling
+    show_cells = st.checkbox("Show All Cells", value=True)
+    show_bands = st.checkbox("Show Range Bands", value=True)
+    
+    # Filter traces based on user input
+    for trace in fig.data:
+        if "Band" in trace.name:
+            trace.visible = show_bands
+        else:
+            trace.visible = show_cells
+    
+    # Display the plot
     st.plotly_chart(fig)
-
     # Define the main path and image path
     main_path = Path(__file__).parent
     ground = main_path / 'data/riv_groundwater.png'
