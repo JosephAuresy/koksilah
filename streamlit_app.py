@@ -756,15 +756,16 @@ elif selected_option == "Groundwater / Surface water interactions":
     show_cells = st.checkbox("Show All Cells", value=True)
     show_bands = st.checkbox("Show Range Bands", value=True)
     
-    # Filter traces based on user input
+    # Adjust visibility of traces based on checkboxes
     for trace in fig.data:
-        if "Band" in trace.name:
+        if trace.name and "Band" in trace.name:  # Ensure trace.name is not None
             trace.visible = show_bands
         else:
             trace.visible = show_cells
     
     # Display the plot
     st.plotly_chart(fig)
+    
     # Define the main path and image path
     main_path = Path(__file__).parent
     ground = main_path / 'data/riv_groundwater.png'
