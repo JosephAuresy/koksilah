@@ -673,6 +673,60 @@ elif selected_option == "Groundwater / Surface water interactions":
     else:
         st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
 
+    # Define classification function
+    def classify_value(value):
+        if value > 1:
+            return "Above 1"
+        elif -1 <= value <= 1:
+            return "Between -1 and 1"
+        else:
+            return "Below -1"
+    
+    # Process data for visualization
+    ranges = ['Below -1', 'Between -1 and 1', 'Above 1']
+    plot_data = {r: [] for r in ranges}
+    
+    for _, row in pivoted.iterrows():
+        cell_id = f"Cell ({int(row['Row'])}, {int(row['Column'])})"
+        monthly_values = row.drop(['Row', 'Column']).values  # Extract monthly values
+        for range_name in ranges:
+            plot_data[range_name].append({
+                'cell_id': cell_id,
+                'values': monthly_values,
+                'range': range_name
+            })
+    
+    # Create the figure
+    fig = go.Figure()
+    
+    # Add traces for each range
+    for range_name, data in plot_data.items():
+        for item in data:
+            # Classify each month's value and filter by range
+            if classify_value(np.mean(item['values'])) == range_name:
+                fig.add_trace(go.Scatter(
+                    x=[f'Month {i+1}' for i in range(12)],
+                    y=item['values'],
+                    mode='lines',
+                    name=f"{item['cell_id']} ({range_name})",
+                    line=dict(width=1)
+                ))
+    
+    # Customize layout
+    fig.update_layout(
+        title="Monthly Values by Cell and Range",
+        xaxis_title="Month",
+        yaxis_title="Values",
+        xaxis=dict(tickmode='linear'),
+        yaxis=dict(title="Value Range"),
+        plot_bgcolor='rgba(240, 240, 240, 0.8)',
+        legend_title="Cell and Range",
+        font=dict(family="Arial, sans-serif", size=10)
+    )
+    
+    # Show the plot
+    fig.show()
+
     # Define the main path and image path
     main_path = Path(__file__).parent
     ground = main_path / 'data/riv_groundwater.png'
