@@ -1190,7 +1190,7 @@ elif selected_option == "Scenario Breakdown":
         # Define consistent colors for scenarios
         scenario_colors = {
             "Scenario 2010": "blue",
-            "Scenario Logged": "pink",
+            "Scenario Logged": "red",
             "Scenario F60": "green",
             "Scenario F30": "lightgreen"
         }
