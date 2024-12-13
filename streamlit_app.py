@@ -1290,8 +1290,8 @@ elif selected_option == "Scenario Breakdown":
     #     # Show the plot in the Streamlit app
     #     st.plotly_chart(fig)
     
-    #     # List of reaches to analyze
-    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+        # List of reaches to analyze
+        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
     
         # Filter the data for the selected reaches
         filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
