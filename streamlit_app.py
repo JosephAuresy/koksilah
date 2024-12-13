@@ -1165,7 +1165,7 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     st.title("Flow Duration Curve (FDC) Analysis")
     
-    # Get the path to the Excel files relative to this script
+    # Paths to the Excel files
     LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
     LU_F60 = Path(__file__).parent / 'data/scenario_f60_data.xls'
@@ -1187,21 +1187,19 @@ elif selected_option == "Scenario Breakdown":
         # Combine the datasets
         combined_data = pd.concat([data1, data2, data3, data4])
     
+        # Filter for RCH 3
+        rch3_data = combined_data[combined_data['RCH'] == 3]
+    
         # Streamlit widget to choose the year
-        year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+        year = st.selectbox("Select Year", options=rch3_data['YEAR'].unique())
     
-        # Filter the data for the selected year and August (Days 213-243)
-        august_data = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 1) & (combined_data['DAY'] <= 365)
-        ]
+        # Filter the data for the selected year
+        yearly_data = rch3_data[rch3_data['YEAR'] == year]
     
-        # Add the Month column based on DAY (August days are between 213 and 243)
-        august_data['Month'] = 8  # Since we're analyzing August, we assign 8 for all rows in August.
-    
-        # Create the FDC for all scenarios
+        # Compute the FDC for all scenarios in RCH 3
         fdc_data = []
-        for scenario in august_data['Scenario'].unique():
-            scenario_data = august_data[august_data['Scenario'] == scenario]
+        for scenario in yearly_data['Scenario'].unique():
+            scenario_data = yearly_data[yearly_data['Scenario'] == scenario]
             sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
             sorted_data["Rank"] = sorted_data.index + 1
             sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
@@ -1222,7 +1220,7 @@ elif selected_option == "Scenario Breakdown":
                 "FLOW_OUTcms": "Flow Out (cms)",
                 "Scenario": "Scenario"
             },
-            title=f"Flow Duration Curve for Year {year}"
+            title=f"Flow Duration Curve for RCH 3 in Year {year}"
         )
     
         # Set y-axis to logarithmic scale
@@ -1231,8 +1229,69 @@ elif selected_option == "Scenario Breakdown":
         # Show the plot in the Streamlit app
         st.plotly_chart(fig)
     
-        # List of reaches to analyze
-        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+    
+    # # Load the data from the Excel files
+    # if all([LU_2010.exists(), LU_logged.exists(), LU_F60.exists(), LU_F30.exists()]):
+    #     data1 = pd.read_csv(LU_2010)
+    #     data2 = pd.read_csv(LU_logged)
+    #     data3 = pd.read_csv(LU_F60)
+    #     data4 = pd.read_csv(LU_F30)
+    
+    #     # Add a column to differentiate datasets
+    #     data1['Scenario'] = "Scenario 2010"
+    #     data2['Scenario'] = "Scenario Logged"
+    #     data3['Scenario'] = "Scenario F60"
+    #     data4['Scenario'] = "Scenario F30"
+    
+    #     # Combine the datasets
+    #     combined_data = pd.concat([data1, data2, data3, data4])
+    
+    #     # Streamlit widget to choose the year
+    #     year = st.selectbox("Select Year", options=[i for i in range(1, 11)])
+    
+    #     # Filter the data for the selected year and August (Days 213-243)
+    #     august_data = combined_data[
+    #         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 1) & (combined_data['DAY'] <= 365)
+    #     ]
+    
+    #     # Add the Month column based on DAY (August days are between 213 and 243)
+    #     august_data['Month'] = 8  # Since we're analyzing August, we assign 8 for all rows in August.
+    
+    #     # Create the FDC for all scenarios
+    #     fdc_data = []
+    #     for scenario in august_data['Scenario'].unique():
+    #         scenario_data = august_data[august_data['Scenario'] == scenario]
+    #         sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+    #         sorted_data["Rank"] = sorted_data.index + 1
+    #         sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+    #         sorted_data["Scenario"] = scenario
+    #         fdc_data.append(sorted_data)
+    
+    #     # Combine the processed data for plotting
+    #     fdc_data = pd.concat(fdc_data)
+    
+    #     # Plot the FDC
+    #     fig = px.line(
+    #         fdc_data,
+    #         x="ExceedanceProbability",
+    #         y="FLOW_OUTcms",
+    #         color="Scenario",
+    #         labels={
+    #             "ExceedanceProbability": "Exceedance Probability (%)",
+    #             "FLOW_OUTcms": "Flow Out (cms)",
+    #             "Scenario": "Scenario"
+    #         },
+    #         title=f"Flow Duration Curve for Year {year}"
+    #     )
+    
+    #     # Set y-axis to logarithmic scale
+    #     fig.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+    
+    #     # Show the plot in the Streamlit app
+    #     st.plotly_chart(fig)
+    
+    #     # List of reaches to analyze
+    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
     
         # Filter the data for the selected reaches
         filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
