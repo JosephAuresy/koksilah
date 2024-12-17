@@ -240,7 +240,7 @@ main_path = Path(__file__).parent
 subbasins_shapefile_path = main_path / 'data/subs1.shp'
 grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
 shapefile_path = main_path / 'data/subs1.shp'
-deltas_file = main_path / 'data/subbasin_deltas.csv'
+deltas_file = main_path / 'data/subbasin_deltas.xls'
 
 # Load the subbasins GeoDataFrame from the shapefile
 try:
