@@ -1183,16 +1183,22 @@ elif selected_option == "Scenario Breakdown":
         "Scenario F30": "lightgreen"
     }
     
-    # --- Functions ---
     def load_data():
         """Load all scenario data into a combined DataFrame."""
         combined = []
         for scenario, path in data_files.items():
+            print(f"Checking file: {path}")
             if path.exists():
-                # Reading data into pandas DataFrame
-                data = pd.read_excel(path)  # Changed to read_excel to match .xls files
-                data["Scenario"] = scenario
-                combined.append(data)
+                try:
+                    # Attempt to read as a CSV (this works if the .xls files are in CSV format)
+                    data = pd.read_csv(path)
+                    data["Scenario"] = scenario
+                    combined.append(data)
+                except Exception as e:
+                    print(f"Error reading {path}: {e}")
+            else:
+                print(f"File not found: {path}")
+        
         return pd.concat(combined) if combined else None
     
     def plot_fdc(data, year):
