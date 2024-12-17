@@ -1165,127 +1165,130 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     st.title("Flow Duration Curve (FDC) Analysis")
     
-    # Paths to the Excel files
-    LU_2010 = Path(__file__).parent / 'data/scenario_2010.xls'
-    LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
-    LU_F60 = Path(__file__).parent / 'data/scenario_f60_data.xls'
-    LU_F30 = Path(__file__).parent / 'data/scenario_f30_data.xls'
-
+    # --- File Paths ---
+    data_files = {
+        "Scenario 2010": Path(__file__).parent / 'data/scenario_2010.xls',
+        "Scenario Logged": Path(__file__).parent / 'data/scenario_logged.xls',
+        "Scenario F60": Path(__file__).parent / 'data/scenario_f60_data.xls',
+        "Scenario F30": Path(__file__).parent / 'data/scenario_f30_data.xls'
+    }
     subbasins_shapefile = Path(__file__).parent / 'data/subs1.shp'
     
-    # Load the data from the Excel files
-    if all([LU_2010.exists(), LU_logged.exists(), LU_F60.exists(), LU_F30.exists()]):
-        data1 = pd.read_csv(LU_2010)
-        data2 = pd.read_csv(LU_logged)
-        data3 = pd.read_csv(LU_F60)
-        data4 = pd.read_csv(LU_F30)
+    # --- Scenario Colors ---
+    scenario_colors = {
+        "Scenario 2010": "blue",
+        "Scenario Logged": "red",
+        "Scenario F60": "green",
+        "Scenario F30": "lightgreen"
+    }
     
-        # Add a column to differentiate datasets
-        data1['Scenario'] = "Scenario 2010"
-        data2['Scenario'] = "Scenario Logged"
-        data3['Scenario'] = "Scenario F60"
-        data4['Scenario'] = "Scenario F30"
+    # --- Functions ---
+    def load_data():
+        """Load all scenario data into a combined DataFrame."""
+        combined = []
+        for scenario, path in data_files.items():
+            if path.exists():
+                data = pd.read_csv(path)
+                data["Scenario"] = scenario
+                combined.append(data)
+        return pd.concat(combined) if combined else None
     
-        # Combine the datasets
-        combined_data = pd.concat([data1, data2, data3, data4])
-    
-        # Define consistent colors for scenarios
-        scenario_colors = {
-            "Scenario 2010": "blue",
-            "Scenario Logged": "red",
-            "Scenario F60": "green",
-            "Scenario F30": "lightgreen"
-        }
-        
-        # --- Load Subbasins Shapefile ---
-        subbasins = gpd.read_file(subbasins_shapefile)  # Added shapefile reading
-        st.subheader("Subbasin Shapefile Preview:")
-        st.write(subbasins.head())  # Display first rows for inspection
-    
-        # Access Subbasin IDs
-        subbasin_ids = subbasins['Subbasin']  # Extract IDs column
-        st.write("Unique Subbasin IDs:", subbasin_ids.unique())
-    
-        # --- Streamlit Year Selection ---
-        year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
-        yearly_data = combined_data[combined_data['YEAR'] == year]
-    
-        # --- Flow Duration Curve (RCH Analysis) ---
-        # Filter for Reach 3
-        rch3_data = yearly_data[yearly_data['RCH'] == 3]
+    def plot_fdc(data, year):
+        """Plot the Flow Duration Curve for a specific year."""
+        rch3_data = data[(data['RCH'] == 3) & (data['YEAR'] == year)]
         fdc_data = []
     
         for scenario in rch3_data['Scenario'].unique():
             scenario_data = rch3_data[rch3_data['Scenario'] == scenario]
             sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-            sorted_data["Rank"] = sorted_data.index + 1
-            sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+            sorted_data["ExceedanceProbability"] = (sorted_data.index + 1) / (len(sorted_data) + 1) * 100
             sorted_data["Scenario"] = scenario
             fdc_data.append(sorted_data)
     
         fdc_data = pd.concat(fdc_data)
-    
-        # --- Plot FDC ---
-        fig_fdc = px.line(
+        fig = px.line(
             fdc_data,
-            x="ExceedanceProbability",
-            y="FLOW_OUTcms",
-            color="Scenario",
+            x="ExceedanceProbability", y="FLOW_OUTcms", color="Scenario",
             color_discrete_map=scenario_colors,
-            title=f"Flow Duration Curve for RCH 3 in Year {year}"
+            title=f"Flow Duration Curve for RCH 3 in Year {year}",
+            labels={"FLOW_OUTcms": "Flow Out (cms)", "ExceedanceProbability": "Exceedance Probability (%)"}
         )
-        fig_fdc.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-        st.plotly_chart(fig_fdc)
+        fig.update_yaxes(type="log")
+        return fig
     
-        # --- August Flow Analysis ---
-        august_data = combined_data[
-            (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+    def plot_august_flows(data, year, selected_reaches):
+        """Plot August flows for selected reaches."""
+        august_data = data[
+            (data['YEAR'] == year) & (data['DAY'] >= 213) & (data['DAY'] <= 243)
         ]
-        august_data['Month'] = 8
-    
-        selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
         filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-    
-        # Plot August Flow Comparison
-        fig_august = px.line(
-            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
-            facet_col="RCH", facet_col_wrap=4,
+        fig = px.line(
+            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario",
             color_discrete_map=scenario_colors,
-            title=f"Flow Out Comparison for Selected Reaches (Year {year})"
+            facet_col="RCH", facet_col_wrap=4,
+            title=f"August Flow Comparison (Year {year})"
         )
-        st.plotly_chart(fig_august)
+        return fig
     
-        # --- Delta August Mean Flow ---
-        august_mean = august_data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
-        august_pivot = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
+    def delta_august_flows(data, subbasins):
+        """Calculate and plot delta August mean flows for all scenarios."""
+        august_mean = data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
+        pivot_data = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
     
         for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
-            august_pivot[f"Delta_{scenario}"] = (
-                (august_pivot["Scenario 2010"] - august_pivot[scenario]) / august_pivot["Scenario 2010"]
+            pivot_data[f"Delta_{scenario}"] = (
+                (pivot_data["Scenario 2010"] - pivot_data[scenario]) / pivot_data["Scenario 2010"]
             )
+        
+        # Merge with Subbasins Shapefile
+        subbasins = subbasins.merge(pivot_data, on="Subbasin", how="left")
+        
+        # Plot with Plotly
+        fig = go.Figure()
+        for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
+            fig.add_trace(go.Choropleth(
+                geojson=subbasins.geometry.__geo_interface__,
+                z=subbasins[f"Delta_{scenario}"],
+                locations=subbasins.index,
+                colorscale="RdYlBu",
+                colorbar_title=f"Delta {scenario}"
+            ))
+        fig.update_layout(
+            title="Delta August Mean Flow for Different Scenarios",
+            geo=dict(projection_scale=1, showframe=False)
+        )
+        return fig
     
-        subbasins = subbasins.merge(august_pivot, on='Subbasin', how='left')
+    # --- Streamlit App ---
+    st.title("Hydrological Scenarios Analysis")
     
-        # Plot Delta Flow on Map
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-        scenarios = ["Delta_Scenario Logged", "Delta_Scenario F60", "Delta_Scenario F30"]
-        titles = ["Logged Scenario", "F60 Scenario", "F30 Scenario"]
+    # Load Data
+    combined_data = load_data()
+    if combined_data is not None and subbasins_shapefile.exists():
+        subbasins = gpd.read_file(subbasins_shapefile)
     
-        for i, scenario in enumerate(scenarios):
-            ax = axes[i]
-            subbasins.plot(
-                column=scenario, ax=ax, cmap='RdYlBu', legend=True,
-                legend_kwds={'label': "Delta August Mean Flow", 'orientation': "vertical"}
-            )
-            ax.set_title(f"Delta August Mean Flow - {titles[i]}")
-            ax.axis("off")
+        # User Input for Year
+        year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
     
-        plt.tight_layout()
-        st.pyplot(fig)
+        # Flow Duration Curve
+        st.subheader("Flow Duration Curve")
+        fdc_fig = plot_fdc(combined_data, year)
+        st.plotly_chart(fdc_fig)
+    
+        # August Flow Analysis
+        st.subheader("August Flow Analysis")
+        reaches = st.multiselect("Select Reaches", options=combined_data['RCH'].unique(), default=[3])
+        august_fig = plot_august_flows(combined_data, year, reaches)
+        st.plotly_chart(august_fig)
+    
+        # Delta August Flows
+        st.subheader("Delta August Mean Flow")
+        delta_fig = delta_august_flows(combined_data, subbasins)
+        st.plotly_chart(delta_fig)
     
     else:
-        st.warning("Please upload all four scenario Excel files to proceed.")
-    
+        st.error("Please ensure all data files and the subbasin shapefile exist.")
+
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
     
