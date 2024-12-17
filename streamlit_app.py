@@ -969,7 +969,6 @@ elif selected_option == "Recharge":
     st_folium(m, width=700, height=600)  
 
 
- 
 elif selected_option == "Scenario Breakdown":
     st.title("Watershed Summary")
 
@@ -1163,7 +1162,7 @@ elif selected_option == "Scenario Breakdown":
     st.plotly_chart(fig)
     
     # Streamlit app title
-    st.title("Flow Duration Curve (FDC) Analysis")
+    #st.title("Flow Duration Curve (FDC) Analysis")
     
     # --- File Paths ---
     shapefile_path = Path('data/subs1.shp')
