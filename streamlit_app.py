@@ -1165,6 +1165,7 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     st.title("Flow Duration Curve (FDC) Analysis")
     
+    
     # --- File Paths ---
     data_files = {
         "Scenario 2010": Path(__file__).parent / 'data/scenario_2010.xls',
@@ -1188,7 +1189,8 @@ elif selected_option == "Scenario Breakdown":
         combined = []
         for scenario, path in data_files.items():
             if path.exists():
-                data = pd.read_csv(path)
+                # Reading data into pandas DataFrame
+                data = pd.read_excel(path)  # Changed to read_excel to match .xls files
                 data["Scenario"] = scenario
                 combined.append(data)
         return pd.concat(combined) if combined else None
@@ -1288,7 +1290,7 @@ elif selected_option == "Scenario Breakdown":
     
     else:
         st.error("Please ensure all data files and the subbasin shapefile exist.")
-
+        
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
     
