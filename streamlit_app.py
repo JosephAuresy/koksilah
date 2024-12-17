@@ -1165,146 +1165,68 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     st.title("Flow Duration Curve (FDC) Analysis")
     
-    
     # --- File Paths ---
-    data_files = {
-        "Scenario 2010": Path(__file__).parent / 'data/scenario_2010.xls',
-        "Scenario Logged": Path(__file__).parent / 'data/scenario_logged.xls',
-        "Scenario F60": Path(__file__).parent / 'data/scenario_f60_data.xls',
-        "Scenario F30": Path(__file__).parent / 'data/scenario_f30_data.xls'
-    }
-    subbasins_shapefile = Path(__file__).parent / 'data/subs1.shp'
+    shapefile_path = Path('data/subs1.shp')
+    deltas_file = Path('data/subbasin_deltas.csv')
     
-    # --- Scenario Colors ---
-    scenario_colors = {
-        "Scenario 2010": "blue",
-        "Scenario Logged": "red",
-        "Scenario F60": "green",
-        "Scenario F30": "lightgreen"
-    }
+    # --- Load Data ---
+    subbasins = gpd.read_file(shapefile_path)
+    deltas = pd.read_csv(deltas_file)
     
-    def load_data():
-        """Load all scenario data into a combined DataFrame."""
-        combined = []
-        for scenario, path in data_files.items():
-            print(f"Checking file: {path}")
-            if path.exists():
-                try:
-                    # Attempt to read as a CSV (this works if the .xls files are in CSV format)
-                    data = pd.read_csv(path)
-                    data["Scenario"] = scenario
-                    combined.append(data)
-                except Exception as e:
-                    print(f"Error reading {path}: {e}")
-            else:
-                print(f"File not found: {path}")
-        
-        return pd.concat(combined) if combined else None
+    # Merge deltas with the shapefile
+    subbasins = subbasins.merge(deltas, left_on="Subbasin", right_on="Subbasin", how="left")
     
-    def plot_fdc(data, year):
-        """Plot the Flow Duration Curve for a specific year."""
-        rch3_data = data[(data['RCH'] == 3) & (data['YEAR'] == year)]
-        fdc_data = []
+    # --- Clean Data ---
+    # Replace -inf with 0 and inf with NaN, then drop NaN values
+    subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]] = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].replace([-float('inf')], 0)
+    subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]] = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].replace([float('inf')], pd.NA)
     
-        for scenario in rch3_data['Scenario'].unique():
-            scenario_data = rch3_data[rch3_data['Scenario'] == scenario]
-            sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
-            sorted_data["ExceedanceProbability"] = (sorted_data.index + 1) / (len(sorted_data) + 1) * 100
-            sorted_data["Scenario"] = scenario
-            fdc_data.append(sorted_data)
+    # Drop rows with NaN values in these columns if necessary
+    subbasins = subbasins.dropna(subset=["Delta_Logged", "Delta_F60", "Delta_F30"])
     
-        fdc_data = pd.concat(fdc_data)
-        fig = px.line(
-            fdc_data,
-            x="ExceedanceProbability", y="FLOW_OUTcms", color="Scenario",
-            color_discrete_map=scenario_colors,
-            title=f"Flow Duration Curve for RCH 3 in Year {year}",
-            labels={"FLOW_OUTcms": "Flow Out (cms)", "ExceedanceProbability": "Exceedance Probability (%)"}
+    # --- Calculate Global Min and Max ---
+    vmin = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
+    vmax = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
+    
+    # Display min and max in Streamlit for user info
+    st.write(f"Global Min Delta: {vmin}, Global Max Delta: {vmax}")
+    
+    # --- Function to plot with Plotly ---
+    def plot_delta_map(subbasins, column, title, vmin, vmax):
+        """Plot a map showing delta values for a given column with a consistent color scale."""
+        # Convert GeoDataFrame to DataFrame for Plotly
+        subbasins['centroid'] = subbasins.geometry.centroid
+        subbasins['lat'] = subbasins.centroid.y
+        subbasins['lon'] = subbasins.centroid.x
+    
+        # Create plot
+        fig = px.choropleth(
+            subbasins,
+            geojson=subbasins.geometry.__geo_interface__,
+            locations=subbasins.index,
+            color=column,
+            color_continuous_scale="coolwarm",
+            range_color=[vmin, vmax],
+            title=title,
+            hover_name="Subbasin",  # Use subbasin as hover information
+            labels={column: 'Delta Value'},
         )
-        fig.update_yaxes(type="log")
-        return fig
     
-    def plot_august_flows(data, year, selected_reaches):
-        """Plot August flows for selected reaches."""
-        august_data = data[
-            (data['YEAR'] == year) & (data['DAY'] >= 213) & (data['DAY'] <= 243)
-        ]
-        filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
-        fig = px.line(
-            filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario",
-            color_discrete_map=scenario_colors,
-            facet_col="RCH", facet_col_wrap=4,
-            title=f"August Flow Comparison (Year {year})"
-        )
-        return fig
-    
-    def delta_august_flows(data, subbasins):
-        """Calculate and plot delta August mean flows for all scenarios."""
-        # Ensure the columns exist
-        if 'Subbasin' not in data.columns or 'Scenario' not in data.columns:
-            raise KeyError("'Subbasin' or 'Scenario' column not found in the DataFrame.")
-    
-        # Ensure Subbasin and RCH are aligned correctly in the data
-        data = data[data['Subbasin'].isin(subbasins['Subbasin'])]
-    
-        # Group by both Subbasin and Scenario, as RCH might be handled later separately
-        august_mean = data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
-        pivot_data = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
-    
-        for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
-            pivot_data[f"Delta_{scenario}"] = (
-                (pivot_data["Scenario 2010"] - pivot_data[scenario]) / pivot_data["Scenario 2010"]
-            )
-    
-        # Merge with Subbasins Shapefile
-        subbasins = subbasins.merge(pivot_data, on="Subbasin", how="left")
-    
-        # Plot with Plotly
-        fig = go.Figure()
-        for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
-            fig.add_trace(go.Choropleth(
-                geojson=subbasins.geometry.__geo_interface__,
-                z=subbasins[f"Delta_{scenario}"],
-                locations=subbasins.index,
-                colorscale="RdYlBu",
-                colorbar_title=f"Delta {scenario}"
-            ))
+        # Update layout to make it look better
+        fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(
-            title="Delta August Mean Flow for Different Scenarios",
-            geo=dict(projection_scale=1, showframe=False)
+            geo=dict(showland=True, landcolor="white"),
+            coloraxis_colorbar=dict(title="Delta Value", tickvals=[vmin, vmax], ticktext=[f"{vmin:.2f}", f"{vmax:.2f}"])
         )
-        return fig
     
-    # --- Streamlit App ---
-    st.title("Hydrological Scenarios Analysis")
+        # Show figure in Streamlit
+        st.plotly_chart(fig)
     
-    # Load Data
-    combined_data = load_data()
-    if combined_data is not None and subbasins_shapefile.exists():
-        subbasins = gpd.read_file(subbasins_shapefile)
+    # --- Display Maps ---
+    plot_delta_map(subbasins, "Delta_Logged", "Average Delta - Logged Scenario", vmin, vmax)
+    plot_delta_map(subbasins, "Delta_F60", "Average Delta - F60 Scenario", vmin, vmax)
+    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)      
     
-        # User Input for Year
-        year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
-    
-        # Flow Duration Curve
-        st.subheader("Flow Duration Curve")
-        fdc_fig = plot_fdc(combined_data, year)
-        st.plotly_chart(fdc_fig)
-    
-        # August Flow Analysis
-        st.subheader("August Flow Analysis")
-        reaches = st.multiselect("Select Reaches", options=combined_data['RCH'].unique(), default=[3])
-        august_fig = plot_august_flows(combined_data, year, reaches)
-        st.plotly_chart(august_fig)
-    
-        # Delta August Flows
-        st.subheader("Delta August Mean Flow")
-        delta_fig = delta_august_flows(combined_data, subbasins)
-        st.plotly_chart(delta_fig)
-    
-    else:
-        st.error("Please ensure all data files and the subbasin shapefile exist.")
-        
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
     
