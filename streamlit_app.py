@@ -1164,7 +1164,6 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     #st.title("Flow Duration Curve (FDC) Analysis")
 
-    main_path / 'data/points_info.csv'
     # --- File Paths ---
     shapefile_path = main_path / 'data/subs1.shp'
     deltas_file = main_path / 'data/subbasin_deltas.csv'
