@@ -239,6 +239,8 @@ epsg = 32610  # Adjust this if necessary
 main_path = Path(__file__).parent
 subbasins_shapefile_path = main_path / 'data/subs1.shp'
 grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
+shapefile_path = main_path / 'data/subs1.shp'
+deltas_file = main_path / 'data/subbasin_deltas.csv'
 
 # Load the subbasins GeoDataFrame from the shapefile
 try:
@@ -1164,10 +1166,6 @@ elif selected_option == "Scenario Breakdown":
     # Streamlit app title
     #st.title("Flow Duration Curve (FDC) Analysis")
 
-    # --- File Paths ---
-    shapefile_path = Path(__file__).parent / 'data/subs1.shp'
-    deltas_file = Path(__file__).parent / 'data/subbasin_deltas.csv'
-    
     # --- Load Data ---
     subbasins = gpd.read_file(shapefile_path)
     deltas = pd.read_csv(deltas_file)
