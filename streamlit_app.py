@@ -1165,8 +1165,8 @@ elif selected_option == "Scenario Breakdown":
     #st.title("Flow Duration Curve (FDC) Analysis")
 
     # --- File Paths ---
-    shapefile_path = main_path / 'data/subs1.shp'
-    deltas_file = main_path / 'data/subbasin_deltas.csv'
+    shapefile_path = Path(__file__).parent / 'data/subs1.shp'
+    deltas_file = Path(__file__).parent / 'data/subbasin_deltas.csv'
     
     # --- Load Data ---
     subbasins = gpd.read_file(shapefile_path)
