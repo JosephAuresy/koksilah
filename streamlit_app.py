@@ -1240,6 +1240,14 @@ elif selected_option == "Scenario Breakdown":
     
     def delta_august_flows(data, subbasins):
         """Calculate and plot delta August mean flows for all scenarios."""
+        # Ensure the columns exist
+        if 'Subbasin' not in data.columns or 'Scenario' not in data.columns:
+            raise KeyError("'Subbasin' or 'Scenario' column not found in the DataFrame.")
+    
+        # Ensure Subbasin and RCH are aligned correctly in the data
+        data = data[data['Subbasin'].isin(subbasins['Subbasin'])]
+    
+        # Group by both Subbasin and Scenario, as RCH might be handled later separately
         august_mean = data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
         pivot_data = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
     
@@ -1247,10 +1255,10 @@ elif selected_option == "Scenario Breakdown":
             pivot_data[f"Delta_{scenario}"] = (
                 (pivot_data["Scenario 2010"] - pivot_data[scenario]) / pivot_data["Scenario 2010"]
             )
-        
+    
         # Merge with Subbasins Shapefile
         subbasins = subbasins.merge(pivot_data, on="Subbasin", how="left")
-        
+    
         # Plot with Plotly
         fig = go.Figure()
         for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
