@@ -1170,6 +1170,8 @@ elif selected_option == "Scenario Breakdown":
     LU_logged = Path(__file__).parent / 'data/scenario_logged.xls'
     LU_F60 = Path(__file__).parent / 'data/scenario_f60_data.xls'
     LU_F30 = Path(__file__).parent / 'data/scenario_f30_data.xls'
+
+    subbasins_shapefile = Path(__file__).parent / 'data/subs1.shp'
     
     # Load the data from the Excel files
     if all([LU_2010.exists(), LU_logged.exists(), LU_F60.exists(), LU_F30.exists()]):
@@ -1283,7 +1285,43 @@ elif selected_option == "Scenario Breakdown":
             title=f"Mean Flow per Month for Year {year} (August)"
         )
         st.plotly_chart(fig_mean_flow)
+
+        # Calculate mean flow for August by Subbasin and Scenario
+        august_mean = august_data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
     
+        # Pivot to get each scenario as a column for comparison
+        august_pivot = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
+    
+        # Calculate delta flows for each scenario
+        for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
+            august_pivot[f"Delta_{scenario}"] = (
+                (august_pivot["Scenario 2010"] - august_pivot[scenario]) / august_pivot["Scenario 2010"]
+            )
+    
+        # Load Subbasin shapefile
+        subbasins = gpd.read_file(subbasins_shapefile)
+    
+        # Merge delta values with subbasin shapefile
+        subbasins = subbasins.merge(august_pivot, left_on='Subbasin', right_on='Subbasin', how='left')
+    
+        # Plot each delta scenario on the map
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    
+        scenarios = ["Delta_Scenario Logged", "Delta_Scenario F60", "Delta_Scenario F30"]
+        titles = ["Logged Scenario", "F60 Scenario", "F30 Scenario"]
+    
+        for i, scenario in enumerate(scenarios):
+            ax = axes[i]
+            subbasins.plot(
+                column=scenario, ax=ax, cmap='RdYlBu', legend=True,
+                legend_kwds={'label': "Delta August Mean Flow", 'orientation': "vertical"}
+            )
+            ax.set_title(f"Delta August Mean Flow - {titles[i]}")
+            ax.axis("off")
+    
+        plt.tight_layout()
+        plt.show()
+        
         # Plot Total Flow (m³) with bars for all scenarios
         fig_total_flow = px.bar(
             monthly_total_flow,
