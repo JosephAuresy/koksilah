@@ -1196,18 +1196,25 @@ elif selected_option == "Scenario Breakdown":
             "Scenario F60": "green",
             "Scenario F30": "lightgreen"
         }
+        
+        # --- Load Subbasins Shapefile ---
+        subbasins = gpd.read_file(subbasins_shapefile)  # Added shapefile reading
+        st.subheader("Subbasin Shapefile Preview:")
+        st.write(subbasins.head())  # Display first rows for inspection
     
-        # Streamlit widget to choose the year
+        # Access Subbasin IDs
+        subbasin_ids = subbasins['Subbasin']  # Extract IDs column
+        st.write("Unique Subbasin IDs:", subbasin_ids.unique())
+    
+        # --- Streamlit Year Selection ---
         year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
-    
-        # Filter the data for the selected year
         yearly_data = combined_data[combined_data['YEAR'] == year]
     
-        # --- FDC Analysis for RCH 3 ---
+        # --- Flow Duration Curve (RCH Analysis) ---
+        # Filter for Reach 3
         rch3_data = yearly_data[yearly_data['RCH'] == 3]
-    
-        # Compute the FDC for all scenarios in RCH 3
         fdc_data = []
+    
         for scenario in rch3_data['Scenario'].unique():
             scenario_data = rch3_data[rch3_data['Scenario'] == scenario]
             sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
@@ -1216,97 +1223,51 @@ elif selected_option == "Scenario Breakdown":
             sorted_data["Scenario"] = scenario
             fdc_data.append(sorted_data)
     
-        # Combine the processed data for FDC plotting
         fdc_data = pd.concat(fdc_data)
     
-        # Plot the FDC
+        # --- Plot FDC ---
         fig_fdc = px.line(
             fdc_data,
             x="ExceedanceProbability",
             y="FLOW_OUTcms",
             color="Scenario",
             color_discrete_map=scenario_colors,
-            labels={
-                "ExceedanceProbability": "Exceedance Probability (%)",
-                "FLOW_OUTcms": "Flow Out (cms)",
-                "Scenario": "Scenario"
-            },
             title=f"Flow Duration Curve for RCH 3 in Year {year}"
         )
-    
-        # Set y-axis to logarithmic scale
         fig_fdc.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
-    
-        # Show the FDC plot in the Streamlit app
         st.plotly_chart(fig_fdc)
     
-        # --- August Analysis for Selected Reaches ---
-        # Filter for August (Days between 213 and 243)
+        # --- August Flow Analysis ---
         august_data = combined_data[
             (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
         ]
-    
-        # Add a Month column for August
         august_data['Month'] = 8
     
-        # Select reaches to analyze
         selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
-    
-        # Filter the data for the selected reaches
         filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
     
-        # Create a Plotly figure for flow out comparison by reach
+        # Plot August Flow Comparison
         fig_august = px.line(
             filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
             facet_col="RCH", facet_col_wrap=4,
             color_discrete_map=scenario_colors,
-            labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
             title=f"Flow Out Comparison for Selected Reaches (Year {year})"
         )
         st.plotly_chart(fig_august)
     
-        # Calculate daily volume for total flow (m³)
-        seconds_in_a_day = 24 * 60 * 60
-        filtered_data['DailyVolume_m3'] = filtered_data['FLOW_OUTcms'] * seconds_in_a_day
-    
-        # Calculate mean flow (m³/s) and total flow (m³) for August
-        monthly_mean_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
-        monthly_total_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
-    
-        # Display the results for both mean and total flow
-        st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
-    
-        # Plot Mean Flow (m³/s) with bars for all scenarios
-        fig_mean_flow = px.bar(
-            monthly_mean_flow,
-            x="Month", y="FLOW_OUTcms", color="Scenario", barmode="group",
-            color_discrete_map=scenario_colors,
-            labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
-            title=f"Mean Flow per Month for Year {year} (August)"
-        )
-        st.plotly_chart(fig_mean_flow)
-
-        # Calculate mean flow for August by Subbasin and Scenario
+        # --- Delta August Mean Flow ---
         august_mean = august_data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
-    
-        # Pivot to get each scenario as a column for comparison
         august_pivot = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
     
-        # Calculate delta flows for each scenario
         for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
             august_pivot[f"Delta_{scenario}"] = (
                 (august_pivot["Scenario 2010"] - august_pivot[scenario]) / august_pivot["Scenario 2010"]
             )
     
-        # Load Subbasin shapefile
-        subbasins = gpd.read_file(subbasins_shapefile)
+        subbasins = subbasins.merge(august_pivot, on='Subbasin', how='left')
     
-        # Merge delta values with subbasin shapefile
-        subbasins = subbasins.merge(august_pivot, left_on='Subbasin', right_on='Subbasin', how='left')
-    
-        # Plot each delta scenario on the map
+        # Plot Delta Flow on Map
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-    
         scenarios = ["Delta_Scenario Logged", "Delta_Scenario F60", "Delta_Scenario F30"]
         titles = ["Logged Scenario", "F60 Scenario", "F30 Scenario"]
     
@@ -1320,20 +1281,148 @@ elif selected_option == "Scenario Breakdown":
             ax.axis("off")
     
         plt.tight_layout()
-        plt.show()
-        
-        # Plot Total Flow (m³) with bars for all scenarios
-        fig_total_flow = px.bar(
-            monthly_total_flow,
-            x="Month", y="DailyVolume_m3", color="Scenario", barmode="group",
-            color_discrete_map=scenario_colors,
-            labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
-            title=f"Total Flow per Month for Year {year} (August)"
-        )
-        st.plotly_chart(fig_total_flow)
+        st.pyplot(fig)
     
     else:
         st.warning("Please upload all four scenario Excel files to proceed.")
+    
+    #     # Streamlit widget to choose the year
+    #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
+    
+    #     # Filter the data for the selected year
+    #     yearly_data = combined_data[combined_data['YEAR'] == year]
+    
+    #     # --- FDC Analysis for RCH 3 ---
+    #     rch3_data = yearly_data[yearly_data['RCH'] == 3]
+    
+    #     # Compute the FDC for all scenarios in RCH 3
+    #     fdc_data = []
+    #     for scenario in rch3_data['Scenario'].unique():
+    #         scenario_data = rch3_data[rch3_data['Scenario'] == scenario]
+    #         sorted_data = scenario_data.sort_values(by="FLOW_OUTcms", ascending=False).reset_index(drop=True)
+    #         sorted_data["Rank"] = sorted_data.index + 1
+    #         sorted_data["ExceedanceProbability"] = sorted_data["Rank"] / (len(sorted_data) + 1) * 100
+    #         sorted_data["Scenario"] = scenario
+    #         fdc_data.append(sorted_data)
+    
+    #     # Combine the processed data for FDC plotting
+    #     fdc_data = pd.concat(fdc_data)
+    
+    #     # Plot the FDC
+    #     fig_fdc = px.line(
+    #         fdc_data,
+    #         x="ExceedanceProbability",
+    #         y="FLOW_OUTcms",
+    #         color="Scenario",
+    #         color_discrete_map=scenario_colors,
+    #         labels={
+    #             "ExceedanceProbability": "Exceedance Probability (%)",
+    #             "FLOW_OUTcms": "Flow Out (cms)",
+    #             "Scenario": "Scenario"
+    #         },
+    #         title=f"Flow Duration Curve for RCH 3 in Year {year}"
+    #     )
+    
+    #     # Set y-axis to logarithmic scale
+    #     fig_fdc.update_yaxes(type="log", title="Flow Out (cms, Log Scale)")
+    
+    #     # Show the FDC plot in the Streamlit app
+    #     st.plotly_chart(fig_fdc)
+    
+    #     # --- August Analysis for Selected Reaches ---
+    #     # Filter for August (Days between 213 and 243)
+    #     august_data = combined_data[
+    #         (combined_data['YEAR'] == year) & (combined_data['DAY'] >= 213) & (combined_data['DAY'] <= 243)
+    #     ]
+    
+    #     # Add a Month column for August
+    #     august_data['Month'] = 8
+    
+    #     # Select reaches to analyze
+    #     selected_reaches = st.multiselect("Select Reaches to Analyze", options=combined_data['RCH'].unique(), default=[3])
+    
+    #     # Filter the data for the selected reaches
+    #     filtered_data = august_data[august_data["RCH"].isin(selected_reaches)]
+    
+    #     # Create a Plotly figure for flow out comparison by reach
+    #     fig_august = px.line(
+    #         filtered_data, x="DAY", y="FLOW_OUTcms", color="Scenario", line_dash="Scenario",
+    #         facet_col="RCH", facet_col_wrap=4,
+    #         color_discrete_map=scenario_colors,
+    #         labels={"DAY": "Day of Year", "FLOW_OUTcms": "Flow Out (cms)", "Scenario": "Scenario"},
+    #         title=f"Flow Out Comparison for Selected Reaches (Year {year})"
+    #     )
+    #     st.plotly_chart(fig_august)
+    
+    #     # Calculate daily volume for total flow (m³)
+    #     seconds_in_a_day = 24 * 60 * 60
+    #     filtered_data['DailyVolume_m3'] = filtered_data['FLOW_OUTcms'] * seconds_in_a_day
+    
+    #     # Calculate mean flow (m³/s) and total flow (m³) for August
+    #     monthly_mean_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["FLOW_OUTcms"].mean().reset_index()
+    #     monthly_total_flow = filtered_data.groupby(["YEAR", "Scenario", "Month"])["DailyVolume_m3"].sum().reset_index()
+    
+    #     # Display the results for both mean and total flow
+    #     st.subheader("Mean Flow (m³/s) and Total Flow (m³) for August:")
+    
+    #     # Plot Mean Flow (m³/s) with bars for all scenarios
+    #     fig_mean_flow = px.bar(
+    #         monthly_mean_flow,
+    #         x="Month", y="FLOW_OUTcms", color="Scenario", barmode="group",
+    #         color_discrete_map=scenario_colors,
+    #         labels={"Month": "Month", "FLOW_OUTcms": "Mean Flow (m³/s)", "Scenario": "Scenario"},
+    #         title=f"Mean Flow per Month for Year {year} (August)"
+    #     )
+    #     st.plotly_chart(fig_mean_flow)
+
+    #     # Calculate mean flow for August by Subbasin and Scenario
+    #     august_mean = august_data.groupby(["Subbasin", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
+    
+    #     # Pivot to get each scenario as a column for comparison
+    #     august_pivot = august_mean.pivot(index="Subbasin", columns="Scenario", values="FLOW_OUTcms").reset_index()
+    
+    #     # Calculate delta flows for each scenario
+    #     for scenario in ["Scenario Logged", "Scenario F60", "Scenario F30"]:
+    #         august_pivot[f"Delta_{scenario}"] = (
+    #             (august_pivot["Scenario 2010"] - august_pivot[scenario]) / august_pivot["Scenario 2010"]
+    #         )
+    
+    #     # Load Subbasin shapefile
+    #     subbasins = gpd.read_file(subbasins_shapefile)
+    
+    #     # Merge delta values with subbasin shapefile
+    #     subbasins = subbasins.merge(august_pivot, left_on='Subbasin', right_on='Subbasin', how='left')
+    
+    #     # Plot each delta scenario on the map
+    #     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    
+    #     scenarios = ["Delta_Scenario Logged", "Delta_Scenario F60", "Delta_Scenario F30"]
+    #     titles = ["Logged Scenario", "F60 Scenario", "F30 Scenario"]
+    
+    #     for i, scenario in enumerate(scenarios):
+    #         ax = axes[i]
+    #         subbasins.plot(
+    #             column=scenario, ax=ax, cmap='RdYlBu', legend=True,
+    #             legend_kwds={'label': "Delta August Mean Flow", 'orientation': "vertical"}
+    #         )
+    #         ax.set_title(f"Delta August Mean Flow - {titles[i]}")
+    #         ax.axis("off")
+    
+    #     plt.tight_layout()
+    #     plt.show()
+        
+    #     # Plot Total Flow (m³) with bars for all scenarios
+    #     fig_total_flow = px.bar(
+    #         monthly_total_flow,
+    #         x="Month", y="DailyVolume_m3", color="Scenario", barmode="group",
+    #         color_discrete_map=scenario_colors,
+    #         labels={"Month": "Month", "DailyVolume_m3": "Total Flow (m³)", "Scenario": "Scenario"},
+    #         title=f"Total Flow per Month for Year {year} (August)"
+    #     )
+    #     st.plotly_chart(fig_total_flow)
+    
+    # else:
+    #     st.warning("Please upload all four scenario Excel files to proceed.")
  
 
 elif selected_option == "Report":   
