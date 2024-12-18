@@ -1174,55 +1174,80 @@ elif selected_option == "Scenario Breakdown":
     subbasins = subbasins.merge(deltas, left_on="Subbasin", right_on="Subbasin", how="left")
     
     # --- Clean Data ---
-    # Replace -inf with 0 and inf with NaN, then drop NaN values
     subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]] = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].replace([-float('inf')], 0)
     subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]] = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].replace([float('inf')], pd.NA)
-    
-    # Drop rows with NaN values in these columns if necessary
     subbasins = subbasins.dropna(subset=["Delta_Logged", "Delta_F60", "Delta_F30"])
     
-    # --- Calculate Global Min and Max ---
+    # Calculate global min and max
     vmin = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
     vmax = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
     
-    # Display the cleaned data min and max
-    st.write(f"Cleaned Global Min Delta: {vmin}, Global Max Delta: {vmax}")
+    # --- Initialize Folium Map ---
+    # Set initial location (Duncan, adjust as necessary)
+    initial_location = [48.78, -123.71]
     
-    # --- Function to Plot with Plotly ---
+    # Initialize the map centered on the watershed area
+    m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
+    
+    # Add subbasins GeoJSON layer to the map
+    subbasins_layer = folium.GeoJson(
+        subbasins,
+        name="Subbasins",
+        style_function=lambda x: {'color': 'green', 'weight': 2, 'fillOpacity': 0.2},
+    ).add_to(m)
+    
+    # Add MousePosition plugin to display coordinates
+    MousePosition().add_to(m)
+    
+    # Add LayerControl to toggle between subbasins and grid layers
+    folium.LayerControl().add_to(m)
+    
+    # --- Plotting the Heatmap with Plotly ---
     def plot_delta_map(subbasins, column, title, vmin, vmax):
-        """Plot a map showing delta values for a given column with a consistent color scale."""
-        # Ensure proper GeoJSON format from GeoPandas geometry
-        subbasins['centroid'] = subbasins.geometry.centroid
-        subbasins['lat'] = subbasins.centroid.y
-        subbasins['lon'] = subbasins.centroid.x
-    
-        # Create Plotly choropleth map
         fig = px.choropleth(
             subbasins,
             geojson=subbasins.geometry.__geo_interface__,
             locations=subbasins.index,
             color=column,
-            color_continuous_scale="Viridis",  # You can change this to "coolwarm" or other scales
-            range_color=[vmin, vmax],  # Set the global min and max
+            color_continuous_scale="Viridis",
+            range_color=[vmin, vmax],
             title=title,
             hover_name="Subbasin",
             labels={column: 'Delta Value'},
         )
-    
-        # Update layout for better map presentation
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(
             geo=dict(showland=True, landcolor="white"),
             coloraxis_colorbar=dict(title="Delta Value", tickvals=[vmin, vmax], ticktext=[f"{vmin:.2f}", f"{vmax:.2f}"])
         )
+        return fig
     
-        # Show plot in Streamlit
-        st.plotly_chart(fig)
+    # Generate Plotly heatmaps for each scenario
+    fig_logged = plot_delta_map(subbasins, "Delta_Logged", "Average Delta - Logged Scenario", vmin, vmax)
+    fig_f60 = plot_delta_map(subbasins, "Delta_F60", "Average Delta - F60 Scenario", vmin, vmax)
+    fig_f30 = plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)
     
-    # --- Plot Maps for Each Scenario ---
-    plot_delta_map(subbasins, "Delta_Logged", "Average Delta - Logged Scenario", vmin, vmax)
-    plot_delta_map(subbasins, "Delta_F60", "Average Delta - F60 Scenario", vmin, vmax)
-    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)
+    # --- Streamlit UI for Scenario Selection ---
+    st.title("Watershed Map with Delta Scenarios")
+    
+    # Display Folium map in Streamlit
+    st_folium(m, width=700, height=600)
+    
+    # Scenario Selection using checkboxes
+    show_logged = st.checkbox("Show Delta - Logged Scenario", value=True)
+    show_f60 = st.checkbox("Show Delta - F60 Scenario", value=True)
+    show_f30 = st.checkbox("Show Delta - F30 Scenario", value=True)
+    
+    # Display Plotly heatmaps based on user selection
+    if show_logged:
+        st.plotly_chart(fig_logged, use_container_width=True)
+    
+    if show_f60:
+        st.plotly_chart(fig_f60, use_container_width=True)
+    
+    if show_f30:
+        st.plotly_chart(fig_f30, use_container_width=True)
+
     
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
