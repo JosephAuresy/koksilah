@@ -240,7 +240,6 @@ epsg = 32610  # Adjust this if necessary
 main_path = Path(__file__).parent
 subbasins_shapefile_path = main_path / 'data/subs1.shp'
 grid_shapefile_path = main_path / 'data/koki_mod_grid.shp'
-shapefile_path = main_path / 'data/subs1.shp'
 deltas_file = main_path / 'data/subbasin_deltas.xls'
 
 # Load the subbasins GeoDataFrame from the shapefile
@@ -1188,7 +1187,8 @@ elif selected_option == "Scenario Breakdown":
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
     # --- Add Subbasin Layer ---
-    subbasins_gdf = gpd.read_file('path_to_subbasins_shapefile.shp')  # Replace with your subbasins shapefile
+    shapefile_path = main_path / 'data/subs1.shp'
+    subbasins_gdf = gpd.read_file(shapefile_path)  # Replace with your subbasins shapefile
     subbasins_layer = folium.GeoJson(
         subbasins_gdf,
         name="Subbasins",
