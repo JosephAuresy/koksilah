@@ -1183,86 +1183,58 @@ elif selected_option == "Scenario Breakdown":
     vmin = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
     vmax = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
     
-    # --- Initialize Folium Map ---
-    # Set initial location (Duncan, adjust as necessary)
-    initial_location = [48.78, -123.71]
-    
-    # Initialize the map centered on the watershed area
+    # Initialize the map centered on your location
+    initial_location = [49.0600, -123.0200]  # Modify to your map's center coordinates (e.g., Duncan, BC)
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
-    # Add the subbasins GeoJSON layer to the map
+    # --- Add Subbasin Layer ---
+    subbasins_gdf = gpd.read_file('path_to_subbasins_shapefile.shp')  # Replace with your subbasins shapefile
     subbasins_layer = folium.GeoJson(
-        subbasins,
+        subbasins_gdf,
         name="Subbasins",
-        style_function=lambda x: {'color': 'green', 'weight': 2, 'fillOpacity': 0.2},
+        style_function=lambda x: {'color': 'green', 'weight': 2}
     ).add_to(m)
     
-    # --- Function to create GeoJSON layers for each scenario ---
-    def create_scenario_layer(column, vmin, vmax, color_map="YlGnBu"):
-        """Create a GeoJSON layer for a specific delta scenario with color scale."""
-        geojson_data = subbasins.copy()
-        geojson_data[column] = geojson_data[column].fillna(0)  # Fill NaNs with 0 for visualization
-        
-        # Create LinearColormap for color scaling
-        colormap = LinearColormap(
-            colors=['#f7f7f7', '#31a354'],  # Example colors, you can choose from other color schemes
-            vmin=vmin,
-            vmax=vmax
-        ).to_step(n=10)  # You can adjust 'n' to get more or fewer color steps
-        
-        # Generate the GeoJSON layer
+    # --- Add Scenarios as Layers ---
+    def create_scenario_layer(scenario_column, vmin, vmax, color_map="coolwarm"):
+        """Function to create a scenario layer from a GeoDataFrame."""
         return folium.GeoJson(
-            geojson_data,
-            name=f"Delta {column}",
+            subbasins_gdf,
+            name=scenario_column,
             style_function=lambda feature: {
-                'fillColor': colormap(feature['properties'][column]),
+                'fillColor': folium.colors.color_brewer[color_map][
+                    int((feature['properties'][scenario_column] - vmin) / (vmax - vmin) * (len(folium.colors.color_brewer[color_map]) - 1))
+                ],
                 'color': 'black',
                 'weight': 1,
                 'fillOpacity': 0.6
-            },
+            }
         )
     
-    # --- Create Layers for Each Scenario ---
+    # Assuming you have deltas dataframe with the appropriate columns
+    deltas_df = pd.read_csv('path_to_deltas_data.csv')  # Replace with the path to your deltas CSV file
+    vmin = deltas_df[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
+    vmax = deltas_df[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
+    
+    # Add the scenario layers
     delta_logged_layer = create_scenario_layer("Delta_Logged", vmin, vmax)
     delta_f60_layer = create_scenario_layer("Delta_F60", vmin, vmax)
     delta_f30_layer = create_scenario_layer("Delta_F30", vmin, vmax)
     
-    # --- Add MousePosition plugin to display coordinates ---
+    # Add layers to map
+    delta_logged_layer.add_to(m)
+    delta_f60_layer.add_to(m)
+    delta_f30_layer.add_to(m)
+    
+    # --- Add MousePosition ---
     MousePosition().add_to(m)
     
-    # Add LayerControl to toggle between layers
-    folium.LayerControl().add_to(m)
+    # --- Add LayerControl for Toggle Options ---
+    folium.LayerControl(position='topright').add_to(m)
     
-    # --- Streamlit UI for Scenario Selection ---
-    st.title("Watershed Map with Delta Scenarios")
-    
-    # Display the map in Streamlit
+    # --- Render the Map in Streamlit ---
+    st.title("Watershed Map")
     st_folium(m, width=700, height=600)
-    
-    # --- Display Checkboxes to Show/Hide Layers ---
-    show_logged = st.checkbox("Show Delta - Logged Scenario", value=True)
-    show_f60 = st.checkbox("Show Delta - F60 Scenario", value=True)
-    show_f30 = st.checkbox("Show Delta - F30 Scenario", value=True)
-    
-    # Toggle the visibility of the layers based on the checkboxes
-    if show_logged:
-        delta_logged_layer.add_to(m)
-    else:
-        m.remove_child(delta_logged_layer)
-    
-    if show_f60:
-        delta_f60_layer.add_to(m)
-    else:
-        m.remove_child(delta_f60_layer)
-    
-    if show_f30:
-        delta_f30_layer.add_to(m)
-    else:
-        m.remove_child(delta_f30_layer)
-    
-    # Update the map with the selected layers
-    st_folium(m, width=700, height=600)
-    
 
 
     
