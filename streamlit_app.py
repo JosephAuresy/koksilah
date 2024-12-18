@@ -1187,8 +1187,7 @@ elif selected_option == "Scenario Breakdown":
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
     # --- Add Subbasin Layer ---
-    shapefile_path = main_path / 'data/subs1.shp'
-    subbasins_gdf = gpd.read_file(shapefile_path)  # Replace with your subbasins shapefile
+    subbasins_gdf = gpd.read_file(subbasins)  # Replace with your subbasins shapefile
     subbasins_layer = folium.GeoJson(
         subbasins_gdf,
         name="Subbasins",
