@@ -6,12 +6,13 @@ import plotly.express as px
 from pathlib import Path
 from pyproj import Proj, transform
 import base64
-import folium
-from streamlit_folium import st_folium
 import geopandas as gpd
 import rasterio
 from rasterio.transform import from_origin
+import folium
+from folium import LinearColormap
 from streamlit_folium import folium_static
+from streamlit_folium import st_folium
 from folium.plugins import MousePosition
 from shapely.geometry import Point
 from PIL import Image, ImageDraw, ImageFont
@@ -1202,12 +1203,19 @@ elif selected_option == "Scenario Breakdown":
         geojson_data = subbasins.copy()
         geojson_data[column] = geojson_data[column].fillna(0)  # Fill NaNs with 0 for visualization
         
+        # Create LinearColormap for color scaling
+        colormap = LinearColormap(
+            colors=['#f7f7f7', '#31a354'],  # Example colors, you can choose from other color schemes
+            vmin=vmin,
+            vmax=vmax
+        ).to_step(n=10)  # You can adjust 'n' to get more or fewer color steps
+        
         # Generate the GeoJSON layer
         return folium.GeoJson(
             geojson_data,
             name=f"Delta {column}",
             style_function=lambda feature: {
-                'fillColor': folium.colors.color_brewer[color_map][int((feature['properties'][column] - vmin) / (vmax - vmin) * (len(folium.colors.color_brewer[color_map]) - 1))],
+                'fillColor': colormap(feature['properties'][column]),
                 'color': 'black',
                 'weight': 1,
                 'fillOpacity': 0.6
