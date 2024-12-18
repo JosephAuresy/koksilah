@@ -1187,36 +1187,44 @@ elif selected_option == "Scenario Breakdown":
     
     # Display min and max in Streamlit for user info
     st.write(f"Global Min Delta: {vmin}, Global Max Delta: {vmax}")
-    
-    # --- Function to plot with Plotly ---
+
     def plot_delta_map(subbasins, column, title, vmin, vmax):
         """Plot a map showing delta values for a given column with a consistent color scale."""
-        # Convert GeoDataFrame to DataFrame for Plotly
+        
+        # Create centroids for each geometry
         subbasins['centroid'] = subbasins.geometry.centroid
         subbasins['lat'] = subbasins.centroid.y
         subbasins['lon'] = subbasins.centroid.x
     
-        # Create plot
+        # Check for NaN or invalid values in the column
+        if subbasins[column].isna().sum() > 0:
+            print(f"Warning: There are {subbasins[column].isna().sum()} missing values in the '{column}' column.")
+        
+        # Ensure valid color range
+        if vmin == vmax:
+            print(f"Warning: vmin and vmax are equal! This might cause issues with color scaling.")
+        
+        # Create Plotly choropleth map
         fig = px.choropleth(
             subbasins,
             geojson=subbasins.geometry.__geo_interface__,
             locations=subbasins.index,
             color=column,
-            color_continuous_scale="coolwarm",
-            range_color=[vmin, vmax],
+            color_continuous_scale="Viridis",  # Switch to a known working scale
+            range_color=[vmin, vmax],  # Ensure range is valid
             title=title,
-            hover_name="Subbasin",  # Use subbasin as hover information
+            hover_name="Subbasin",
             labels={column: 'Delta Value'},
         )
     
-        # Update layout to make it look better
+        # Update geospatial layout and color scale
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(
             geo=dict(showland=True, landcolor="white"),
             coloraxis_colorbar=dict(title="Delta Value", tickvals=[vmin, vmax], ticktext=[f"{vmin:.2f}", f"{vmax:.2f}"])
         )
     
-        # Show figure in Streamlit
+        # Display the plot using Streamlit
         st.plotly_chart(fig)
     
     # --- Display Maps ---
