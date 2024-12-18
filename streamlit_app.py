@@ -1165,7 +1165,7 @@ elif selected_option == "Scenario Breakdown":
     
     # Streamlit app title
     #st.title("Flow Duration Curve (FDC) Analysis")
-
+    
     # --- Load Data ---
     subbasins = gpd.read_file(shapefile_path)
     deltas = pd.read_csv(deltas_file)
@@ -1185,7 +1185,8 @@ elif selected_option == "Scenario Breakdown":
     vmin = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
     vmax = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
     
-    print(f"Cleaned Global Min Delta: {vmin}, Global Max Delta: {vmax}")
+    # Display the cleaned data min and max
+    st.write(f"Cleaned Global Min Delta: {vmin}, Global Max Delta: {vmax}")
     
     # --- Function to Plot with Plotly ---
     def plot_delta_map(subbasins, column, title, vmin, vmax):
@@ -1215,13 +1216,13 @@ elif selected_option == "Scenario Breakdown":
             coloraxis_colorbar=dict(title="Delta Value", tickvals=[vmin, vmax], ticktext=[f"{vmin:.2f}", f"{vmax:.2f}"])
         )
     
-        # Show plot in the notebook (or save to file if needed)
-        fig.show()
+        # Show plot in Streamlit
+        st.plotly_chart(fig)
     
     # --- Plot Maps for Each Scenario ---
     plot_delta_map(subbasins, "Delta_Logged", "Average Delta - Logged Scenario", vmin, vmax)
     plot_delta_map(subbasins, "Delta_F60", "Average Delta - F60 Scenario", vmin, vmax)
-    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)   
+    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)
     
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
