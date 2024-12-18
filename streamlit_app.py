@@ -1185,52 +1185,43 @@ elif selected_option == "Scenario Breakdown":
     vmin = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].min().min()
     vmax = subbasins[["Delta_Logged", "Delta_F60", "Delta_F30"]].max().max()
     
-    # Display min and max in Streamlit for user info
-    st.write(f"Global Min Delta: {vmin}, Global Max Delta: {vmax}")
-
+    print(f"Cleaned Global Min Delta: {vmin}, Global Max Delta: {vmax}")
+    
+    # --- Function to Plot with Plotly ---
     def plot_delta_map(subbasins, column, title, vmin, vmax):
         """Plot a map showing delta values for a given column with a consistent color scale."""
-        
-        # Create centroids for each geometry
+        # Ensure proper GeoJSON format from GeoPandas geometry
         subbasins['centroid'] = subbasins.geometry.centroid
         subbasins['lat'] = subbasins.centroid.y
         subbasins['lon'] = subbasins.centroid.x
     
-        # Check for NaN or invalid values in the column
-        if subbasins[column].isna().sum() > 0:
-            print(f"Warning: There are {subbasins[column].isna().sum()} missing values in the '{column}' column.")
-        
-        # Ensure valid color range
-        if vmin == vmax:
-            print(f"Warning: vmin and vmax are equal! This might cause issues with color scaling.")
-        
         # Create Plotly choropleth map
         fig = px.choropleth(
             subbasins,
             geojson=subbasins.geometry.__geo_interface__,
             locations=subbasins.index,
             color=column,
-            color_continuous_scale="Viridis",  # Switch to a known working scale
-            range_color=[vmin, vmax],  # Ensure range is valid
+            color_continuous_scale="Viridis",  # You can change this to "coolwarm" or other scales
+            range_color=[vmin, vmax],  # Set the global min and max
             title=title,
             hover_name="Subbasin",
             labels={column: 'Delta Value'},
         )
     
-        # Update geospatial layout and color scale
+        # Update layout for better map presentation
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(
             geo=dict(showland=True, landcolor="white"),
             coloraxis_colorbar=dict(title="Delta Value", tickvals=[vmin, vmax], ticktext=[f"{vmin:.2f}", f"{vmax:.2f}"])
         )
     
-        # Display the plot using Streamlit
-        st.plotly_chart(fig)
+        # Show plot in the notebook (or save to file if needed)
+        fig.show()
     
-    # --- Display Maps ---
+    # --- Plot Maps for Each Scenario ---
     plot_delta_map(subbasins, "Delta_Logged", "Average Delta - Logged Scenario", vmin, vmax)
     plot_delta_map(subbasins, "Delta_F60", "Average Delta - F60 Scenario", vmin, vmax)
-    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)      
+    plot_delta_map(subbasins, "Delta_F30", "Average Delta - F30 Scenario", vmin, vmax)   
     
     #     # Streamlit widget to choose the year
     #     year = st.selectbox("Select Year", options=combined_data['YEAR'].unique())
