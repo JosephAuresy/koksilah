@@ -1167,7 +1167,7 @@ elif selected_option == "Scenario Breakdown":
     #st.title("Flow Duration Curve (FDC) Analysis")
     
     # --- Load Data ---
-    subbasins = gpd.read_file(shapefile_path)
+    subbasins = gpd.read_file(subbasins_shapefile_path)
     deltas = pd.read_csv(deltas_file)
     
     # Merge deltas with the shapefile
@@ -1187,7 +1187,7 @@ elif selected_option == "Scenario Breakdown":
     m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
     
     # --- Add Subbasin Layer ---
-    subbasins_gdf = gpd.read_file(subbasins)  # Replace with your subbasins shapefile
+    subbasins_gdf = gpd.read_file(subbasins_shapefile_path)  # Replace with your subbasins shapefile
     subbasins_layer = folium.GeoJson(
         subbasins_gdf,
         name="Subbasins",
