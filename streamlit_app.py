@@ -123,7 +123,7 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
             water_use_code = "half"
         elif water_use.lower() == "double":
             water_use_code = "double"
-        elif water_use.lower() == "NPS":
+        elif water_use.lower() == "nps":
             water_use_code = "NPS"
         else:
             # Default case for regular decade-based water use (e.g., W1950, W2010)
