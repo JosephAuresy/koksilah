@@ -98,10 +98,11 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
     st.sidebar.subheader("Water Use")
     selected_decade_water_use = st.sidebar.selectbox(
         "Choose a decade for Water Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
+        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','half', 'double','NPS'],
         index=6  # Default to 2010s (index 6)
     )
 
+        
     # Define a function to generate folder path based on selected decade
     def get_folder_path(land_use, climate, water_use):
         # Handle "logged" as a special case for land use
@@ -113,10 +114,39 @@ if selected_option == "Groundwater / Surface water interactions" or selected_opt
             land_use_code = "F60"  # Directly use F30 as the folder name
         else:
             land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
+        
+        # Format climate code
         climate_code = f'C{climate[-2:]}'
-        water_use_code = f'W{water_use[-2:]}'
+    
+        # Handle special cases for water_use
+        if water_use.lower() == "half":
+            water_use_code = "half"
+        elif water_use.lower() == "double":
+            water_use_code = "double"
+        elif water_use.lower() == "NPS":
+            water_use_code = "NPS"
+        else:
+            # Default case for regular decade-based water use (e.g., W1950, W2010)
+            water_use_code = f'W{water_use[-2:]}'  
+    
+        # Construct the folder name
         folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
         return Path(__file__).parent / 'data' / folder_name
+    # # Define a function to generate folder path based on selected decade
+    # def get_folder_path(land_use, climate, water_use):
+    #     # Handle "logged" as a special case for land use
+    #     if land_use.lower() == "logged":
+    #         land_use_code = "Logged"  # Use the exact case as in the folder name
+    #     elif land_use.lower() == "f30":
+    #         land_use_code = "F30"  # Directly use F30 as the folder name
+    #     elif land_use.lower() == "f60":
+    #         land_use_code = "F60"  # Directly use F30 as the folder name
+    #     else:
+    #         land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
+    #     climate_code = f'C{climate[-2:]}'
+    #     water_use_code = f'W{water_use[-2:]}'
+    #     folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
+    #     return Path(__file__).parent / 'data' / folder_name
 
     # Get the folder based on selected decades
     data_folder = get_folder_path(selected_decade_land_use, selected_decade_climate, selected_decade_water_use)
