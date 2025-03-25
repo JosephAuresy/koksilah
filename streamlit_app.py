@@ -33,7 +33,7 @@ import io
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
     page_title='Xwulqwselu',
-    page_icon=':snow_capped_mountain:',
+    page_icon=':herb:',
 )
 
 # Sidebar for navigation
