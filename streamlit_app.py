@@ -302,6 +302,41 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 if selected_option == "Watershed models":
     custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
+
+    # Add rain effect with CSS + JavaScript
+    st.markdown("""
+    <style>
+        body {
+            background-color: #2b3a67;
+            overflow: hidden;
+        }
+        @keyframes rain {
+            0% { transform: translateY(0px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: #88c0d0;
+            opacity: 0.7;
+            animation: rain linear infinite;
+        }
+    </style>
+    <script>
+        function createRain() {
+            for (let i = 0; i < 50; i++) {
+                let drop = document.createElement("div");
+                drop.classList.add("raindrop");
+                drop.style.left = Math.random() * window.innerWidth + "px";
+                drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + "s";
+                drop.style.animationDelay = Math.random() + "s";
+                document.body.appendChild(drop);
+            }
+        }
+        createRain();
+    </script>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
     [Xwulqw’selu Connections](https://onlineacademiccommunity.uvic.ca/xwulqwselu/) research project brings people together to learn about the conditions affecting stream flows in the Xwulqw’selu Watershed, where many are concerned about summer low flows and winter floods.
