@@ -301,7 +301,6 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 
 if selected_option == "Watershed models":
-
     custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 2)
 
     st.markdown("""
