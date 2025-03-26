@@ -56,7 +56,7 @@ with col2:
         change_page("Field data validation")
 
 with col3:
-    if st.button("💧 GW/SW Interactions"):
+    if st.button("💧 Groundwater / Surface water interactions"):
         change_page("Groundwater / Surface water interactions")
 
 with col4:
