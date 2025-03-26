@@ -335,20 +335,6 @@ if selected_option == "Watershed models":
     with col3:
         if st.button("🌲 Forestry Impacts"):
             st.session_state["page"] = "Forestry Impacts"
-
-# Handle navigation within the app
-if "page" not in st.session_state:
-    st.session_state["page"] = "Watershed models"
-
-if st.session_state["page"] == "Watershed models":
-    watershed_models_page()
-elif st.session_state["page"] == "Watershed Overview":
-    st.write("Page: Whole Watershed Overview (To be implemented)")
-elif st.session_state["page"] == "Water Use Scenarios":
-    st.write("Page: Water Use Scenarios (To be implemented)")
-elif st.session_state["page"] == "Forestry Impacts":
-    st.write("Page: Forestry Impacts (To be implemented)")
-
     
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
