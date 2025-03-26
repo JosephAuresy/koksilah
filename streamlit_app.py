@@ -310,7 +310,7 @@ if selected_option == "Watershed models":
     """)
     
     # Add an image or watershed diagram
-    st.image("watershed_diagram.png", caption="Key components of the watershed model.", use_column_width=True)
+    #st.image("watershed_diagram.png", caption="Key components of the watershed model.", use_column_width=True)
 
     st.markdown("""
     This interactive web app has **maps and graphs** where you can:
