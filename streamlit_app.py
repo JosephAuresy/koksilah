@@ -301,7 +301,7 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 
 if selected_option == "Watershed models":
-    custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 2)
+    custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 28)
 
     st.markdown("""
     Streamflow in the **Xwulqw'selu Sta'lo' (Koksilah River)** is getting lower in the summer, and **watershed models** can be useful tools to better understand **why, how, and where** this is happening.
