@@ -71,32 +71,6 @@ with col6:
     if st.button("📜 Report"):
         change_page("Report")
 
-# Page Content Based on Selection
-st.divider()
-if st.session_state["page"] == "Watershed models":
-    st.write("### 🌊 Watershed Models Page")
-    st.write("Content for Watershed Models...")
-    
-elif st.session_state["page"] == "Field data validation":
-    st.write("### 📊 Field Data Validation Page")
-    st.write("Content for Field Data Validation...")
-
-elif st.session_state["page"] == "Groundwater / Surface water interactions":
-    st.write("### 💧 Groundwater / Surface Water Interactions Page")
-    st.write("Content for GW/SW Interactions...")
-
-elif st.session_state["page"] == "Recharge":
-    st.write("### 🌿 Recharge Page")
-    st.write("Content for Recharge...")
-
-elif st.session_state["page"] == "Scenario Breakdown":
-    st.write("### 📉 Scenario Breakdown Page")
-    st.write("Content for Scenario Breakdown...")
-
-elif st.session_state["page"] == "Report":
-    st.write("### 📜 Report Page")
-    st.write("Content for Report...")
-
 # # Sidebar for navigation
 # st.sidebar.title("Xwulqw'selu Sta'lo'")
 # selected_option = st.sidebar.radio(
@@ -361,7 +335,10 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
 
-if selected_option == "Watershed models":
+# Page Content Based on Selection
+st.divider()
+if st.session_state["page"] == "Watershed models":
+
     custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 28)
 
     st.markdown("""
@@ -453,9 +430,9 @@ if selected_option == "Watershed models":
     else:
         st.write("Click on an image to see a larger view and explanation.")
 
-
-elif selected_option == "Field data validation":
     
+elif st.session_state["page"] == "Field data validation":
+   
     # Define paths to the main data file and the points file
     main_path = Path(__file__).parent
     DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'
@@ -579,8 +556,8 @@ elif selected_option == "Field data validation":
     
     # Display the plot in the Streamlit app
     st.plotly_chart(fig)
-        
-elif selected_option == "Groundwater / Surface water interactions":
+
+elif st.session_state["page"] == "Groundwater / Surface water interactions":
 
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
@@ -989,9 +966,9 @@ elif selected_option == "Groundwater / Surface water interactions":
     summary_table = summarize_histograms(monthly_stats)
     st.write("Summary of Histograms Data across Months:")
     st.dataframe(summary_table)
-   
-        
-elif selected_option == "Recharge":
+
+elif st.session_state["page"] == "Recharge":
+    
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
 
     st.markdown("""
@@ -1085,7 +1062,8 @@ elif selected_option == "Recharge":
     st_folium(m, width=700, height=600)  
 
 
-elif selected_option == "Scenario Breakdown":
+elif st.session_state["page"] == "Scenario Breakdown":
+
     st.title("Watershed Summary")
 
     # Create the data for the scenarios
@@ -1488,9 +1466,10 @@ elif selected_option == "Scenario Breakdown":
     
     # else:
     #     st.warning("Please upload all four scenario Excel files to proceed.")
- 
 
-elif selected_option == "Report":   
+
+elif st.session_state["page"] == "Report":
+    
     st.title("Model Validation Report")
     
     # Add a short description
