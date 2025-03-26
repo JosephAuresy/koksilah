@@ -301,16 +301,10 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 
 if selected_option == "Watershed models":
-    custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
+    custom_title("Xwulqw'selu Sta'lo' watershed model – key learnings", 28)
     
     st.markdown("""
-    [Xwulqw’selu Connections](https://onlineacademiccommunity.uvic.ca/xwulqwselu/) research project brings people together to learn about the conditions affecting stream flows in the Xwulqw’selu Watershed, where many are concerned about summer low flows and winter floods.
-    
-    We developed watershed models with the best available data that complement the valuable field data collected by monitors and previous reports. These models give us more understanding from places and times that don't have field data.
-    
-    Watershed models use the **SWAT-MODFLOW** model, an internationally recognized standard for analyzing the interactions between groundwater, surface water, climate, land use, and water use. This model provides valuable insights into the hydrological dynamics of the watershed and is calibrated to the best available data from 2013 to 2022.
-    
-    You can explore interactive maps showing how groundwater and surface water are connected, or view **groundwater recharge** across the watershed. Soon, we’ll add models from other decades in the past to expand our understanding.
+    [Streamflow in the Xwulqw'selu Sta'lo' (Koksilah River) are getting lower in the summer, and watershed models can be useful tools to better understand why, how and where this is happening.]
     """)
         
     # Set the data folder using Path
