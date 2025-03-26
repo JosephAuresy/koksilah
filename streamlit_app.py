@@ -36,13 +36,74 @@ st.set_page_config(
     page_icon=':herb:',
 )
 
-# Sidebar for navigation
-st.sidebar.title("Xwulqw'selu Sta'lo'")
-selected_option = st.sidebar.radio(
-    "Select an option:",
-    #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
-)
+# Initialize session state for page tracking
+if "page" not in st.session_state:
+    st.session_state["page"] = "Watershed models"
+
+# Function to change page
+def change_page(page_name):
+    st.session_state["page"] = page_name
+
+# Display navigation buttons
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+with col1:
+    if st.button("🏞️ Watershed Models"):
+        change_page("Watershed models")
+
+with col2:
+    if st.button("📊 Field Data Validation"):
+        change_page("Field data validation")
+
+with col3:
+    if st.button("💧 GW/SW Interactions"):
+        change_page("Groundwater / Surface water interactions")
+
+with col4:
+    if st.button("🌿 Recharge"):
+        change_page("Recharge")
+
+with col5:
+    if st.button("📉 Scenario Breakdown"):
+        change_page("Scenario Breakdown")
+
+with col6:
+    if st.button("📜 Report"):
+        change_page("Report")
+
+# Page Content Based on Selection
+st.divider()
+if st.session_state["page"] == "Watershed models":
+    st.write("### 🌊 Watershed Models Page")
+    st.write("Content for Watershed Models...")
+    
+elif st.session_state["page"] == "Field data validation":
+    st.write("### 📊 Field Data Validation Page")
+    st.write("Content for Field Data Validation...")
+
+elif st.session_state["page"] == "Groundwater / Surface water interactions":
+    st.write("### 💧 Groundwater / Surface Water Interactions Page")
+    st.write("Content for GW/SW Interactions...")
+
+elif st.session_state["page"] == "Recharge":
+    st.write("### 🌿 Recharge Page")
+    st.write("Content for Recharge...")
+
+elif st.session_state["page"] == "Scenario Breakdown":
+    st.write("### 📉 Scenario Breakdown Page")
+    st.write("Content for Scenario Breakdown...")
+
+elif st.session_state["page"] == "Report":
+    st.write("### 📜 Report Page")
+    st.write("Content for Report...")
+
+# # Sidebar for navigation
+# st.sidebar.title("Xwulqw'selu Sta'lo'")
+# selected_option = st.sidebar.radio(
+#     "Select an option:",
+#     #("Watershed models", "Water interactions", "Recharge", "View Report")
+#     ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
+# )
 
 def process_swatmf_data(file_path):
     data = []
