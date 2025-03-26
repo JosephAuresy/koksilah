@@ -301,12 +301,56 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 
 if selected_option == "Watershed models":
-    custom_title("Xwulqw'selu Sta'lo' watershed model – key learnings", 28)
-    
+
+    custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 2)
+
     st.markdown("""
-    [Streamflow in the Xwulqw'selu Sta'lo' (Koksilah River) are getting lower in the summer, and watershed models can be useful tools to better understand why, how and where this is happening.]
+    Streamflow in the **Xwulqw'selu Sta'lo' (Koksilah River)** is getting lower in the summer, and **watershed models** can be useful tools to better understand **why, how, and where** this is happening.
+    
+    We developed a **whole-of-watershed model** using the best available data to represent current conditions. The model includes **all key watershed processes** from precipitation to streamflow and can explore **different land use and water use scenarios**.
     """)
-        
+    
+    # Add an image or watershed diagram
+    st.image("watershed_diagram.png", caption="Key components of the watershed model.", use_column_width=True)
+
+    st.markdown("""
+    This interactive web app has **maps and graphs** where you can:
+    - **Explore the importance of the whole watershed** [Go to Watershed Overview](#)
+    - **See how summer low flows are impacted by changing water use** [Go to Water Use Scenarios](#)
+    - **Investigate forestry practice impacts** [Go to Forestry Impacts](#)
+    
+    These **maps and graphs** are another way of ‘seeing’ the watershed, just like this picture. 
+    We invite you to learn about the Xwulqw'selu Sta'lo' in this way.
+    
+    **Much more information is available in David’s thesis if you would like to explore further.**
+    """)
+
+    # Navigation Buttons
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("🌍 Whole Watershed"):
+            st.session_state["page"] = "Watershed Overview"
+    with col2:
+        if st.button("💧 Water Use Impacts"):
+            st.session_state["page"] = "Water Use Scenarios"
+    with col3:
+        if st.button("🌲 Forestry Impacts"):
+            st.session_state["page"] = "Forestry Impacts"
+
+# Handle navigation within the app
+if "page" not in st.session_state:
+    st.session_state["page"] = "Watershed models"
+
+if st.session_state["page"] == "Watershed models":
+    watershed_models_page()
+elif st.session_state["page"] == "Watershed Overview":
+    st.write("Page: Whole Watershed Overview (To be implemented)")
+elif st.session_state["page"] == "Water Use Scenarios":
+    st.write("Page: Water Use Scenarios (To be implemented)")
+elif st.session_state["page"] == "Forestry Impacts":
+    st.write("Page: Forestry Impacts (To be implemented)")
+
+    
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
     
