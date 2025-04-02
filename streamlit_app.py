@@ -41,7 +41,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
+    ("Watershed models", "Whole watershed", "Recharge", "Scenario Breakdown", "Report")
 )
 
 def process_swatmf_data(file_path):
@@ -378,145 +378,31 @@ if selected_option == "Watershed models":
         st.write(selected_caption)  # Show the caption only after the image is clicked
     else:
         st.write("Click on an image to see a larger view and explanation.")
-
-
-elif selected_option == "Field data validation":
-    
-    # Define paths to the main data file and the points file
-    main_path = Path(__file__).parent
-    DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'
-    points_file_path = main_path / 'data/points_info.csv'
-    
-    # Define the sites to color in purple
-    purple_sites = [
-        "Glenora_DoupeRd", "Glenora_MarshallRd", "Kelvin_MountainRd_5",
-        "Mainstem_KoksilahRiverPark", "Neel_ShawRd_2", "Patrolas_HillbankRd",
-        "WildDeer_WildDeerMain4.8", "WK_East_RenfrewMain1.0"
-    ]
-    
-    # Streamlit app
-    st.title("Flow Rate Analysis for August")
-    
-    # Check if data files exist before proceeding
-    if DATA_FILENAME.exists() and points_file_path.exists():
-        # Process the main data file and filter for August
-        df = process_swatmf_data(DATA_FILENAME)
-        august_data = df[df['Month'] == 8]  # Filter for August only
-    
-        # Read points CSV file
-        points_df = pd.read_csv(points_file_path)
-    
-        # Merge to get data only for the points in points_info.csv
-        filtered_data = august_data.merge(points_df, left_on=['Row', 'Column'], right_on=['ROW', 'COLUMN'], how='inner')
-    
-        # Separate sites into three groups: all negative, all positive, and mixed values
-        all_negative_sites = []
-        all_positive_sites = []
-        mixed_sites = []
-    
-        # Determine which sites belong to each group
-        for site in filtered_data['name'].unique():
-            site_data = filtered_data[filtered_data['name'] == site]
-            if (site_data['Rate'] <= 0).all():  # All values are negative
-                all_negative_sites.append(site)
-            elif (site_data['Rate'] > 0).all():  # All values are positive
-                all_positive_sites.append(site)
-            else:  # Mixed values
-                mixed_sites.append(site)
-    
-        # Function to create box plots
-        def create_box_plot(sites, title, color_map):
-            fig = go.Figure()
-            for site in sites:
-                site_data = filtered_data[filtered_data['name'] == site]
-                color = color_map.get(site, 'gray')
-                
-                fig.add_trace(go.Box(
-                    y=site_data['Rate'],
-                    name=site,
-                    marker_color=color,
-                    line=dict(width=2),
-                    boxmean='sd',
-                    marker=dict(outliercolor='red'),
-                    showlegend=False
-                ))
-            fig.update_layout(
-                title=title,
-                yaxis_title="Flow Rate (cms)",
-                boxmode='group',
-                height=600,
-                plot_bgcolor='white',
-                yaxis=dict(gridcolor='LightGray')
-            )
-            return fig
-    
-        # Create color maps for each group
-        negative_color_map = {site: 'purple' if site in purple_sites else 'blue' for site in all_negative_sites}
-        mixed_color_map = {site: 'purple' if site in purple_sites else 'lightblue' for site in mixed_sites}
-        positive_color_map = {site: 'purple' if site in purple_sites else 'brown' for site in all_positive_sites}
-    
-        # Display the plots in the Streamlit app
-        st.subheader("Consistently Gaining: Box Plot of August Flow Rates (All Negative Sites)")
-        st.plotly_chart(create_box_plot(all_negative_sites, "Consistently Gaining", negative_color_map))
-    
-        st.subheader("Transition Places: Box Plot of August Flow Rates (Mixed Value Sites)")
-        st.plotly_chart(create_box_plot(mixed_sites, "Transition Places", mixed_color_map))
-    
-        st.subheader("Consistently Losing: Box Plot of August Flow Rates (All Positive Sites)")
-        st.plotly_chart(create_box_plot(all_positive_sites, "Consistently Losing", positive_color_map))
-    
-    else:
-        st.error("Required files not found. Please ensure 'swatmf_out_MF_gwsw_monthly.csv' and 'points_info.csv' are in the working directory.")
         
-    # Load your data from the CSV file
-    csv_file_path = 'data/Simulated_vs_Observed_Flow_Year10_Months6_9.csv'  # Path to your CSV file
-    merged_data = pd.read_csv(csv_file_path)
-    
-    # Create an interactive scatter plot with log scale and limited axis range, coloring points by 'Site'
-    fig = px.scatter(
-        merged_data, 
-        x='Measured_Flow', 
-        y='Simulated_Flow', 
-        color='Site',  # Color points by site
-        labels={'Measured_Flow': 'Measured Flow (cms)', 'Simulated_Flow': 'Simulated Flow (cms)', 'Site': 'Site'},
-        title='Simulated vs. Measured Flow by Site (Log Scale, Limited Range)',
-        opacity=0.6
-    )
-    
-    # Add a 45-degree reference line
-    fig.add_shape(
-        type="line",
-        x0=0.00001, y0=0.00001, x1=2, y1=2,  # Start from a small positive value to fit the log scale
-        line=dict(color="Red", dash="dash")
-    )
-    
-    # Set log scale and limit the range of the plot to 2
-    fig.update_layout(
-        xaxis=dict(title="Measured Flow (cms)", type="log", range=[np.log10(0.00001), np.log10(2)]),  # Log scale starting at 0.00001
-        yaxis=dict(title="Simulated Flow (cms)", type="log", range=[np.log10(0.00001), np.log10(2)]),  # Log scale starting at 0.00001
-        autosize=False,
-        width=700,
-        height=700
-    )
-    
-    # Streamlit app layout
-    st.title("Flow Simulation Analysis")
-    st.write("This application displays the simulated vs. measured flow data colored by site.")
-    
-    # Display the plot in the Streamlit app
-    st.plotly_chart(fig)
-        
-elif selected_option == "Groundwater / Surface water interactions":
+elif selected_option == "Whole watershed":
 
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
-
+    
     st.markdown("""
-    In the Xwulqw’selu Watershed, groundwater plays a key role in sustaining streamflow during low-flow periods, particularly in summer. As surface water levels drop, groundwater discharge becomes the primary source of flow, helping maintain aquatic habitats and water availability. 
+    ### The Importance of the Whole Watershed
     
-    Land use changes, and climate shifts can reduce groundwater recharge, worsening low-flow conditions. Understanding this groundwater-surface water interaction is critical for managing water resources and mitigating the impacts of prolonged droughts.
+    The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.  
     
-    Below is a map of the average monthly groundwater / surface water interactions across the watershed. You can change which month you want to look at or zoom into different parts of the watershed for a closer examination of recharge patterns.
+    You can zoom into any part of the maps or change which month you are looking at if you want to see how the hydrologic components of the watershed change by season.  
+    
+    ---
+    
+    ### Groundwater-Surface Water Interactions  
+    
+    Groundwater interacts with streams in different ways. Streams can be either **gaining** (with groundwater flowing to streams, shown as blue on the map) or **losing** (with surface water flowing to the aquifer, shown as brown on the map). Most Xwulqw’selu Sta’lo’ tributaries are gaining throughout the whole year, even in winter. This finding underscores the important contributions of groundwater to overall watershed budgets.  
+    
+    ---
+    
+    ### Groundwater Recharge  
+    
+    Aquifers are recharged by both precipitation and streams. The rate of average groundwater recharge is shown on the map, with the **darkest blue** indicating the highest rates of groundwater recharge. Groundwater recharge occurs mostly in winter, sourced from both precipitation and rivers. Importantly, groundwater recharge occurs across much of the watershed, reaffirming the importance of a **whole-of-watershed management strategy**.  
     """)
+
     
     # Step 1: Group data by Month, Row, and Column, and calculate the mean for each location across all years
     monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].mean().reset_index()
