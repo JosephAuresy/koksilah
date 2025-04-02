@@ -302,17 +302,27 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 
 if selected_option == "Watershed models":
     custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
-    
-    st.markdown("""
-    [Xwulqw’selu Connections](https://onlineacademiccommunity.uvic.ca/xwulqwselu/) research project brings people together to learn about the conditions affecting stream flows in the Xwulqw’selu Watershed, where many are concerned about summer low flows and winter floods.
-    
-    We developed watershed models with the best available data that complement the valuable field data collected by monitors and previous reports. These models give us more understanding from places and times that don't have field data.
-    
-    Watershed models use the **SWAT-MODFLOW** model, an internationally recognized standard for analyzing the interactions between groundwater, surface water, climate, land use, and water use. This model provides valuable insights into the hydrological dynamics of the watershed and is calibrated to the best available data from 2013 to 2022.
-    
-    You can explore interactive maps showing how groundwater and surface water are connected, or view **groundwater recharge** across the watershed. Soon, we’ll add models from other decades in the past to expand our understanding.
-    """)
         
+    st.markdown("""
+    ### Xwulqw'selu Sta'lo' Watershed Model – Key Learnings
+    
+    Summer flows in Xwulqw'selu Sta'lo' (Koksilah River) have been decreasing over time. Watershed models can be useful tools to better understand why, how, and where this is happening.
+    
+    The **Xwulqw'selu Connections** research team at the University of Victoria developed a comprehensive watershed model using the best available data to represent current conditions. This complex computer model integrates multiple processes that govern water movement through the watershed across time and space. The main pathways of water flow—from precipitation to streamflow—are depicted in a watershed diagram. The model also incorporates recent climate data and can be used to compare different scenarios of water and land management.
+    
+    This interactive website features maps and graphs where you can explore the significance of the entire watershed ([link to first page]), examine how changes in water use ([link to second page]) or forestry practices ([link to third page]) affect summer low flows. These visualizations provide an alternative way of 'seeing' the watershed, similar to interpreting an aerial or conceptual representation of the landscape.
+    
+    This model and website were primarily developed by **David Serrano**. More detailed information can be found in David’s **thesis** ([link]), for those interested in further exploration.
+    
+    #### Key Definitions:
+    
+    - **Low Flows:** The lowest streamflows in the Xwulqw'selu Sta'lo' typically occur during summer and are measured in volume per time. This model focuses particularly on August streamflows, though watershed health encompasses many other factors beyond just flow rates.
+    - **Baseline Model:** A model representing the best available recent data (2012–2023).
+    - **Scenarios:** Variations of the baseline model where water use or land use is altered while keeping all other variables constant. These scenarios help assess the potential impacts of changes in water and land use.
+    
+    We invite you to engage with this interactive tool and deepen your understanding of the Xwulqw'selu Sta'lo' watershed.
+    """)
+
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
     
