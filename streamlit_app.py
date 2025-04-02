@@ -78,7 +78,7 @@ def process_swatmf_data(file_path):
     return df
 
 # Conditional Model Selection Display
-if selected_option == "Groundwater / Surface water interactions" or selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
+if selected_option == "Whole watershed" or selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
     # Display Model selection part only when these options are selected
     st.sidebar.title("Model selection")
     st.sidebar.subheader("Climate")
@@ -380,8 +380,6 @@ if selected_option == "Watershed models":
         st.write("Click on an image to see a larger view and explanation.")
         
 elif selected_option == "Whole watershed":
-
-    custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
     
     st.markdown("""
     ### The Importance of the Whole Watershed
@@ -403,7 +401,6 @@ elif selected_option == "Whole watershed":
     Aquifers are recharged by both precipitation and streams. The rate of average groundwater recharge is shown on the map, with the **darkest blue** indicating the highest rates of groundwater recharge. Groundwater recharge occurs mostly in winter, sourced from both precipitation and rivers. Importantly, groundwater recharge occurs across much of the watershed, reaffirming the importance of a **whole-of-watershed management strategy**.  
     """)
 
-    
     # Step 1: Group data by Month, Row, and Column, and calculate the mean for each location across all years
     monthly_stats = df.groupby(['Month', 'Row', 'Column'])['Rate'].mean().reset_index()
     
