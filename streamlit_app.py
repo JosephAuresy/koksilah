@@ -1270,26 +1270,5 @@ elif selected_option == "Land use":
     This analysis helps illustrate the **complex relationships** between land use, forest age, and watershed hydrology.  
     """)
 
-    # Add a short description
-    st.markdown("""
-    This report provides a comprehensive validation of the SWAT-MODFLOW model 
-    implemented for groundwater and surface water interactions. It includes 
-    detailed analysis of the model's performance, statistical metrics, and 
-    visualizations that illustrate the model's predictions against observed data.
-    """)
-
-    PDF_FILE = Path(__file__).parent / 'data/koki_swatmf_report.pdf'
-    with open(PDF_FILE, "rb") as f:
-        pdf_data = f.read()
-        pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
-
-    st.download_button(
-        label="Download PDF",
-        data=pdf_data,
-        file_name="koki_swatmf_report.pdf",
-        mime="application/pdf"
-    )
     
-    iframe_width, iframe_height = get_iframe_dimensions()
-    st.markdown(f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="{iframe_width}" height="{iframe_height}" style="border:none;"></iframe>', unsafe_allow_html=True)
-    
+
