@@ -41,7 +41,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Whole watershed", "Scenario Breakdown", "Report")
+    ("Watershed models", "Whole watershed", "Water use", "Land use")
 )
 
 def process_swatmf_data(file_path):
@@ -78,7 +78,7 @@ def process_swatmf_data(file_path):
     return df
 
 # Conditional Model Selection Display
-if selected_option == "Whole watershed" or selected_option == "Scenario Breakdown":
+if selected_option == "Whole watershed":
     # Display Model selection part only when these options are selected
     st.sidebar.title("Model selection")
     st.sidebar.subheader("Climate")
@@ -778,8 +778,59 @@ elif selected_option == "Whole watershed":
     st_folium(m, width=700, height=600)  
 
 
-elif selected_option == "Scenario Breakdown":
-    st.title("Watershed Summary")
+elif selected_option == "Water use":
+    
+    st.markdown("""
+    ### Water Use Scenarios  
+    
+    Water use, especially surface water use, strongly and quickly impacts summer low flows in the **Xwulqw'selu Sta'lo'** at Cowichan Station.  
+    
+    You can zoom into any part of the graphs, and if you want to see detailed differences between scenarios, check out **David’s thesis**. Water use refers to any water extracted from streams or aquifers for agriculture, as calculated by the **Province of British Columbia**. **Streamflow** refers to the flow in the Xwulqw'selu Sta'lo', measured in cubic meters per second.  
+    
+    ---
+    
+    ### Three Types of Water Use Scenarios  
+    
+    We explored three key ways water use could impact summer low flows:  
+    
+    1. **Total Water Use:** We **doubled or halved** total water use (from both groundwater and surface water) compared to the baseline to assess the overall impact of water use.  
+    2. **Decreasing Groundwater or Surface Water Use:** We reduced either **only groundwater use** or **only surface water use** throughout the year to evaluate the distinct effects of each water source.  
+    3. **Changing the Timing of Water Use Restrictions:** We adjusted the **start month of water use restrictions** (June, July, or August) to see if timing influenced the impact of restrictions.  
+    
+    ---
+    
+    ### Total Water Use  
+    
+    The upper graph displays different **rates of total water use** in various scenarios. The lower graph illustrates how these changes affect **streamflow**, which varies seasonally. The **red line** represents the **fish protection order** threshold.  
+    
+    - **Doubling total water use** reduces low flows by over **50%**, often dropping below fish protection thresholds for nearly a month.  
+    - **Halving total water use** increases low flow by **50%**, emphasizing the benefits of water conservation.  
+    
+    ---
+    
+    ### Decreasing Groundwater or Surface Water Use  
+    
+    In these graphs, **only groundwater or only surface water use** is reduced.  
+    
+    - **Surface water extraction has an immediate impact on streamflow**—when water is taken from a stream, flow decreases immediately.  
+    - **Groundwater pumping affects streamflow more slowly**, sometimes taking days, weeks, or months for the impact to appear.  
+    - **Scenarios where groundwater or surface water use is halved** show that surface water use has a more immediate and significant effect on low flows.  
+    - The impact of groundwater pumping on low flows depends on well location relative to streams and aquifers.  
+    
+    ---
+    
+    ### Changing the Timing of Water Use Restrictions  
+    
+    This scenario examines the effect of **starting water use restrictions in June, July, or August**.  
+    
+    - **Starting restrictions earlier in the season is less critical** since surface water restrictions have immediate impacts.  
+    - **Water use restrictions can increase low flows by 20–50%**, with later-starting restrictions still yielding significant benefits.  
+    
+    ---
+    
+    These insights highlight the importance of **adaptive water management** and **conservation strategies** to maintain healthy summer streamflows in the Xwulqw'selu Sta'lo'.  
+    
+    """)
 
     # Create the data for the scenarios
     data = {
