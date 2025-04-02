@@ -36,48 +36,13 @@ st.set_page_config(
     page_icon=':herb:',
 )
 
-# Initialize session state for page tracking
-if "page" not in st.session_state:
-    st.session_state["page"] = "Watershed models"
-
-# Function to change page
-def change_page(page_name):
-    st.session_state["page"] = page_name
-
-# Display navigation buttons
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-with col1:
-    if st.button("🏞️ Watershed Models"):
-        change_page("Watershed models")
-
-with col2:
-    if st.button("📊 Field Data Validation"):
-        change_page("Field data validation")
-
-with col3:
-    if st.button("💧 Groundwater / Surface water interactions"):
-        change_page("Groundwater / Surface water interactions")
-
-with col4:
-    if st.button("🌿 Recharge"):
-        change_page("Recharge")
-
-with col5:
-    if st.button("📉 Scenario Breakdown"):
-        change_page("Scenario Breakdown")
-
-with col6:
-    if st.button("📜 Report"):
-        change_page("Report")
-
-# # Sidebar for navigation
-# st.sidebar.title("Xwulqw'selu Sta'lo'")
-# selected_option = st.sidebar.radio(
-#     "Select an option:",
-#     #("Watershed models", "Water interactions", "Recharge", "View Report")
-#     ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
-# )
+# Sidebar for navigation
+st.sidebar.title("Xwulqw'selu Sta'lo'")
+selected_option = st.sidebar.radio(
+    "Select an option:",
+    #("Watershed models", "Water interactions", "Recharge", "View Report")
+    ("Watershed models", "Field data validation", "Groundwater / Surface water interactions", "Recharge", "Scenario Breakdown", "Report")
+)
 
 def process_swatmf_data(file_path):
     data = []
@@ -335,45 +300,19 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
 
-# Page Content Based on Selection
-st.divider()
-if st.session_state["page"] == "Watershed models":
-
-    custom_title("Xwulqw'selu Sta'lo' Watershed Model – Key Learnings", 28)
-
+if selected_option == "Watershed models":
+    custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
+    
     st.markdown("""
-    Streamflow in the **Xwulqw'selu Sta'lo' (Koksilah River)** is getting lower in the summer, and **watershed models** can be useful tools to better understand **why, how, and where** this is happening.
+    [Xwulqw’selu Connections](https://onlineacademiccommunity.uvic.ca/xwulqwselu/) research project brings people together to learn about the conditions affecting stream flows in the Xwulqw’selu Watershed, where many are concerned about summer low flows and winter floods.
     
-    We developed a **whole-of-watershed model** using the best available data to represent current conditions. The model includes **all key watershed processes** from precipitation to streamflow and can explore **different land use and water use scenarios**.
+    We developed watershed models with the best available data that complement the valuable field data collected by monitors and previous reports. These models give us more understanding from places and times that don't have field data.
+    
+    Watershed models use the **SWAT-MODFLOW** model, an internationally recognized standard for analyzing the interactions between groundwater, surface water, climate, land use, and water use. This model provides valuable insights into the hydrological dynamics of the watershed and is calibrated to the best available data from 2013 to 2022.
+    
+    You can explore interactive maps showing how groundwater and surface water are connected, or view **groundwater recharge** across the watershed. Soon, we’ll add models from other decades in the past to expand our understanding.
     """)
-    
-    # Add an image or watershed diagram
-    #st.image("watershed_diagram.png", caption="Key components of the watershed model.", use_column_width=True)
-
-    st.markdown("""
-    This interactive web app has **maps and graphs** where you can:
-    - **Explore the importance of the whole watershed** [Go to Watershed Overview](#)
-    - **See how summer low flows are impacted by changing water use** [Go to Water Use Scenarios](#)
-    - **Investigate forestry practice impacts** [Go to Forestry Impacts](#)
-    
-    These **maps and graphs** are another way of ‘seeing’ the watershed, just like this picture. 
-    We invite you to learn about the Xwulqw'selu Sta'lo' in this way.
-    
-    **Much more information is available in David’s thesis if you would like to explore further.**
-    """)
-
-    # Navigation Buttons
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("🌍 Whole Watershed"):
-            st.session_state["page"] = "Watershed Overview"
-    with col2:
-        if st.button("💧 Water Use Impacts"):
-            st.session_state["page"] = "Water Use Scenarios"
-    with col3:
-        if st.button("🌲 Forestry Impacts"):
-            st.session_state["page"] = "Forestry Impacts"
-    
+        
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
     
@@ -430,9 +369,9 @@ if st.session_state["page"] == "Watershed models":
     else:
         st.write("Click on an image to see a larger view and explanation.")
 
+
+elif selected_option == "Field data validation":
     
-elif st.session_state["page"] == "Field data validation":
-   
     # Define paths to the main data file and the points file
     main_path = Path(__file__).parent
     DATA_FILENAME = main_path / 'data/swatmf_out_MF_gwsw_monthly.csv'
@@ -556,8 +495,8 @@ elif st.session_state["page"] == "Field data validation":
     
     # Display the plot in the Streamlit app
     st.plotly_chart(fig)
-
-elif st.session_state["page"] == "Groundwater / Surface water interactions":
+        
+elif selected_option == "Groundwater / Surface water interactions":
 
     custom_title("How groundwater and surface water interact in the Xwulqw’selu watershed?", 28)
 
@@ -966,9 +905,9 @@ elif st.session_state["page"] == "Groundwater / Surface water interactions":
     summary_table = summarize_histograms(monthly_stats)
     st.write("Summary of Histograms Data across Months:")
     st.dataframe(summary_table)
-
-elif st.session_state["page"] == "Recharge":
-    
+   
+        
+elif selected_option == "Recharge":
     custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
 
     st.markdown("""
@@ -1062,8 +1001,7 @@ elif st.session_state["page"] == "Recharge":
     st_folium(m, width=700, height=600)  
 
 
-elif st.session_state["page"] == "Scenario Breakdown":
-
+elif selected_option == "Scenario Breakdown":
     st.title("Watershed Summary")
 
     # Create the data for the scenarios
@@ -1466,10 +1404,9 @@ elif st.session_state["page"] == "Scenario Breakdown":
     
     # else:
     #     st.warning("Please upload all four scenario Excel files to proceed.")
+ 
 
-
-elif st.session_state["page"] == "Report":
-    
+elif selected_option == "Report":   
     st.title("Model Validation Report")
     
     # Add a short description
