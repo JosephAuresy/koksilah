@@ -41,7 +41,7 @@ st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
     #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Whole watershed", "Recharge", "Scenario Breakdown", "Report")
+    ("Watershed models", "Whole watershed", "Scenario Breakdown", "Report")
 )
 
 def process_swatmf_data(file_path):
@@ -78,7 +78,7 @@ def process_swatmf_data(file_path):
     return df
 
 # Conditional Model Selection Display
-if selected_option == "Whole watershed" or selected_option == "Scenario Breakdown" or selected_option == "Recharge" :
+if selected_option == "Whole watershed" or selected_option == "Scenario Breakdown":
     # Display Model selection part only when these options are selected
     st.sidebar.title("Model selection")
     st.sidebar.subheader("Climate")
@@ -394,11 +394,6 @@ elif selected_option == "Whole watershed":
     
     Groundwater interacts with streams in different ways. Streams can be either **gaining** (with groundwater flowing to streams, shown as blue on the map) or **losing** (with surface water flowing to the aquifer, shown as brown on the map). Most Xwulqw’selu Sta’lo’ tributaries are gaining throughout the whole year, even in winter. This finding underscores the important contributions of groundwater to overall watershed budgets.  
     
-    ---
-    
-    ### Groundwater Recharge  
-    
-    Aquifers are recharged by both precipitation and streams. The rate of average groundwater recharge is shown on the map, with the **darkest blue** indicating the highest rates of groundwater recharge. Groundwater recharge occurs mostly in winter, sourced from both precipitation and rivers. Importantly, groundwater recharge occurs across much of the watershed, reaffirming the importance of a **whole-of-watershed management strategy**.  
     """)
 
     # Step 1: Group data by Month, Row, and Column, and calculate the mean for each location across all years
@@ -689,126 +684,15 @@ elif selected_option == "Whole watershed":
     # Filter data for the selected month
     selected_month_data = monthly_stats[monthly_stats['Month'] == selected_month]
 
-    # Definitions and Formulas Section
-    st.header('Spatial Analysis Definitions and Formulas')
-    
-    # Hotspot Analysis Definition
-    st.subheader('Hotspot Analysis')
-    st.write("""
-    This analysis identifies significant hotspots in the dataset based on z-scores. 
-    A hotspot is defined as a location where the 'Rate' is significantly higher or lower than the mean value of the dataset.
-    """)
-    st.write("**Formula:**")
-    st.latex(r'z = \frac{(X - \mu)}{\sigma}')
-    st.write("""
-    Where:
-    - \(X\) = individual observation
-    - \(\mu\) = mean of the dataset
-    - \(\sigma\) = standard deviation of the dataset
-    """)
-    
-    # Change Detection Definition
-    st.subheader('Change Detection')
-    st.write("""
-    This analysis identifies changes in the 'Rate' values over time. 
-    It calculates the difference in the 'Rate' between consecutive entries to detect any significant changes.
-    """)
-    st.write("**Formula:**")
-    st.write("The change \(C\) is calculated as:")
-    st.latex(r'C = R_t - R_{t-1}')
-    st.write("""
-    Where:
-    - \(R_t\) = Rate at time \(t\)
-    - \(R_{t-1}\) = Rate at the previous time step
-    """)
-    
-    # Hotspot Analysis Function
-    def hotspot_analysis(data):
-        """
-        This function identifies significant hotspots in the dataset based on z-scores.
-        A hotspot is defined as a location where the 'Rate' is significantly higher or lower 
-        than the mean value of the dataset, determined by z-scores.
-        """
-        # Compute the z-scores of the Rate values
-        data['z_score'] = zscore(data['Rate'])
-        # Identify significant clusters based on z-scores
-        significant_hotspots = data[np.abs(data['z_score']) > 1.96]  # 95% confidence interval
-        return significant_hotspots
-
-    # Change Detection Function
-    def change_detection(data):
-        """
-        This function identifies changes in the 'Rate' values over time.
-        It calculates the difference in the 'Rate' between consecutive entries 
-        to detect any significant changes.
-        """
-        # Calculate the change in the 'Rate' column compared to the previous entry
-        data['change'] = data['Rate'].diff().fillna(0)  # Fill NA values with 0
-        # Filter the dataset to only include rows where a change is detected
-        changes = data[data['change'] != 0]
-        return changes
-    
-    # Hotspot Analysis Button
-    if st.button('Run Hotspot Analysis'):
-        hotspots = hotspot_analysis(selected_month_data)  # Call the hotspot analysis function
-        st.write('Hotspots Identified:', hotspots)  # Display identified hotspots
-    
-    # Change Detection Button
-    if st.button('Run Change Detection'):
-        changes = change_detection(selected_month_data)  # Call the change detection function
-        st.write('Changes Detected:', changes[['Row', 'Column', 'change']])  # Display detected changes
-    
-    # Plotting function for histogram
-    def plot_histogram(data, selected_month_name):
-        """
-        Plots a histogram of the 'Rate' values for the selected month.
-        """
-        mean_rate = data['Rate'].mean()  # Calculate the mean
-        std_rate = data['Rate'].std()   # Calculate the standard deviation
-        
-        # Plot histogram
-        plt.figure(figsize=(10, 6))  # Set figure size
-        plt.hist(data['Rate'], bins=30, color='blue', alpha=0.7)  # Create histogram
-        plt.axvline(mean_rate, color='red', linestyle='dashed', linewidth=1, label=f'Mean: {mean_rate:.2f}')  # Add mean line
-        plt.text(mean_rate, plt.gca().get_ylim()[1] * 0.9, f'Mean: {mean_rate:.2f}', color='red', fontsize=12, ha='center', bbox=dict(facecolor='white', alpha=0.6))   
-        plt.axvline(mean_rate + 1.96 * std_rate, color='green', linestyle='dashed', linewidth=1, label='95% CI Upper')  # Upper CI
-        plt.axvline(mean_rate - 1.96 * std_rate, color='green', linestyle='dashed', linewidth=1, label='95% CI Lower')  # Lower CI
-        plt.title(f'Histogram of Rate Values for {selected_month_name}')  # Title for the histogram
-        plt.xlabel('Rate')  # X-axis label
-        plt.ylabel('Frequency')  # Y-axis label
-        plt.legend()  # Show legend
-        st.pyplot(plt)  # Render the plot within the Streamlit app
-        plt.clf()  # Clear the current figure to avoid overlapping plots
-    
-    # Button to plot histogram
-    if st.button('Plot Histogram'):
-        plot_histogram(selected_month_data, selected_month_name)  # Call the histogram plotting function
-    
-    # Step 4: Summarize data into a table to compare histograms across all months
-    def summarize_histograms(df):
-        """
-        Summarizes the histograms data across months.
-        """
-        summary = df.groupby('Month')['Rate'].agg(['mean', 'std', 'min', 'max', 'count'])
-        summary = summary.reset_index()
-        summary['Month'] = summary['Month'].apply(lambda x: month_names[x - 1])  # Convert month number to name
-        return summary
-    
-    # Display summary table
-    summary_table = summarize_histograms(monthly_stats)
-    st.write("Summary of Histograms Data across Months:")
-    st.dataframe(summary_table)
-   
-        
-elif selected_option == "Recharge":
-    custom_title("How much groundwater recharge is there in the Xwulqw’selu watershed?", 28)
 
     st.markdown("""
-    In the SWAT-MODFLOW model, recharge is how groundwater is replenished from  precipitation, surface runoff, and other sources. Understanding recharge is crucial for effective water resource management, as it helps quantify groundwater availability and assess the impacts of land use changes and climate variability on water sustainability in a watershed.
-
-    Below is a map of the average monthly recharge across the watershed. You can change which month you want to look at or zoom into different parts of the watershed...         
+    ---
     
-    """)
+    ### Groundwater Recharge  
+    
+    Aquifers are recharged by both precipitation and streams. The rate of average groundwater recharge is shown on the map, with the **darkest blue** indicating the highest rates of groundwater recharge. Groundwater recharge occurs mostly in winter, sourced from both precipitation and rivers. Importantly, groundwater recharge occurs across much of the watershed, reaffirming the importance of a **whole-of-watershed management strategy**.  
+    """
+    )
     # Define the pixel area in square meters
     pixel_area_m2 = 300 * 300  # Each pixel is 300x300 meters, so 90,000 m²
 
