@@ -284,16 +284,53 @@ if selected_option == "Watershed models":
 
     st.markdown("""
     
-    Summer flows in Xwulqw'selu Sta'lo' (Koksilah River) have been decreasing through time. Watershed models can be useful tools to better understand where, when and why this is happening.
+    **Summer flows in Xwulqw'selu Sta'lo' (Koksilah River) have been decreasing through time. Watershed models can be useful tools to better understand where, when and why this is happening.**
     
-    The **Xwulqw'selu Connections** research team at the University of Victoria developed a comprehensive watershed model using the best available data to represent current conditions. This complex computer model integrates multiple processes that govern water movement through the watershed across time and space. The main pathways of water flow—from precipitation to streamflow—are depicted in a watershed diagram. The model also incorporates recent climate data and can be used to compare different scenarios of water and land management.
-    
-    This interactive website features maps and graphs where you can explore the significance of the entire watershed ([link to first page]), examine how changes in water use ([link to second page]) or forestry practices ([link to third page]) affect summer low flows. These visualizations provide an alternative way of 'seeing' the watershed, similar to interpreting an aerial or conceptual representation of the landscape.
-    
-    This model and website were primarily developed by **David Serrano**. More detailed information can be found in David’s **thesis** ([link]), for those interested in further exploration.
-
-    We invite you to engage with this interactive tool and deepen your understanding of the Xwulqw'selu Sta'lo' watershed.
     """)
+    
+    # Set the data folder using Path
+    data_folder = Path(__file__).parent / 'data'
+    image_path = data_folder / '1_con.jpg'
+    
+    # Style for the card
+    st.markdown("""
+    <style>
+    .card {
+        background-color: #eef6f9;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+    .card h3 {
+        color: #1a3c40;
+        margin-bottom: 10px;
+    }
+    .card p {
+        font-size: 16px;
+        color: #333;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # --- Graphic 1 Section ---
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("### Graphic 1")
+        st.markdown("""
+        The Xwulqw'selu Connections research team at University of Victoria developed a whole-of-watershed model using the best available data to represent current conditions.  
+        The complex computer model includes recent climate data and all the ways water travels through the watershed over time and space.  
+        The model is useful to explore the impacts of water and land management choices on the health of the watershed now and in the future.
+        """)
+    
+    with col2:
+        st.image(image_path, caption="A forest with trees and a blue sky", use_column_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
     st.markdown("""
     <style>
