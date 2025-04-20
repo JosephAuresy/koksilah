@@ -77,77 +77,6 @@ def process_swatmf_data(file_path):
     df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
     return df
 
-# Conditional Model Selection Display
-if selected_option == "Whole watershed":
-    # Display Model selection part only when these options are selected
-    st.sidebar.title("Model selection")
-    st.sidebar.subheader("Climate")
-    selected_decade_climate = st.sidebar.selectbox(
-        "Choose a decade for Climate:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
-        index=6  # Default to 2010s (index 6)
-    )
-
-    st.sidebar.subheader("Land Use")
-    selected_decade_land_use = st.sidebar.selectbox(
-        "Choose a decade for Land Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
-        index=6  # Default to 2010s (index 6)
-    )
-
-    st.sidebar.subheader("Water Use")
-    selected_decade_water_use = st.sidebar.selectbox(
-        "Choose a decade for Water Use:",
-        ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','half', 'double','NPS'],
-        index=6  # Default to 2010s (index 6)
-    )
-
-        
-    # Define a function to generate folder path based on selected decade
-    def get_folder_path(land_use, climate, water_use):
-        # Handle "logged" as a special case for land use
-        if land_use.lower() == "logged":
-            land_use_code = "Logged"  # Use the exact case as in the folder name
-        elif land_use.lower() == "f30":
-            land_use_code = "F30"  # Directly use F30 as the folder name
-        elif land_use.lower() == "f60":
-            land_use_code = "F60"  # Directly use F30 as the folder name
-        else:
-            land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
-        
-        # Format climate code
-        climate_code = f'C{climate[-2:]}'
-    
-        # Handle special cases for water_use
-        if water_use.lower() == "half":
-            water_use_code = "half"
-        elif water_use.lower() == "double":
-            water_use_code = "double"
-        elif water_use.lower() == "nps":
-            water_use_code = "NPS"
-        else:
-            # Default case for regular decade-based water use (e.g., W1950, W2010)
-            water_use_code = f'W{water_use[-2:]}'  
-    
-        # Construct the folder name
-        folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
-        return Path(__file__).parent / 'data' / folder_name
-    # # Define a function to generate folder path based on selected decade
-    # def get_folder_path(land_use, climate, water_use):
-    #     # Handle "logged" as a special case for land use
-    #     if land_use.lower() == "logged":
-    #         land_use_code = "Logged"  # Use the exact case as in the folder name
-    #     elif land_use.lower() == "f30":
-    #         land_use_code = "F30"  # Directly use F30 as the folder name
-    #     elif land_use.lower() == "f60":
-    #         land_use_code = "F60"  # Directly use F30 as the folder name
-    #     else:
-    #         land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
-    #     climate_code = f'C{climate[-2:]}'
-    #     water_use_code = f'W{water_use[-2:]}'
-    #     folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
-    #     return Path(__file__).parent / 'data' / folder_name
-
     # Get the folder based on selected decades
     data_folder = get_folder_path(selected_decade_land_use, selected_decade_climate, selected_decade_water_use)
     
@@ -242,10 +171,6 @@ def create_map(data, selected_month=None):
             ).add_to(m)
 
     return m
-    
-# #Path to your data file
-# DATA_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_gwsw_monthly.csv'
-# df = process_swatmf_data(DATA_FILENAME)
 
 # Path to recharge data
 RECHARGE_FILENAME = Path(__file__).parent / 'data/swatmf_out_MF_recharge_monthly.txt'
@@ -299,9 +224,30 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 # Define initial location (latitude and longitude for Duncan, BC)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
-
 if selected_option == "Watershed models":
     custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
+
+    tabs = st.tabs(["Whole watershed", "Water use", "Land use"])
+    
+    with tabs[0]:
+        st.header("What is the Model?")
+        st.write("Summer flows in Xwulqw’selu Sta’lo’ have been decreasing...")
+        st.image("watershed_diagram.png", caption="Watershed processes overview")
+    
+    with tabs[1]:
+        st.header("Scenarios")
+        scenario = st.selectbox("Choose a scenario", ["Baseline", "Water Use Change", "Forest Harvesting"])
+        st.write(f"You selected: **{scenario}**")
+        st.plotly_chart(...)  # Insert your graph here
+        st.map(...)  # Or interactive map
+    
+    with tabs[2]:
+        st.header("Key Definitions")
+        with st.expander("Low Flows"):
+            st.write("The lowest streamflows during summer, typically August...")
+        with st.expander("Baseline Model"):
+            st.write("A model representing 2012–2023 conditions...")
+
 
     st.markdown("""
     ### Xwulqw'selu Sta'lo' Watershed Model – Key Learnings
@@ -380,27 +326,7 @@ if selected_option == "Watershed models":
         st.write("Click on an image to see a larger view and explanation.")
     
     
-    tabs = st.tabs(["Whole watershed", "Water use", "Land use"])
     
-    with tabs[0]:
-        st.header("What is the Model?")
-        st.write("Summer flows in Xwulqw’selu Sta’lo’ have been decreasing...")
-        st.image("watershed_diagram.png", caption="Watershed processes overview")
-    
-    with tabs[1]:
-        st.header("Scenarios")
-        scenario = st.selectbox("Choose a scenario", ["Baseline", "Water Use Change", "Forest Harvesting"])
-        st.write(f"You selected: **{scenario}**")
-        st.plotly_chart(...)  # Insert your graph here
-        st.map(...)  # Or interactive map
-    
-    with tabs[2]:
-        st.header("Key Definitions")
-        with st.expander("Low Flows"):
-            st.write("The lowest streamflows during summer, typically August...")
-        with st.expander("Baseline Model"):
-            st.write("A model representing 2012–2023 conditions...")
-        
         
 elif selected_option == "Whole watershed":
     
@@ -893,5 +819,59 @@ elif selected_option == "Land use":
     This analysis helps illustrate the **complex relationships** between land use, forest age, and watershed hydrology.  
     """)
 
-    
 
+# # Conditional Model Selection Display
+# if selected_option == "Whole watershed":
+#     # Display Model selection part only when these options are selected
+#     st.sidebar.title("Model selection")
+#     st.sidebar.subheader("Climate")
+#     selected_decade_climate = st.sidebar.selectbox(
+#         "Choose a decade for Climate:",
+#         ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
+#         index=6  # Default to 2010s (index 6)
+#     )
+
+#     st.sidebar.subheader("Land Use")
+#     selected_decade_land_use = st.sidebar.selectbox(
+#         "Choose a decade for Land Use:",
+#         ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','logged','F30','F60'],
+#         index=6  # Default to 2010s (index 6)
+#     )
+
+#     st.sidebar.subheader("Water Use")
+#     selected_decade_water_use = st.sidebar.selectbox(
+#         "Choose a decade for Water Use:",
+#         ['1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020','half', 'double','NPS'],
+#         index=6  # Default to 2010s (index 6)
+#     )
+
+
+# # Define a function to generate folder path based on selected decade
+#     def get_folder_path(land_use, climate, water_use):
+#         # Handle "logged" as a special case for land use
+#         if land_use.lower() == "logged":
+#             land_use_code = "Logged"  # Use the exact case as in the folder name
+#         elif land_use.lower() == "f30":
+#             land_use_code = "F30"  # Directly use F30 as the folder name
+#         elif land_use.lower() == "f60":
+#             land_use_code = "F60"  # Directly use F30 as the folder name
+#         else:
+#             land_use_code = f'L{land_use[-2:]}'  # Prepend 'L' to the last two characters
+        
+#         # Format climate code
+#         climate_code = f'C{climate[-2:]}'
+    
+#         # Handle special cases for water_use
+#         if water_use.lower() == "half":
+#             water_use_code = "half"
+#         elif water_use.lower() == "double":
+#             water_use_code = "double"
+#         elif water_use.lower() == "nps":
+#             water_use_code = "NPS"
+#         else:
+#             # Default case for regular decade-based water use (e.g., W1950, W2010)
+#             water_use_code = f'W{water_use[-2:]}'  
+    
+#         # Construct the folder name
+#         folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
+#         return Path(__file__).parent / 'data' / folder_name
