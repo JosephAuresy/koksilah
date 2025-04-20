@@ -307,7 +307,7 @@ if selected_option == "Watershed models":
     
     # Define the updated image files and their corresponding captions or messages
     image_files = [
-        '1_physical_model.jpg', 
+        '1_con.jpg', 
         '2_low_flow_river.jpg', 
         '3_monitoring_data.jpg', 
         '4_meeting_ideas.jpg'
