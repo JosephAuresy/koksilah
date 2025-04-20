@@ -517,152 +517,151 @@ elif selected_option == "Whole watershed":
     create_heatmap(grid, selected_month_name, hover_text)
     
        
-    # Step 6: Add interactivity to select a specific cell
-    st.subheader("Cell-Specific Analysis")
-    selected_row = st.slider("Select Row Index", min_value=1, max_value=rows, value=1)
-    selected_col = st.slider("Select Column Index", min_value=1, max_value=cols, value=1)
+    # # Step 6: Add interactivity to select a specific cell
+    # st.subheader("Cell-Specific Analysis")
+    # selected_row = st.slider("Select Row Index", min_value=1, max_value=rows, value=1)
+    # selected_col = st.slider("Select Column Index", min_value=1, max_value=cols, value=1)
     
-    # Extract data for the selected cell
-    selected_cell_data = pivoted[(pivoted['Row'] == selected_row) & (pivoted['Column'] == selected_col)]
-    if not selected_cell_data.empty:
-        monthly_rates = selected_cell_data.iloc[0, 2:].values  # Skip 'Row' and 'Column'
-        monthly_changes = np.diff(monthly_rates)  # Calculate differences between months
+    # # Extract data for the selected cell
+    # selected_cell_data = pivoted[(pivoted['Row'] == selected_row) & (pivoted['Column'] == selected_col)]
+    # if not selected_cell_data.empty:
+    #     monthly_rates = selected_cell_data.iloc[0, 2:].values  # Skip 'Row' and 'Column'
+    #     monthly_changes = np.diff(monthly_rates)  # Calculate differences between months
     
-        # Create a plot to visualize rates and changes
-        fig = go.Figure()
+    #     # Create a plot to visualize rates and changes
+    #     fig = go.Figure()
     
-        # Add monthly rates line
-        fig.add_trace(go.Scatter(
-            x=unique_months,
-            y=monthly_rates,
-            mode='lines+markers',
-            name='Rate',
-            line=dict(color='blue'),
-            marker=dict(size=8)
-        ))
+    #     # Add monthly rates line
+    #     fig.add_trace(go.Scatter(
+    #         x=unique_months,
+    #         y=monthly_rates,
+    #         mode='lines+markers',
+    #         name='Rate',
+    #         line=dict(color='blue'),
+    #         marker=dict(size=8)
+    #     ))
     
-        # Add changes line (for months 2 to n, as changes are calculated from differences)
-        fig.add_trace(go.Scatter(
-            x=unique_months[1:],  # Skip the first month for changes
-            y=monthly_changes,
-            mode='lines+markers',
-            name='Change (ΔRate)',
-            line=dict(color='red', dash='dot'),
-            marker=dict(size=8)
-        ))
+    #     # Add changes line (for months 2 to n, as changes are calculated from differences)
+    #     fig.add_trace(go.Scatter(
+    #         x=unique_months[1:],  # Skip the first month for changes
+    #         y=monthly_changes,
+    #         mode='lines+markers',
+    #         name='Change (ΔRate)',
+    #         line=dict(color='red', dash='dot'),
+    #         marker=dict(size=8)
+    #     ))
     
-        # Update layout for better visualization
-        fig.update_layout(
-            title=f"Rate and Change Over Time for Cell ({selected_row}, {selected_col})",
-            xaxis_title="Month",
-            yaxis_title="Rate / Change",
-            xaxis=dict(tickmode='linear', title='Month'),
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
-            paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=12, color='black'),
-            legend=dict(x=0.1, y=0.9),
-        )
+    #     # Update layout for better visualization
+    #     fig.update_layout(
+    #         title=f"Rate and Change Over Time for Cell ({selected_row}, {selected_col})",
+    #         xaxis_title="Month",
+    #         yaxis_title="Rate / Change",
+    #         xaxis=dict(tickmode='linear', title='Month'),
+    #         plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #         paper_bgcolor='white',
+    #         font=dict(family='Arial, sans-serif', size=12, color='black'),
+    #         legend=dict(x=0.1, y=0.9),
+    #     )
     
-        # Display the plot in Streamlit
-        st.plotly_chart(fig)
+    #     # Display the plot in Streamlit
+    #     st.plotly_chart(fig)
     
-        # Display data values for reference
-        st.write(f"**Cell ({selected_row}, {selected_col}) Rate Values:** {monthly_rates}")
-        st.write(f"**Cell ({selected_row}, {selected_col}) Changes (ΔRate):** {monthly_changes}")
-    else:
-        st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
+    #     # Display data values for reference
+    #     st.write(f"**Cell ({selected_row}, {selected_col}) Rate Values:** {monthly_rates}")
+    #     st.write(f"**Cell ({selected_row}, {selected_col}) Changes (ΔRate):** {monthly_changes}")
+    # else:
+    #     st.write(f"No data available for Cell ({selected_row}, {selected_col}).")
 
-    # Define classification function
-    def classify_value(value):
-        if value > 1:
-            return "Above 1"
-        elif -1 <= value <= 1:
-            return "Between -1 and 1"
-        else:
-            return "Below -1"
+    # # Define classification function
+    # def classify_value(value):
+    #     if value > 1:
+    #         return "Above 1"
+    #     elif -1 <= value <= 1:
+    #         return "Between -1 and 1"
+    #     else:
+    #         return "Below -1"
     
-    # Process data for visualization
-    ranges = ['Below -1', 'Between -1 and 1', 'Above 1']
-    monthly_columns = pivoted.columns[2:]  # Monthly columns (Jan, Feb, ...)
-    range_means = {r: [] for r in ranges}
+    # # Process data for visualization
+    # ranges = ['Below -1', 'Between -1 and 1', 'Above 1']
+    # monthly_columns = pivoted.columns[2:]  # Monthly columns (Jan, Feb, ...)
+    # range_means = {r: [] for r in ranges}
     
-    fig = go.Figure()
+    # fig = go.Figure()
     
-    # Add traces for each cell
-    for _, row in pivoted.iterrows():
-        cell_id = f"Cell ({int(row['Row'])}, {int(row['Column'])})"
-        monthly_values = row[monthly_columns].values  # Extract monthly values
-        classification = classify_value(np.mean(monthly_values))
-        fig.add_trace(go.Scatter(
-            x=monthly_columns,
-            y=monthly_values,
-            mode='lines',
-            name=cell_id,
-            line=dict(width=1),
-            legendgroup=classification,  # Group by range
-            visible=True
-        ))
-        # Accumulate values for mean calculation
-        range_means[classification].append(monthly_values)
+    # # Add traces for each cell
+    # for _, row in pivoted.iterrows():
+    #     cell_id = f"Cell ({int(row['Row'])}, {int(row['Column'])})"
+    #     monthly_values = row[monthly_columns].values  # Extract monthly values
+    #     classification = classify_value(np.mean(monthly_values))
+    #     fig.add_trace(go.Scatter(
+    #         x=monthly_columns,
+    #         y=monthly_values,
+    #         mode='lines',
+    #         name=cell_id,
+    #         line=dict(width=1),
+    #         legendgroup=classification,  # Group by range
+    #         visible=True
+    #     ))
+    #     # Accumulate values for mean calculation
+    #     range_means[classification].append(monthly_values)
     
-    # Compute and add mean lines for each range
-    for range_name, values in range_means.items():
-        if values:  # Check if there are values in this range
-            mean_values = np.mean(values, axis=0)  # Mean across cells
-            fig.add_trace(go.Scatter(
-                x=monthly_columns,
-                y=mean_values,
-                mode='lines',
-                name=f"Mean ({range_name})",
-                line=dict(width=3, dash='dash'),
-                legendgroup=range_name,  # Group by range
-                visible=True
-            ))
+    # # Compute and add mean lines for each range
+    # for range_name, values in range_means.items():
+    #     if values:  # Check if there are values in this range
+    #         mean_values = np.mean(values, axis=0)  # Mean across cells
+    #         fig.add_trace(go.Scatter(
+    #             x=monthly_columns,
+    #             y=mean_values,
+    #             mode='lines',
+    #             name=f"Mean ({range_name})",
+    #             line=dict(width=3, dash='dash'),
+    #             legendgroup=range_name,  # Group by range
+    #             visible=True
+    #         ))
     
-    # Streamlit checkboxes for toggling visibility
-    show_cells = st.checkbox("Show All Cells", value=True)
-    show_means = st.checkbox("Show Mean Lines", value=True)
+    # # Streamlit checkboxes for toggling visibility
+    # show_cells = st.checkbox("Show All Cells", value=True)
+    # show_means = st.checkbox("Show Mean Lines", value=True)
     
-    # Adjust visibility of traces based on checkboxes
-    for trace in fig.data:
-        if "Mean" in trace.name:
-            trace.visible = show_means
-        else:
-            trace.visible = show_cells
+    # # Adjust visibility of traces based on checkboxes
+    # for trace in fig.data:
+    #     if "Mean" in trace.name:
+    #         trace.visible = show_means
+    #     else:
+    #         trace.visible = show_cells
     
-    # Customize layout
-    fig.update_layout(
-        title="Monthly Values by Cell and Range",
-        xaxis_title="Month",
-        yaxis_title="Values",
-        xaxis=dict(tickmode='linear'),
-        yaxis=dict(title="Value Range"),
-        plot_bgcolor='rgba(240, 240, 240, 0.8)',
-        legend_title="Cell and Range",
-        font=dict(family="Arial, sans-serif", size=10)
-    )
+    # # Customize layout
+    # fig.update_layout(
+    #     title="Monthly Values by Cell and Range",
+    #     xaxis_title="Month",
+    #     yaxis_title="Values",
+    #     xaxis=dict(tickmode='linear'),
+    #     yaxis=dict(title="Value Range"),
+    #     plot_bgcolor='rgba(240, 240, 240, 0.8)',
+    #     legend_title="Cell and Range",
+    #     font=dict(family="Arial, sans-serif", size=10)
+    # )
     
-    # Display the figure in Streamlit
-    st.plotly_chart(fig)    
+    # # Display the figure in Streamlit
+    # st.plotly_chart(fig)    
 
-    # Define the main path and image path
-    main_path = Path(__file__).parent
-    ground = main_path / 'data/riv_groundwater.png'
+    # # Define the main path and image path
+    # main_path = Path(__file__).parent
+    # ground = main_path / 'data/riv_groundwater.png'
     
-    # Check if the image exists before displaying
-    if ground.is_file():
-        try:
-            # Try to open the image using PIL
-            image = Image.open(ground)
-            st.image(image, caption='Groundwater and River Interaction', use_column_width=True)
-        except Exception as e:
-            st.error(f"Failed to load image: {e}")
-    else:
-        st.warning("Image 'riv_groundwater.png' not found in the data folder.")
+    # # Check if the image exists before displaying
+    # if ground.is_file():
+    #     try:
+    #         # Try to open the image using PIL
+    #         image = Image.open(ground)
+    #         st.image(image, caption='Groundwater and River Interaction', use_column_width=True)
+    #     except Exception as e:
+    #         st.error(f"Failed to load image: {e}")
+    # else:
+    #     st.warning("Image 'riv_groundwater.png' not found in the data folder.")
     
     # Filter data for the selected month
     selected_month_data = monthly_stats[monthly_stats['Month'] == selected_month]
-
 
     st.markdown("""
     ---
