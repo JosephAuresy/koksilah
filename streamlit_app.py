@@ -227,28 +227,7 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 if selected_option == "Watershed models":
     custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
 
-    tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
     
-    with tabs[0]:
-        st.header("What is the Model?")
-        st.write("Summer flows in Xwulqw’selu Sta’lo’ have been decreasing...")
-        st.image("watershed_diagram.png", caption="Watershed processes overview")
-    
-    with tabs[1]:
-        st.header("Scenarios")
-        scenario = st.selectbox("Choose a scenario", ["Baseline", "Water Use Change", "Forest Harvesting"])
-        st.write(f"You selected: **{scenario}**")
-        st.plotly_chart(...)  # Insert your graph here
-        st.map(...)  # Or interactive map
-    
-    with tabs[2]:
-        st.header("Key Definitions")
-        with st.expander("Low Flows"):
-            st.write("The lowest streamflows during summer, typically August...")
-        with st.expander("Baseline Model"):
-            st.write("A model representing 2012–2023 conditions...")
-
-
     st.markdown("""
     ### Xwulqw'selu Sta'lo' Watershed Model – Key Learnings
     
@@ -875,3 +854,26 @@ elif selected_option == "Land use":
 #         # Construct the folder name
 #         folder_name = f'{land_use_code}_{climate_code}_{water_use_code}'
 #         return Path(__file__).parent / 'data' / folder_name
+
+# tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
+    
+#     with tabs[0]:
+#         st.header("What is the Model?")
+#         st.write("Summer flows in Xwulqw’selu Sta’lo’ have been decreasing...")
+#         st.image("watershed_diagram.png", caption="Watershed processes overview")
+    
+#     with tabs[1]:
+#         st.header("Scenarios")
+#         scenario = st.selectbox("Choose a scenario", ["Baseline", "Water Use Change", "Forest Harvesting"])
+#         st.write(f"You selected: **{scenario}**")
+#         st.plotly_chart(...)  # Insert your graph here
+#         st.map(...)  # Or interactive map
+    
+#     with tabs[2]:
+#         st.header("Key Definitions")
+#         with st.expander("Low Flows"):
+#             st.write("The lowest streamflows during summer, typically August...")
+#         with st.expander("Baseline Model"):
+#             st.write("A model representing 2012–2023 conditions...")
+
+
