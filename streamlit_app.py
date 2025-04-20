@@ -102,8 +102,7 @@ if selected_option == "Whole watershed":
         index=6  # Default to 2010s (index 6)
     )
 
-
-# Define a function to generate folder path based on selected decade
+    # Define a function to generate folder path based on selected decade
     def get_folder_path(land_use, climate, water_use):
         # Handle "logged" as a special case for land use
         if land_use.lower() == "logged":
