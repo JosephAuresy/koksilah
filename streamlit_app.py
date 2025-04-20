@@ -319,9 +319,9 @@ if selected_option == "Watershed models":
     
     col1, col2 = st.columns([1.5, 2])
     with col1:
-        st.image(image1_path, caption="A forest with trees and a blue sky", use_container_width=True)
+        st.image(image1_path, caption="Conceptual model developed of the Xwulqw’selu Watershed highlighting: hydrology fluxes and subsurface aquifer units with names from the BC provincial aquifer mapping", use_container_width=True)
     with col2:
-        st.markdown("### Graphic 1")
+        st.markdown("### Introduction")
         st.markdown("""
         The Xwulqw'selu Connections research team at University of Victoria developed a whole-of-watershed model using the best available data to represent current conditions.  
         The complex computer model includes recent climate data and all the ways water travels through the watershed over time and space.  
@@ -337,7 +337,7 @@ if selected_option == "Watershed models":
     with col3:
         st.image(image2_path, caption="Interactive maps showing the watershed", use_container_width=True)
     with col4:
-        st.markdown("### Graphic 2")
+        st.markdown("### Content")
         st.markdown("""
         The maps and graphs are interactive, and they offer another way of seeing the whole watershed.  
         Explore how changes in [water use](#) and [forestry practice](#) can impact summer streamflow.  
