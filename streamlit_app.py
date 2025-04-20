@@ -335,7 +335,7 @@ if selected_option == "Watershed models":
     
     col3, col4 = st.columns([1.5, 2])
     with col3:
-        st.image(image2_path, caption="Interactive maps showing the watershed", use_container_width=True)
+        st.image(image2_path, caption="This photo shows a view of the upper Xwulqw'selu watershed, where logging and land use change are clearly visible", use_container_width=True)
     with col4:
         st.markdown("### Content")
         st.markdown("""
@@ -346,8 +346,6 @@ if selected_option == "Watershed models":
         """)
     
     st.markdown('</div>', unsafe_allow_html=True)
-
-
 
     st.markdown("""
     <style>
@@ -381,62 +379,6 @@ if selected_option == "Watershed models":
     <p><strong>Land use:</strong> How people use the land — like growing food (agriculture), cutting trees (forestry), building towns, or leaving it natural. This info comes from Government of Canada.</p>
     </div>
     """, unsafe_allow_html=True)
-
-    # Set the data folder using Path
-    data_folder = Path(__file__).parent / 'data'
-    
-    # Define the updated image files and their corresponding captions or messages
-    image_files = [
-        '1_con.jpg', 
-        '2_low_flow_river.jpg', 
-        '3_monitoring_data.jpg', 
-        '4_meeting_ideas.jpg'
-    ]
-    
-    captions = [
-        "How does water emerge from the underground? This web application explains the interactions between groundwater and surface water, similar to the physical model shown in the picture, to help users understand the results from the watershed models.",
-        
-        "A creek with abundant flow supports a healthy habitat, but pressures from low flows drivers such as climate change, land use, and water use must be analyzed to understand their impact. These factors are examined through watershed models.",
-        
-        "Accurate data from field monitoring activities plays a pivotal role in capturing real-time watershed conditions. The success of these monitoring efforts enhances our ability to track changes over time, offering valuable insights into watershed dynamics and informing evidence-based management strategies.",
-        
-        "The exchange of diverse ideas during meetings drives the development of innovative projects that aim to improve the health of the watershed. Collaborative efforts such as these contribute to creating long-term solutions that promote sustainability and resilience in watershed management."
-    ]
-    
-    # Set up the layout for small images (small panel)
-    st.title("Significance of the Models")
-    st.write("Select the description and scroll down")
-    
-    # Create columns for displaying small images
-    cols = st.columns(4)  # 4 images, each in its own column
-    selected_image = None  # To store which image is selected
-    selected_caption = ""  # To store the selected caption
-    
-    # Display the small images
-    for i, image_file in enumerate(image_files):
-        with cols[i]:
-            # Load each image
-            image_path = data_folder / image_file
-            
-            try:
-                image = Image.open(image_path)
-                # Use a button to trigger the larger view instead of the image click
-                if st.button(f"Show Image {i+1}", key=f"button_{i}"):
-                    selected_image = image
-                    selected_caption = captions[i]
-                    # Use a success message when the button is clicked
-                    st.success(f"Showing: {image_file}")
-                st.image(image, width=100)  # Display the small image without a caption
-                
-            except FileNotFoundError:
-                st.error(f"Image file {image_file} not found in {data_folder}.")
-            
-    # Display the selected image in a larger panel (if selected)
-    if selected_image:
-        st.image(selected_image, caption="", use_column_width=True)  # No caption below the large image
-        st.write(selected_caption)  # Show the caption only after the image is clicked
-    else:
-        st.write("Click on an image to see a larger view and explanation.")
            
 elif selected_option == "Whole watershed":
     
