@@ -291,15 +291,42 @@ if selected_option == "Watershed models":
     This interactive website features maps and graphs where you can explore the significance of the entire watershed ([link to first page]), examine how changes in water use ([link to second page]) or forestry practices ([link to third page]) affect summer low flows. These visualizations provide an alternative way of 'seeing' the watershed, similar to interpreting an aerial or conceptual representation of the landscape.
     
     This model and website were primarily developed by **David Serrano**. More detailed information can be found in David’s **thesis** ([link]), for those interested in further exploration.
-    
-    #### Key Definitions:
-    
-    - **Low Flows:** The lowest streamflows in the Xwulqw'selu Sta'lo' typically occur during summer and are measured in volume per time. This model focuses particularly on August streamflows, though watershed health encompasses many other factors beyond just flow rates.
-    - **Baseline Model:** A model representing the best available recent data (2012–2023).
-    - **Scenarios:** Variations of the baseline model where water use or land use is altered while keeping all other variables constant. These scenarios help assess the potential impacts of changes in water and land use.
-    
+
     We invite you to engage with this interactive tool and deepen your understanding of the Xwulqw'selu Sta'lo' watershed.
     """)
+
+    st.markdown("""
+    <style>
+    .definition-box {
+        background-color: #f0f8ff;
+        border-left: 6px solid #4682B4;
+        padding: 16px;
+        border-radius: 10px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .definition-box h4 {
+        margin-top: 0;
+        color: #2c3e50;
+    }
+    .definition-box p {
+        margin-bottom: 10px;
+    }
+    </style>
+    
+    <div class="definition-box">
+    <h4>Here are a few definitions of some important technical words:</h4>
+    
+    <p><strong>Low flows:</strong> Streamflow (measured in volume per time) in the Xwulqw'selu Sta'lo' is lowest during the summer. We focus especially on the streamflow in August while recognizing that watershed health involves many other aspects.</p>
+    
+    <p><strong>Baseline model:</strong> The model that is the best of the available recent data (2012 – 2023) about geology, climate, topography, streamflow and ecosystems in the Xwulqw’selu watershed.</p>
+    
+    <p><strong>Scenarios:</strong> Changing the baseline model with different water use or land use so that we can see how water use and land use changes low flows.</p>
+    
+    <p><strong>Water use:</strong> The amount of water taken from streams or aquifers for agriculture. This info comes from the Province of British Columbia.</p>
+    
+    <p><strong>Land use:</strong> How people use the land — like growing food (agriculture), cutting trees (forestry), building towns, or leaving it natural. This info comes from Government of Canada.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Set the data folder using Path
     data_folder = Path(__file__).parent / 'data'
