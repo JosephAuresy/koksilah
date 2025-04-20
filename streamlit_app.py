@@ -227,7 +227,7 @@ initial_location = [48.67, -123.79]  # Duncan, BC
 if selected_option == "Watershed models":
     custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
 
-    tabs = st.tabs(["Whole watershed", "Water use", "Land use"])
+    tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
     
     with tabs[0]:
         st.header("What is the Model?")
