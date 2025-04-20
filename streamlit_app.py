@@ -280,12 +280,11 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
 if selected_option == "Watershed models":
-    custom_title("Watershed models for Xwulqw'selu Sta'lo'", 28)
+    custom_title("Xwulqw'selu Sta'lo' Watershed Model", 28)
 
     st.markdown("""
-    ### Xwulqw'selu Sta'lo' Watershed Model – Key Learnings
     
-    Summer flows in Xwulqw'selu Sta'lo' (Koksilah River) have been decreasing over time. Watershed models can be useful tools to better understand why, how, and where this is happening.
+    Summer flows in Xwulqw'selu Sta'lo' (Koksilah River) have been decreasing through time. Watershed models can be useful tools to better understand where, when and why this is happening.
     
     The **Xwulqw'selu Connections** research team at the University of Victoria developed a comprehensive watershed model using the best available data to represent current conditions. This complex computer model integrates multiple processes that govern water movement through the watershed across time and space. The main pathways of water flow—from precipitation to streamflow—are depicted in a watershed diagram. The model also incorporates recent climate data and can be used to compare different scenarios of water and land management.
     
