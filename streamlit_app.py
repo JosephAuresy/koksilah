@@ -292,7 +292,7 @@ if selected_option == "Watershed models":
     data_folder = Path(__file__).parent / 'data'
     image_path = data_folder / '1_con.jpg'
     
-    # Style for the card
+    # CSS for card styling
     st.markdown("""
     <style>
     .card {
@@ -316,9 +316,13 @@ if selected_option == "Watershed models":
     # --- Graphic 1 Section ---
     st.markdown('<div class="card">', unsafe_allow_html=True)
     
-    col1, col2 = st.columns([2, 1])
+    # Give more space to the image by adjusting the column ratio
+    col1, col2 = st.columns([1.5, 2])
     
     with col1:
+        st.image(image_path, caption="A forest with trees and a blue sky", use_container_width=True)
+    
+    with col2:
         st.markdown("### Graphic 1")
         st.markdown("""
         The Xwulqw'selu Connections research team at University of Victoria developed a whole-of-watershed model using the best available data to represent current conditions.  
@@ -326,10 +330,8 @@ if selected_option == "Watershed models":
         The model is useful to explore the impacts of water and land management choices on the health of the watershed now and in the future.
         """)
     
-    with col2:
-        st.image(image_path, caption="A forest with trees and a blue sky", use_column_width=True)
-    
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 
     st.markdown("""
