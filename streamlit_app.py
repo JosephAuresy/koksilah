@@ -288,11 +288,12 @@ if selected_option == "Watershed models":
     
     """)
     
-    # Set the data folder using Path
+    # Set the data folder
     data_folder = Path(__file__).parent / 'data'
-    image_path = data_folder / '1_con.jpg'
+    image1_path = data_folder / '1_con.jpg'
+    image2_path = data_folder / '2_log.jpg'
     
-    # CSS for card styling
+    # Custom styling for cards
     st.markdown("""
     <style>
     .card {
@@ -313,21 +314,35 @@ if selected_option == "Watershed models":
     </style>
     """, unsafe_allow_html=True)
     
-    # --- Graphic 1 Section ---
+    # --- Section 1: Graphic 1 ---
     st.markdown('<div class="card">', unsafe_allow_html=True)
     
-    # Give more space to the image by adjusting the column ratio
     col1, col2 = st.columns([1.5, 2])
-    
     with col1:
-        st.image(image_path, caption="A forest with trees and a blue sky", use_container_width=True)
-    
+        st.image(image1_path, caption="A forest with trees and a blue sky", use_container_width=True)
     with col2:
         st.markdown("### Graphic 1")
         st.markdown("""
         The Xwulqw'selu Connections research team at University of Victoria developed a whole-of-watershed model using the best available data to represent current conditions.  
         The complex computer model includes recent climate data and all the ways water travels through the watershed over time and space.  
         The model is useful to explore the impacts of water and land management choices on the health of the watershed now and in the future.
+        """)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # --- Section 2: Graphic 2 ---
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    
+    col3, col4 = st.columns([1.5, 2])
+    with col3:
+        st.image(image2_path, caption="Interactive maps showing the watershed", use_container_width=True)
+    with col4:
+        st.markdown("### Graphic 2")
+        st.markdown("""
+        The maps and graphs are interactive, and they offer another way of seeing the whole watershed.  
+        Explore how changes in [water use](#) and [forestry practice](#) can impact summer streamflow.  
+        This model and website were developed mostly by David Serrano.  
+        Much more information is available in [David’s thesis](#) if you would like to explore more.
         """)
     
     st.markdown('</div>', unsafe_allow_html=True)
