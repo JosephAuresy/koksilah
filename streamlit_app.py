@@ -738,7 +738,7 @@ elif selected_option == "Water use":
     # Load data from pre-saved CSV files
     all_data = []
     for scenario in scenarios:
-        file_path = os.path.join(data_folder, f"scenario_{scenario.replace(' ', '_').lower()}_data.csv")
+        file_path = os.path.join(data_folder, f"scenario_{scenario.replace('_', ' ').lower()}_data.csv")
         if os.path.exists(file_path):
             df = pd.read_csv(file_path)
             df = df[df["RCH"] == 3]  # Filter for RCH 3
