@@ -920,7 +920,16 @@ elif selected_option == "Land use":
         </div>
         """, unsafe_allow_html=True)
 
+    # Load and display the image
+    image_path = "data/mature.jpg"
+    image = Image.open(image_path)
+    st.image(image, caption="Effect of mature forests on the water cycle", use_column_width=True)
     
+    # Add the paragraph
+    st.markdown("""
+    We compared current conditions in the baseline model to two other land use scenarios where we changed the distribution of forest age, since the age of trees can impact the water cycle in multiple ways. This watershed drawing shows how increasing the percentage of mature forest affects different parts of the water cycle. Mature forests increased the rates of evapotranspiration and shallow flow below the ground, suggesting the forest age distributions impact various hydrologic processes.
+    """)
+
     # Define tick values (start of each month approx)
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
