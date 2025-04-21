@@ -666,19 +666,17 @@ elif selected_option == "Water use":
         "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
         "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
     }
-    
-    # Streamlit title
-    st.title("Scenario Flow Analysis")
-    
+        
     # Display introductory text
     st.markdown("""
     ### Water Use Scenarios
     
     Water use, especially surface water use, significantly and quickly changes summer streamflow in the **Xwulqw'selu Sta'lo' at Cowichan Station**.
     
-    You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the **Xwulqw'selu Sta'lo'** in units of volume per time (cubic meters per second).
-    
-    """)
+    <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
+        You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the **Xwulqw'selu Sta'lo'** in units of volume per time (cubic meters per second).
+    </p>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
     <style>
@@ -836,7 +834,7 @@ elif selected_option == "Land use":
     
     The age of trees can impact the water cycle in multiple ways. Land use, as represented by different ages of forests, changes streamflow in the summer less significantly than water use, but changes other parts of the water cycle.  
     
-    <p style="font-size: 10px; font-family: 'Segoe UI', sans-serif;">
+    <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
         You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
     </p>
     """, unsafe_allow_html=True)
@@ -859,9 +857,6 @@ elif selected_option == "Land use":
     scenario_groups = {
         "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
     }
-    
-    # Streamlit title
-    st.title("Scenario Flow Analysis")
     
     st.markdown("""
         <style>
