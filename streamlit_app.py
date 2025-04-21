@@ -734,6 +734,7 @@ elif selected_option == "Water use":
         # Load data for each scenario
         scenario_data = []
         for file in files:
+            st.write("Trying to load:", file)  # 🔍 Add this line for debugging
             data = pd.read_csv(file)
             scenario_data.append(data)
         
@@ -831,39 +832,6 @@ elif selected_option == "Water use":
         )
         
         st.plotly_chart(fig4)
-    
-        # Figure 3: Flow Duration Curve for August
-        def compute_fdc(data):
-            sorted_flow = data['FLOW_OUTcms'].sort_values(ascending=False)
-            exceedance_prob = (sorted_flow.rank(ascending=False) / len(sorted_flow)) * 100
-            return pd.DataFrame({"Flow (cms)": sorted_flow.values, "Exceedance Probability (%)": exceedance_prob.values})
-        
-        fdc_data = pd.concat([compute_fdc(rch3_data[rch3_data['Scenario'] == s]).assign(Scenario=s)
-                              for s in files], ignore_index=True)
-        fig3 = px.line(fdc_data, x="Exceedance Probability (%)", y="Flow (cms)", color="Scenario",
-                       title=f"Flow Duration Curve - {title}",
-                       color_discrete_map=scenario_colors)
-        
-        # Update legend with scenario names
-        fig3.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-        
-        fig3.update_layout(yaxis_type="log")
-        
-        # Update layout with month labels on x-axis for all figures
-        fig3.update_layout(
-            xaxis=dict(
-                title="Exceedance Probability (%)", 
-                showgrid=True,
-                tickmode='array', 
-            ),
-            yaxis=dict(title="Flow (cms)", showgrid=True),
-            legend=dict(title="Scenario"),
-            width=800,  # Specify width in pixels
-            height=400  # Specify height in pixels
-        )
-        
-        st.plotly_chart(fig3)
-
    
 
 elif selected_option == "Land use":   
