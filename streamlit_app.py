@@ -447,70 +447,69 @@ elif selected_option == "Whole watershed":
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
     
     def create_heatmap_with_pie(classified_grid, selected_month_name, hover_text, color_counts):
-    # Define the color scale
-    colorscale = [
-        [0.0, '#8B4513'],   # Losing - Brown
-        [0.66, '#FFFF00'],  # No significant contributions - Yellow
-        [1.0, '#00008B'],   # Gaining - Dark Blue
-    ]
+        # Define the color scale
+        colorscale = [
+            [0.0, '#8B4513'],   # Losing - Brown
+            [0.66, '#FFFF00'],  # No significant contributions - Yellow
+            [1.0, '#00008B'],   # Gaining - Dark Blue
+        ]
     
-    # Create the heatmap trace
-    heatmap_trace = go.Heatmap(
-        z=classified_grid,
-        colorscale=colorscale,
-        zmin=0,
-        zmax=2,
-        showscale=False,
-        hoverinfo='text',
-        text=hover_text
-    )
-
-    # Prepare pie chart data
-    color_values = [
-        color_counts['gaining'],
-        color_counts['no_significant_contributions'],
-        color_counts['losing'],
-    ]
+        # Create the heatmap trace
+        heatmap_trace = go.Heatmap(
+            z=classified_grid,
+            colorscale=colorscale,
+            zmin=0,
+            zmax=2,
+            showscale=False,
+            hoverinfo='text',
+            text=hover_text
+        )
     
-    total_cells = sum(color_values)
-    if total_cells == 0: total_cells = 1  # Avoid divide by zero
-
-    # Pie labels
-    pie_labels = ['Gaining < -1', 'No Significant Contributions 1 to -1', 'Losing > 1']
-    pie_colors = ['#00008B', '#FFFF00', '#8B4513']
+        # Prepare pie chart data
+        color_values = [
+            color_counts['gaining'],
+            color_counts['no_significant_contributions'],
+            color_counts['losing'],
+        ]
     
-    # Pie chart trace as an inset
-    pie_trace = go.Pie(
-        labels=pie_labels,
-        values=color_values,
-        hole=0.3,
-        marker=dict(colors=pie_colors),
-        domain=dict(x=[0.72, 0.95], y=[0.72, 0.95]),  # Adjust to position and size
-        textinfo='none',
-        hoverinfo='label+value+percent',
-        showlegend=False
-    )
-
-    # Combine traces into a single figure
-    fig = go.Figure(data=[heatmap_trace, pie_trace])
-
-    # Layout for the heatmap
-    fig.update_layout(
-        title=f'Groundwater-Surface Water Interaction for {selected_month_name} [m³/day]',
-        xaxis_title='Column',
-        yaxis_title='Row',
-        xaxis=dict(showticklabels=True, ticks='', showgrid=False),
-        yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
-        plot_bgcolor='rgba(240, 240, 240, 0.8)',
-        paper_bgcolor='white',
-        font=dict(family='Arial, sans-serif', size=8, color='black'),
-        margin=dict(l=40, r=40, t=60, b=40)
-    )
-
-    # Show the final plot
-    st.plotly_chart(fig, use_container_width=True)
-
+        total_cells = sum(color_values)
+        if total_cells == 0: total_cells = 1  # Avoid divide by zero
     
+        # Pie labels
+        pie_labels = ['Gaining < -1', 'No Significant Contributions 1 to -1', 'Losing > 1']
+        pie_colors = ['#00008B', '#FFFF00', '#8B4513']
+    
+        # Pie chart trace as an inset
+        pie_trace = go.Pie(
+            labels=pie_labels,
+            values=color_values,
+            hole=0.3,
+            marker=dict(colors=pie_colors),
+            domain=dict(x=[0.72, 0.95], y=[0.72, 0.95]),  # Position in top-right
+            textinfo='none',
+            hoverinfo='label+value+percent',
+            showlegend=False
+        )
+    
+        # Combine both traces into one figure
+        fig = go.Figure(data=[heatmap_trace, pie_trace])
+    
+        # Layout for the combined plot
+        fig.update_layout(
+            title=f'Groundwater-Surface Water Interaction for {selected_month_name} [m³/day]',
+            xaxis_title='Column',
+            yaxis_title='Row',
+            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
+            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
+            plot_bgcolor='rgba(240, 240, 240, 0.8)',
+            paper_bgcolor='white',
+            font=dict(family='Arial, sans-serif', size=8, color='black'),
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
+    
+        # Show the final figure in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
+
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
         color_counts = {
