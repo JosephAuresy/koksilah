@@ -636,58 +636,6 @@ elif selected_option == "Whole watershed":
 
 elif selected_option == "Water use":
     
-    st.markdown("""
-    ### Water Use Scenarios  
-    
-    Water use, especially surface water use, strongly and quickly impacts summer low flows in the **Xwulqw'selu Sta'lo'** at Cowichan Station.  
-    
-    You can zoom into any part of the graphs, and if you want to see detailed differences between scenarios, check out **David’s thesis**. Water use refers to any water extracted from streams or aquifers for agriculture, as calculated by the **Province of British Columbia**. **Streamflow** refers to the flow in the Xwulqw'selu Sta'lo', measured in cubic meters per second.  
-    
-    ---
-    
-    ### Three Types of Water Use Scenarios  
-    
-    We explored three key ways water use could impact summer low flows:  
-    
-    1. **Total Water Use:** We **doubled or halved** total water use (from both groundwater and surface water) compared to the baseline to assess the overall impact of water use.  
-    2. **Decreasing Groundwater or Surface Water Use:** We reduced either **only groundwater use** or **only surface water use** throughout the year to evaluate the distinct effects of each water source.  
-    3. **Changing the Timing of Water Use Restrictions:** We adjusted the **start month of water use restrictions** (June, July, or August) to see if timing influenced the impact of restrictions.  
-    
-    ---
-    
-    ### Total Water Use  
-    
-    The upper graph displays different **rates of total water use** in various scenarios. The lower graph illustrates how these changes affect **streamflow**, which varies seasonally. The **red line** represents the **fish protection order** threshold.  
-    
-    - **Doubling total water use** reduces low flows by over **50%**, often dropping below fish protection thresholds for nearly a month.  
-    - **Halving total water use** increases low flow by **50%**, emphasizing the benefits of water conservation.  
-    
-    ---
-    
-    ### Decreasing Groundwater or Surface Water Use  
-    
-    In these graphs, **only groundwater or only surface water use** is reduced.  
-    
-    - **Surface water extraction has an immediate impact on streamflow**—when water is taken from a stream, flow decreases immediately.  
-    - **Groundwater pumping affects streamflow more slowly**, sometimes taking days, weeks, or months for the impact to appear.  
-    - **Scenarios where groundwater or surface water use is halved** show that surface water use has a more immediate and significant effect on low flows.  
-    - The impact of groundwater pumping on low flows depends on well location relative to streams and aquifers.  
-    
-    ---
-    
-    ### Changing the Timing of Water Use Restrictions  
-    
-    This scenario examines the effect of **starting water use restrictions in June, July, or August**.  
-    
-    - **Starting restrictions earlier in the season is less critical** since surface water restrictions have immediate impacts.  
-    - **Water use restrictions can increase low flows by 20–50%**, with later-starting restrictions still yielding significant benefits.  
-    
-    ---
-    
-    These insights highlight the importance of **adaptive water management** and **conservation strategies** to maintain healthy summer streamflows in the Xwulqw'selu Sta'lo'.  
-    
-    """)
-
     # Define colors for each scenario
     scenario_colors = {
         "Scenario R3": "black",
@@ -726,6 +674,21 @@ elif selected_option == "Water use":
     
     # Streamlit title
     st.title("Scenario Flow Analysis")
+    
+    # Display introductory text
+    st.markdown("""
+    ### Water Use Scenarios
+    
+    Water use, especially surface water use, significantly and quickly changes summer streamflow in the **Xwulqw'selu Sta'lo' at Cowichan Station**.
+    
+    You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the **Xwulqw'selu Sta'lo'** in units of volume per time (cubic meters per second).
+    
+    We modelled water use scenarios to explore how three behavior changes might impact streamflow in **Xwulqw'selu Sta'lo'** at Cowichan Station:
+    
+    1. **Total Water Use**: We doubled and halved total water use (from both groundwater and surface water) compared to the baseline model.
+    2. **Source of Water Use**: We decreased only groundwater use or surface water use year-round to see the differences between the different water sources.
+    3. **Timing of Water Use**: We changed the timing of water use restrictions starting in June, July, or August to explore how the timing impacts streamflow during the summer months.
+    """)
     
     # Define tick values (start of each month approx)
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
@@ -845,8 +808,7 @@ elif selected_option == "Water use":
         )
     
         st.plotly_chart(fig4)
-   
-
+    
 elif selected_option == "Land use":   
     
     st.markdown("""
