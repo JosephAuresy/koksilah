@@ -688,71 +688,126 @@ elif selected_option == "Water use":
     
     """)
 
+    # Settings
+    data_folder = os.path.join("data", "reach_csv")
     
-    # Folder where CSV files are located
-    csv_folder = "data/reach_csv" # Change if your CSV files are in a different folder
-    
-    # Map scenario names to filenames
-    scenario_files = {
-        "Scenario jun": "scenario_jun_data.csv",
-        "Scenario jul": "scenario_jul_data.csv",
-        "Scenario aug": "scenario_aug_data.csv",
-        "Scenario R3 S 05": "scenario_S_05_data.csv",
-        "Scenario R3 G 05": "scenario_G_05_data.csv",
-        "Scenario R3 X2": "scenario_SG_X2_data.csv",
-        "Scenario R3 SG 05": "scenario_SG_05_data.csv",
-        "Scenario mat you": "scenario_mat_you_data.csv",
-        "Scenario mat 60": "scenario_mat_60_data.csv",
-        "Scenario R3": "scenario_R3_data.csv"
+    # Scenario colors and labels
+    scenario_colors = {
+        "Scenario R3": "black",
+        "Scenario R3 S 05": "lightblue",
+        "Scenario R3 X2": "navy",
+        "Scenario jun": "pink",
+        "Scenario jul": "#C71585",
+        "Scenario aug": "#800080",
+        "Scenario R3 G 05": "darkblue",
+        "Scenario R3 SG 05": "skyblue",
+        "Scenario mat you": "lightgreen",
+        "Scenario mat 60": "darkgreen"
     }
     
-    # Load and combine all data
-    @st.cache_data
-    def load_data():
-        all_data = []
-        for scenario, filename in scenario_files.items():
-            filepath = os.path.join(csv_folder, filename)
-            if os.path.exists(filepath):
-                df = pd.read_csv(filepath)
-                df["Scenario"] = scenario
-                all_data.append(df)
-            else:
-                st.warning(f"File not found: {filename}")
-        return pd.concat(all_data, ignore_index=True)
+    scenario_legend = {
+        "Scenario jun": "No Water Use June-August",
+        "Scenario jul": "No Water Use July-August",
+        "Scenario aug": "No Water Use August",
+        "Scenario R3 S 05": "Half Surface Water Use",
+        "Scenario R3 G 05": "Half Groundwater Use",
+        "Scenario R3": "Base case",
+        "Scenario R3 X2": "Double Water Use",
+        "Scenario R3 SG 05": "Half Water Use",
+        "Scenario mat you": "Mature and Immature Forest",
+        "Scenario mat 60": "Mature Forest"
+    }
     
-    combined_data = load_data()
+    scenario_groups = {
+        "Jun-Jul-Aug with Base": ["Scenario jun", "Scenario jul", "Scenario aug", "Scenario R3"],
+        "Half, Double, Base": ["Scenario R3 SG 05", "Scenario R3 X2", "Scenario R3"],
+        "Surface Half, Ground Half, Base": ["Scenario R3 S 05", "Scenario R3 G 05", "Scenario R3"],
+        "Mature, Mature-Immature, Base": ["Scenario mat you", "Scenario mat 60", "Scenario R3"]
+    }
     
-    # Filter for Reach 3 and day of year (1-365)
-    rch3_data = combined_data[(combined_data['RCH'] == 3) &
-                              (combined_data['DAY'] >= 1) & 
-                              (combined_data['DAY'] <= 365)]
+    tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+    ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    y_ticks = [0.05, 0.18, 1, 10, 50]
     
-    # Sidebar filters
-    st.sidebar.header("Filters")
-    selected_scenarios = st.sidebar.multiselect(
-        "Select Scenarios to Compare", 
-        options=list(scenario_files.keys()),
-        default=list(scenario_files.keys())  # All selected by default
+    st.title("Streamflow Scenario Explorer (Separate CSVs)")
+    
+    # Select scenario group
+    selected_group = st.selectbox("Select Scenario Group", list(scenario_groups.keys()))
+    scenarios = scenario_groups[selected_group]
+    
+    # Load data from pre-saved CSV files
+    all_data = []
+    for scenario in scenarios:
+        file_path = os.path.join(data_folder, f"scenario_{scenario.replace(' ', '_').lower()}_data.csv")
+        if os.path.exists(file_path):
+            df = pd.read_csv(file_path)
+            df = df[df["RCH"] == 3]  # Filter for RCH 3
+            df["Scenario"] = scenario
+            all_data.append(df)
+    
+    if not all_data:
+        st.error("No matching files found in the folder!")
+        st.stop()
+    
+    combined_df = pd.concat(all_data, ignore_index=True)
+    
+    # Mean daily flow
+    mean_daily = combined_df.groupby(['Scenario', 'DAY'])['FLOW_OUTcms'].mean().reset_index()
+    
+    fig1 = px.line(mean_daily, x="DAY", y="FLOW_OUTcms", color="Scenario",
+                   title=f"Mean Daily Flow - {selected_group}",
+                   color_discrete_map=scenario_colors)
+    
+    fig1.add_hline(y=0.18, line_dash="dash", line_color="red", annotation_text="Fish Cutoff (0.18 cms)")
+    
+    fig1.update_layout(
+        xaxis=dict(tickvals=tickvals, ticktext=ticktext),
+        yaxis=dict(type="log", tickvals=y_ticks),
+        width=800, height=400
     )
     
-    # Filter by selected scenarios
-    filtered_data = rch3_data[rch3_data["Scenario"].isin(selected_scenarios)]
+    fig1.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    st.plotly_chart(fig1)
     
-    # Group by day and scenario to get average flow
-    grouped = filtered_data.groupby(["DAY", "Scenario"])["FLOW_OUTcms"].mean().reset_index()
+    # Delta Flow
+    base_flow = mean_daily[mean_daily["Scenario"] == "Scenario R3"].rename(columns={"FLOW_OUTcms": "Base_Flow"})
+    merged = pd.merge(mean_daily, base_flow[["DAY", "Base_Flow"]], on="DAY", how="left")
+    merged["Delta Flow"] = (merged["FLOW_OUTcms"] - merged["Base_Flow"]) / merged["Base_Flow"]
     
-    # Plotting
-    plt.figure(figsize=(12, 6))
-    sns.lineplot(data=grouped, x="DAY", y="FLOW_OUTcms", hue="Scenario")
-    plt.title("Average Daily Streamflow for Reach 3")
-    plt.xlabel("Day of Year")
-    plt.ylabel("Flow (cms)")
-    plt.grid(True)
-    st.pyplot(plt.gcf())
+    fig2 = px.line(merged, x="DAY", y="Delta Flow", color="Scenario",
+                   title=f"Relative Change in Flow from Base - {selected_group}",
+                   color_discrete_map=scenario_colors)
     
-    # Show raw data (optional)
-    with st.expander("See Raw Data Table"):
-        st.dataframe(grouped)
+    fig2.update_layout(
+        xaxis=dict(tickvals=tickvals, ticktext=ticktext),
+        yaxis=dict(range=[-1.1, 1.1]),
+        width=800, height=400
+    )
+    
+    fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    st.plotly_chart(fig2)
+    
+    # FDC
+    def compute_fdc(df):
+        sorted_flow = df["FLOW_OUTcms"].sort_values(ascending=False)
+        prob = (sorted_flow.rank(ascending=False) / len(sorted_flow)) * 100
+        return pd.DataFrame({"Flow (cms)": sorted_flow.values, "Exceedance Probability (%)": prob.values})
+    
+    fdc_all = pd.concat([
+        compute_fdc(combined_df[combined_df["Scenario"] == s]).assign(Scenario=s) for s in scenarios
+    ], ignore_index=True)
+    
+    fig3 = px.line(fdc_all, x="Exceedance Probability (%)", y="Flow (cms)", color="Scenario",
+                   title=f"Flow Duration Curve - {selected_group}",
+                   color_discrete_map=scenario_colors)
+    
+    fig3.update_layout(
+        yaxis_type="log",
+        width=800, height=400
+    )
+    
+    fig3.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    st.plotly_chart(fig3)
 
    
 
