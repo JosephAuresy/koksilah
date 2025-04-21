@@ -839,37 +839,13 @@ elif selected_option == "Land use":
     st.markdown("""
     ### Land Use Scenarios  
     
-    Land use, particularly **forest age distributions**, has a less significant impact on **summer low flows** but influences other aspects of the water cycle.  
+    The age of trees can impact the water cycle in multiple ways. Land use, as represented by different ages of forests, changes streamflow in the summer less significantly than water use, but changes other parts of the water cycle.  
     
-    You can zoom into any part of the graphs, and if you want to explore **detailed differences between scenarios** or their effects on **evapotranspiration**, check out **David’s thesis** for more insights.  
-    
-    ---
-    
-    ### Forestry Impacts on the Water Cycle  
-    
-    We compared **current conditions** to two alternative land use scenarios by modifying **forest age distribution**, since tree age influences hydrological processes in multiple ways.  
-    
-    The scenarios include:  
-    
-    1. **Mature Forest Scenario** – Increased land area of **60-year-old trees**.  
-    2. **Mature and Immature Forest Scenario** – A mix of **mature (60-year-old) and immature (30-year-old) forests**.  
-    
-    The percentage of each forest age class in these scenarios is illustrated in **pie charts**. The watershed diagram highlights how these changes influence **runoff, interflow, and evapotranspiration**, demonstrating that **forest age distributions** play a role in hydrological processes.  
-    
-    ---
-    
-    ### Impacts on Streamflow  
-    
-    - A **mature (60-year-old) forest scenario** reduced **summer streamflow by up to 10%**.  
-    - A **mixed mature and immature (30-year-old) forest scenario** showed **no significant changes** in summer low flows.  
-    
-    These results emphasize the need to **consider forest age distributions** when evaluating **long-term hydrological changes** in the watershed.  
-    
-    ---
-    
-    This analysis helps illustrate the **complex relationships** between land use, forest age, and watershed hydrology.  
-    """)
-    
+    <p style="font-size: 12px; font-family: 'Segoe UI', sans-serif;">
+        You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
+    </p>
+    """, unsafe_allow_html=True)
+
     # Define colors for each scenario
     scenario_colors = {
         "Scenario R3": "black",
