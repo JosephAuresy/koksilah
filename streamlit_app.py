@@ -869,7 +869,178 @@ elif selected_option == "Land use":
     
     This analysis helps illustrate the **complex relationships** between land use, forest age, and watershed hydrology.  
     """)
+    
+    # Define colors for each scenario
+    scenario_colors = {
+        "Scenario R3": "black",
+        "Scenario mat you": "lightgreen",
+        "Scenario mat 60": "darkgreen"
+    }
+    
+    # Scenario legend
+    scenario_legend = {
+        "Scenario R3": "Base case",
+        "Scenario mat you": "Mature and Immature Forest",
+        "Scenario mat 60": "Mature Forest"
+    }
+    
+    # Scenario groups
+    scenario_groups = {
+        "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
+    }
+    
+    # Streamlit title
+    st.title("Scenario Flow Analysis")
+    
+    st.markdown("""
+        <style>
+        .definition-box {
+            background-color: #f0f8ff;
+            border-left: 6px solid #4682B4;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 20px;
+        }
+        .definition-box h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .definition-box p {
+            margin-bottom: 10px;
+        }
+        </style>
+        
+        <div class="definition-box">
+        <h4>We modelled two land use scenarios by changing the age of Douglas Fir forests across the watershed:</h4>
+        
+        <p><strong>Baseline model:</strong> In the baseline model, the watershed area is ~78% mature forest (trees 60 years or older), 3% immature forest (trees ~30 years), and ~19% recently logged.</p>
+        
+        <p><strong>Mature forest scenario:</strong> The percentage area of mature forest is increased from 78% in the baseline model to 96% to show the impact of mature forests.</p>
+        
+        <p><strong>Mature and immature forest scenario:</strong> The percentage area of mature forest is 66%, while the immature and recently logged are 17% each to show the impact of immature forests.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
+    
+    # Define tick values (start of each month approx)
+    tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+    ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    y_ticks = [0.05, 0.18, 1, 10, 50]
+    
+    # Process each scenario group
+    for title, files in scenario_groups.items():
+        scenario_data = []
+    
+        for file in files:
+            file_path = os.path.join("data/reach_csv", file)
+    
+            try:
+                df = pd.read_csv(file_path)
+                st.success(f"Loaded: {file}")
+            except Exception as e:
+                st.error(f"Failed to load file: {file_path}\nError: {e}")
+                st.stop()
+    
+            # Capitalize column names just in case
+            df.columns = [col.upper() for col in df.columns]
+    
+            # Add a Scenario column from file name if not in the file
+            if "SCENARIO" not in df.columns:
+                scenario_name = os.path.splitext(file)[0].replace("scenario_", "").replace("_data", "")
+                df["SCENARIO"] = f"Scenario {scenario_name.replace('_', ' ')}"
+    
+            scenario_data.append(df)
+    
+        combined_data = pd.concat(scenario_data, ignore_index=True)
+    
+        # Filter for Reach 3 and valid days
+        rch3_data = combined_data[(combined_data["RCH"] == 3) & (combined_data["DAY"].between(1, 365))]
+    
+        # Mean daily flow per scenario
+        mean_daily_flow = rch3_data.groupby(["SCENARIO", "DAY"])["FLOW_OUTCMS"].mean().reset_index()
+    
+        max_flow = mean_daily_flow["FLOW_OUTCMS"].max()
+    
+        # === Plot Mean Daily Flow ===
+        fig2 = px.line(
+            mean_daily_flow,
+            x="DAY",
+            y="FLOW_OUTCMS",
+            color="SCENARIO",
+            title=f"Mean Daily Flow for Reach 3 - {title}",
+            labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
+            color_discrete_map=scenario_colors
+        )
+    
+        fig2.add_hline(
+            y=0.18, line_dash="dash", line_color="red", line_width=2,
+            annotation_text="Fish Protection Cutoff (0.18 cms)",
+            annotation_position="right",
+            annotation_y=0.18,
+            annotation_font_size=12
+        )
+    
+        # Update legend names
+        fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    
+        fig2.update_layout(
+            xaxis=dict(
+                title="Day of the Year",
+                showgrid=True,
+                tickmode="array",
+                tickvals=tickvals,
+                ticktext=ticktext
+            ),
+            yaxis=dict(
+                title="Mean Flow (cms)",
+                showgrid=True,
+                type="log",
+                range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
+                tickvals=y_ticks
+            ),
+            legend=dict(title="Scenario"),
+            width=800,
+            height=400
+        )
+    
+        st.plotly_chart(fig2)
+    
+        # === Plot Delta Flow ===
+        base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
+        merged_data = pd.merge(mean_daily_flow, base_scenario[["DAY", "Base_Flow"]], on="DAY", how="left")
+        merged_data["Delta Flow"] = (merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]
+    
+        fig4 = px.line(
+            merged_data,
+            x="DAY",
+            y="Delta Flow",
+            color="SCENARIO",
+            title=f"Change in Summer Streamflow - {title}",
+            color_discrete_map=scenario_colors
+        )
+    
+        fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    
+        fig4.update_layout(
+            xaxis=dict(
+                title="Day of the Year",
+                showgrid=True,
+                tickmode="array",
+                tickvals=tickvals,
+                ticktext=ticktext
+            ),
+            yaxis=dict(
+                title="Delta Flow (Relative Change)",
+                showgrid=True,
+                range=[-1.1, 1.1]
+            ),
+            legend=dict(title="Scenario"),
+            width=800,
+            height=400
+        )
+    
+        st.plotly_chart(fig4)
 
 
 
