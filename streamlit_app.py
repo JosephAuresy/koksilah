@@ -688,8 +688,6 @@ elif selected_option == "Water use":
     
     """)
 
-    # Set the title
-    st.title("Streamflow Comparison Across Scenarios - Reach 3")
     
     # Folder where CSV files are located
     csv_folder = "data/reach_csv" # Change if your CSV files are in a different folder
