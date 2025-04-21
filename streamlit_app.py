@@ -687,8 +687,6 @@ elif selected_option == "Water use":
     These insights highlight the importance of **adaptive water management** and **conservation strategies** to maintain healthy summer streamflows in the Xwulqw'selu Sta'lo'.  
     
     """)
-
-    folder_path = "data/reach_csv/"
     
     # Define colors for each scenario
     scenario_colors = {
@@ -734,6 +732,7 @@ elif selected_option == "Water use":
         # Load data for each scenario
         scenario_data = []
         for file in files:
+            file_path = os.path.join("data/reach_csv", file) 
             st.write("Trying to load:", file)  # 🔍 Add this line for debugging
             data = pd.read_csv(file)
             scenario_data.append(data)
