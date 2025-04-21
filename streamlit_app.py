@@ -662,9 +662,9 @@ elif selected_option == "Water use":
     
     # Scenario groups
     scenario_groups = {
-        "Half, Double, Base": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
-        "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
-        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
+        "Total water use": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
+        "Decreasing groundwater or surface water use": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
+        "Change the timing of water use restrictions": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
     }
         
     # Display introductory text
@@ -825,9 +825,9 @@ elif selected_option == "Water use":
         )
     
         st.plotly_chart(fig4)
-    
+        
         # Add detailed explanation for the scenario group
-        if title == "Half, Double, Base":
+        if title == "Total water use":
             st.markdown("""        
             **Total water use:**  
             The upper graph shows the different rates of total water use in different scenarios.  
@@ -841,7 +841,7 @@ elif selected_option == "Water use":
             In contrast, halving overall water use results in August streamflow that is 50% higher, emphasizing that conserving water is a crucial water management strategy.
             """)
     
-        elif title == "Surface Half, Ground Half, Base":
+        elif title == "Decreasing groundwater or surface water use":
             st.markdown("""    
             **Decreasing groundwater or surface water use:**  
             In these graphs only groundwater OR surface water is decreased. In these scenarios, water use from the other water source was kept constant (so the overall volume of water use also decreased in these scenarios).
@@ -852,7 +852,7 @@ elif selected_option == "Water use":
             The impact of decreased groundwater use on low flows is slower and less significant and needs additional research; the impact of individual wells depends on the location of the wells, streams, and aquifers.
             """)
     
-        elif title == "Jun-Jul-Aug with Base":
+        elif title == "Change the timing of water use restrictions":
             st.markdown("""    
             **Change the timing of water use restrictions:**  
             In these scenarios, water use restrictions start at the beginning of June, July, or August.  
