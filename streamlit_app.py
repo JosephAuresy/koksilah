@@ -718,8 +718,8 @@ elif selected_option == "Water use":
     
     # Define the scenario groups
     scenario_groups = {
-        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
         "Half, Double, Base": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
+        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
         "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
         "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
     }
