@@ -485,7 +485,7 @@ elif selected_option == "Whole watershed":
             values=color_values,
             hole=0.3,
             marker=dict(colors=pie_colors),
-            domain=dict(x=[0.72, 0.95], y=[0.72, 0.95]),  # Position in top-right
+            domain=dict(x=[0.72, 0.95], y=[0.05, 0.28])  # Bottom-right corner
             textinfo='none',
             hoverinfo='label+value+percent',
             showlegend=False
