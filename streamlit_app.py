@@ -722,7 +722,6 @@ elif selected_option == "Water use":
     
             try:
                 df = pd.read_csv(file_path)
-                st.success(f"Loaded: {file}")
             except Exception as e:
                 st.error(f"Failed to load file: {file_path}\nError: {e}")
                 st.stop()
@@ -903,7 +902,6 @@ elif selected_option == "Land use":
     
             try:
                 df = pd.read_csv(file_path)
-                st.success(f"Loaded: {file}")
             except Exception as e:
                 st.error(f"Failed to load file: {file_path}\nError: {e}")
                 st.stop()
