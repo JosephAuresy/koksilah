@@ -1013,7 +1013,9 @@ elif selected_option == "Land use":
     
         st.plotly_chart(fig4)
 
-
+    st.markdown("""
+          A mature (60-year-old) forest scenario reduced streamflow slightly by less than 10% during the summer, whereas a mix of mature and immature (30-year-old) forests did not significantly change low flows. These findings highlight the importance of considering forest age distributions when assessing long-term hydrological changes, while remembering that August streamflow and the age of the trees are an overly simplistic approach to assessing the impact of forestry on watersheds.  
+    """)    
 
 # tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
     
