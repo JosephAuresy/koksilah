@@ -921,9 +921,10 @@ elif selected_option == "Land use":
         """, unsafe_allow_html=True)
 
     # Load and display the image
-    image_path = "data/mature.jpg"
-    image = Image.open(image_path)
-    st.image(image, caption="Effect of mature forests on the water cycle", use_column_width=True)
+    # Set the data folder relative to the script's location
+    data_folder = Path(__file__).parent / 'data'
+    image_path = data_folder / 'mature.jpg'
+    st.image(image_path)
     
     # Add the paragraph
     st.markdown("""
