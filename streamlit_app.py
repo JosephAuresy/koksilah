@@ -617,8 +617,8 @@ elif selected_option == "Whole watershed":
     # # Add a layer control to switch between the subbasins and grid layers
     # folium.LayerControl().add_to(m)
 
-    # # Display the plotly heatmap in Streamlit
-    # st.plotly_chart(fig_recharge, use_container_width=True)  
+    # Display the plotly heatmap in Streamlit
+    st.plotly_chart(fig_recharge, use_container_width=True)  
     
     # # Render the Folium map in Streamlit
     # st.title("Watershed Map")
