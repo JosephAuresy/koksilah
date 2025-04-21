@@ -446,39 +446,70 @@ elif selected_option == "Whole watershed":
         # Add hover text for the grid cell
         hover_text[row_idx, col_idx] = f'Value: {value:.2f} (Prev: {prev_month_value:.2f})'
     
-    # Function to create the heatmap
-    def create_heatmap(classified_grid, selected_month_name, hover_text):
-        # Define a color scale for the classified ranges
-        colorscale = [
-            [0.0, '#8B4513'],  # Losing - Brown
-            [0.66, '#FFFF00'],  # No significant contributions - Yellow
-            [1.0, '#00008B'],   # Gaining - Dark Blue
-        ]
-        
-        # Create the heatmap for the selected month
-        fig = go.Figure(data=go.Heatmap(
-            z=classified_grid,
-            colorscale=colorscale,
-            zmin=0,
-            zmax=2,
-            showscale=False,  # Hide scale since categories are defined
-            hoverinfo='text',
-            text=hover_text
-        ))
+    def create_heatmap_with_pie(classified_grid, selected_month_name, hover_text, color_counts):
+    # Define the color scale
+    colorscale = [
+        [0.0, '#8B4513'],   # Losing - Brown
+        [0.66, '#FFFF00'],  # No significant contributions - Yellow
+        [1.0, '#00008B'],   # Gaining - Dark Blue
+    ]
     
-        # Update the layout of the heatmap
-        fig.update_layout(
-            title=f'Groundwater-Surface Water Interaction for {selected_month_name} [m³/day]',
-            xaxis_title='Column',
-            yaxis_title='Row',
-            xaxis=dict(showticklabels=True, ticks='', showgrid=False),
-            yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
-            plot_bgcolor='rgba(240, 240, 240, 0.8)',
-            paper_bgcolor='white',
-            font=dict(family='Arial, sans-serif', size=8, color='black'),
-        )
-        
-        st.plotly_chart(fig)
+    # Create the heatmap trace
+    heatmap_trace = go.Heatmap(
+        z=classified_grid,
+        colorscale=colorscale,
+        zmin=0,
+        zmax=2,
+        showscale=False,
+        hoverinfo='text',
+        text=hover_text
+    )
+
+    # Prepare pie chart data
+    color_values = [
+        color_counts['gaining'],
+        color_counts['no_significant_contributions'],
+        color_counts['losing'],
+    ]
+    
+    total_cells = sum(color_values)
+    if total_cells == 0: total_cells = 1  # Avoid divide by zero
+
+    # Pie labels
+    pie_labels = ['Gaining < -1', 'No Significant Contributions 1 to -1', 'Losing > 1']
+    pie_colors = ['#00008B', '#FFFF00', '#8B4513']
+    
+    # Pie chart trace as an inset
+    pie_trace = go.Pie(
+        labels=pie_labels,
+        values=color_values,
+        hole=0.3,
+        marker=dict(colors=pie_colors),
+        domain=dict(x=[0.72, 0.95], y=[0.72, 0.95]),  # Adjust to position and size
+        textinfo='none',
+        hoverinfo='label+value+percent',
+        showlegend=False
+    )
+
+    # Combine traces into a single figure
+    fig = go.Figure(data=[heatmap_trace, pie_trace])
+
+    # Layout for the heatmap
+    fig.update_layout(
+        title=f'Groundwater-Surface Water Interaction for {selected_month_name} [m³/day]',
+        xaxis_title='Column',
+        yaxis_title='Row',
+        xaxis=dict(showticklabels=True, ticks='', showgrid=False),
+        yaxis=dict(showticklabels=True, ticks='', autorange='reversed', showgrid=False),
+        plot_bgcolor='rgba(240, 240, 240, 0.8)',
+        paper_bgcolor='white',
+        font=dict(family='Arial, sans-serif', size=8, color='black'),
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+
+    # Show the final plot
+    st.plotly_chart(fig, use_container_width=True)
+
     
     def count_cells_per_color(grid):
         # Combine categories into four main classifications
@@ -491,53 +522,9 @@ elif selected_option == "Whole watershed":
 
     # Count the colors for the selected month
     color_counts = count_cells_per_color(grid)
-    
-    # Prepare data for pie chart with updated classification ranges
-    color_names = [
-        'Gaining < -1',           # Categories 3, 4, 5 combined
-        'No Significant Contributions 1 to -1',  # Categories 6, 7 combined
-        'Losing > 1',            # Category below -225
-    ]
-    
-    color_values = [
-        color_counts['gaining'],          # Gaining
-        color_counts['no_significant_contributions'],  # No significant contributions
-        color_counts['losing'],           # Losing
-    ]
-    
-    # Prepare the pie chart data
-    total_cells = sum(color_values)
-    percentages = [count / total_cells * 100 if total_cells > 0 else 0 for count in color_values]
-    cell_counts = [str(count) for count in color_values]
 
-    # Combine percentages and cell counts for display in the labels
-    labels_with_counts = [
-        f"{name}: {count} cells ({percentage:.1f}%)"
-        for name, count, percentage in zip(color_names, cell_counts, percentages)
-    ]
-    
-    # Create a pie chart with formatted percentages
-    pie_colors = [
-        '#00008B',  # Dark Blue (extreme negative)
-        '#FFFF00',  # Yellow (slightly positive)
-        '#8B4513'   # Brown (strong positive)
-    ]
-    
-    # Create the pie chart
-    fig = go.Figure(data=[go.Pie(
-        labels=color_names,
-        values=color_values,
-        hole=0.3,  # Optional donut chart
-        marker=dict(colors=pie_colors),
-        textinfo='none',  # Display only the percentage
-        hoverinfo='label+value+percent',  # Display label, value, and percent on hover
-    )])
-    
-    # Display pie chart
-    st.plotly_chart(fig)
+    create_heatmap_with_pie(grid, selected_month_name, hover_text, color_counts)
 
-    create_heatmap(grid, selected_month_name, hover_text)
-    
     # Filter data for the selected month
     selected_month_data = monthly_stats[monthly_stats['Month'] == selected_month]
 
