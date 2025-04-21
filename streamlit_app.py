@@ -663,8 +663,8 @@ elif selected_option == "Water use":
     # Scenario groups
     scenario_groups = {
         "Half, Double, Base": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
-        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
         "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
+        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
     }
         
     # Display introductory text
@@ -825,6 +825,48 @@ elif selected_option == "Water use":
         )
     
         st.plotly_chart(fig4)
+    
+        # Add detailed explanation for the scenario group
+        if title == "Half, Double, Base":
+            st.markdown("""        
+            **Total water use:**  
+            The upper graph shows the different rates of total water use in different scenarios.  
+            The middle graph shows changes in streamflow over the same time period. Notice that the mean flow (in volume per time or cms = cubic meters per second) changes seasonally, and the changes are dramatic; we modified the y-axis scale to emphasize and better show the impact during seasonal low flows.
+    
+            The red line at 0.18 cms represents the streamflow threshold that triggers the provincial government to issue a temporary order to restrict water use to protect fish populations.
+    
+            The lower graph is the same changes in streamflow shown as a percentage change compared to the baseline (so 0.5 = 50% more streamflow and -0.5 = 50% less streamflow).  
+    
+            Doubling overall water use results in August streamflow that is 50% lower than the baseline and less than 0.18 cms for nearly a month.  
+            In contrast, halving overall water use results in August streamflow that is 50% higher, emphasizing that conserving water is a crucial water management strategy.
+            """)
+    
+        elif title == "Surface Half, Ground Half, Base":
+            st.markdown("""    
+            **Decreasing groundwater or surface water use:**  
+            In these graphs only groundwater OR surface water is decreased. In these scenarios, water use from the other water source was kept constant (so the overall volume of water use also decreased in these scenarios).
+    
+            Streamflow is impacted quickly when you take water from a stream, whereas when you pump from a well, it takes days, weeks, or months to impact streamflow.
+    
+            Scenarios of halving groundwater or surface water use show that surface water use has a much more significant and direct impact on low flows.  
+            The impact of decreased groundwater use on low flows is slower and less significant and needs additional research; the impact of individual wells depends on the location of the wells, streams, and aquifers.
+            """)
+    
+        elif title == "Jun-Jul-Aug with Base":
+            st.markdown("""    
+            **Change the timing of water use restrictions:**  
+            In these scenarios, water use restrictions start at the beginning of June, July, or August.  
+    
+            Scenarios of starting water use restrictions at different times suggested low flows can be increased by up to 100%.  
+            Starting earlier in the season is less important since surface water use restrictions change low flows quickly.  
+    
+            The results suggest the impacts of water source are greater than the impacts of the timing of water use restrictions.  
+            Future research could explore the strategic use of groundwater and surface water at different times of the summer season.
+            """)
+    
+        else:
+            st.markdown("*Scenario group summary not available.*")
+
     
 elif selected_option == "Land use":   
     
