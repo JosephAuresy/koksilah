@@ -674,7 +674,7 @@ elif selected_option == "Water use":
     Water use, especially surface water use, significantly and quickly changes summer streamflow in the **Xwulqw'selu Sta'lo' at Cowichan Station**.
     
     <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
-        You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the **Xwulqw'selu Sta'lo'** in units of volume per time (cubic meters per second).
+        You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the <strong>Xwulqw'selu Sta'lo'</strong> in units of volume per time (cubic meters per second).
     </p>
     """, unsafe_allow_html=True)
     
