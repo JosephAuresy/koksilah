@@ -689,7 +689,7 @@ elif selected_option == "Water use":
     """)
 
     # Settings
-    data_folder = "reach_csv"  
+`   data_folder = "data/reach_csv"
     
     # Scenario colors and labels
     scenario_colors = {
