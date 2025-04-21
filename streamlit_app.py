@@ -683,12 +683,37 @@ elif selected_option == "Water use":
     
     You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out David’s thesis. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the **Xwulqw'selu Sta'lo'** in units of volume per time (cubic meters per second).
     
-    We modelled water use scenarios to explore how three behavior changes might impact streamflow in **Xwulqw'selu Sta'lo'** at Cowichan Station:
-    
-    1. **Total Water Use**: We doubled and halved total water use (from both groundwater and surface water) compared to the baseline model.
-    2. **Source of Water Use**: We decreased only groundwater use or surface water use year-round to see the differences between the different water sources.
-    3. **Timing of Water Use**: We changed the timing of water use restrictions starting in June, July, or August to explore how the timing impacts streamflow during the summer months.
     """)
+    
+    st.markdown("""
+    <style>
+    .definition-box {
+        background-color: #f0f8ff;
+        border-left: 6px solid #4682B4;
+        padding: 16px;
+        border-radius: 10px;
+        font-family: 'Segoe UI', sans-serif;
+        margin-bottom: 20px;
+    }
+    .definition-box h4 {
+        margin-top: 0;
+        color: #2c3e50;
+    }
+    .definition-box p {
+        margin-bottom: 10px;
+    }
+    </style>
+    
+    <div class="definition-box">
+    <h4>We modelled water use scenarios to explore how three behavior changes might impact streamflow in Xwulqw'selu Sta'lo' at Cowichan Station:</h4>
+    
+    <p><strong>Total water use:</strong> We doubled and halved total water use (from both groundwater and surface water) compared to the baseline model.</p>
+    
+    <p><strong>Source of water use:</strong> We decreased only groundwater use or surface water use year-round to see the differences between the different water sources.</p>
+    
+    <p><strong>Timing of water use:</strong> We changed the timing of water use restrictions starting in June, July, or August to see if the timing and duration of summer water use restrictions impact streamflow.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Define tick values (start of each month approx)
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
