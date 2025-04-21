@@ -687,24 +687,22 @@ elif selected_option == "Water use":
     These insights highlight the importance of **adaptive water management** and **conservation strategies** to maintain healthy summer streamflows in the Xwulqw'selu Sta'lo'.  
     
     """)
-
-    # Settings
-    data_folder = "data/reach_csv"
     
-    # Scenario colors and labels
+    # Define colors for each scenario
     scenario_colors = {
         "Scenario R3": "black",
         "Scenario R3 S 05": "lightblue",
         "Scenario R3 X2": "navy",
-        "Scenario jun": "pink",
-        "Scenario jul": "#C71585",
-        "Scenario aug": "#800080",
+        "Scenario jun": "pink", #magenta
+        "Scenario jul": "#C71585", #
+        "Scenario aug": "#800080",  
         "Scenario R3 G 05": "darkblue",
         "Scenario R3 SG 05": "skyblue",
         "Scenario mat you": "lightgreen",
         "Scenario mat 60": "darkgreen"
     }
     
+    # Define the scenario names for the legend
     scenario_legend = {
         "Scenario jun": "No Water Use June-August",
         "Scenario jul": "No Water Use July-August",
@@ -718,96 +716,151 @@ elif selected_option == "Water use":
         "Scenario mat 60": "Mature Forest"
     }
     
+    # Define the scenario groups
     scenario_groups = {
-        "Jun-Jul-Aug with Base": ["Scenario jun", "Scenario jul", "Scenario aug", "Scenario R3"],
-        "Half, Double, Base": ["Scenario R3 SG 05", "Scenario R3 X2", "Scenario R3"],
-        "Surface Half, Ground Half, Base": ["Scenario R3 S 05", "Scenario R3 G 05", "Scenario R3"],
-        "Mature, Mature-Immature, Base": ["Scenario mat you", "Scenario mat 60", "Scenario R3"]
+        "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
+        "Half, Double, Base": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
+        "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
+        "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
     }
     
-    tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-    ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    y_ticks = [0.05, 0.18, 1, 10, 50]
+    # Streamlit setup
+    st.title("Scenario Flow Analysis")
     
-    st.title("Streamflow Scenario Explorer (Separate CSVs)")
+    # Process each scenario group
+    for title, files in scenario_groups.items():
+        # Load data for each scenario
+        scenario_data = []
+        for file in files:
+            data = pd.read_csv(file)
+            scenario_data.append(data)
+        
+        # Concatenate all the scenario data together
+        combined_data = pd.concat(scenario_data, ignore_index=True)
+        
+        # Filter for Reach 3 and days within the year
+        rch3_data = combined_data[combined_data['RCH'] == 3]
+        rch3_data = rch3_data[(rch3_data['DAY'] >= 1) & (rch3_data['DAY'] <= 365)]
     
-    # Select scenario group
-    selected_group = st.selectbox("Select Scenario Group", list(scenario_groups.keys()))
-    scenarios = scenario_groups[selected_group]
+        # Define tick values (approximate first day of each month in a year)
+        tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+        ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
-    # Load data from pre-saved CSV files
-    all_data = []
-    for scenario in scenarios:
-        file_path = os.path.join(data_folder, f"scenario_{scenario.replace('_', ' ').lower()}_data.csv")
-        if os.path.exists(file_path):
-            df = pd.read_csv(file_path)
-            df = df[df["RCH"] == 3]  # Filter for RCH 3
-            df["Scenario"] = scenario
-            all_data.append(df)
+        # Mean daily flow for each scenario group
+        mean_daily_flow = rch3_data.groupby(['Scenario', 'DAY'])['FLOW_OUTcms'].mean().reset_index()
     
-    if not all_data:
-        st.error("No matching files found in the folder!")
-        st.stop()
+        # Compute max flow for y-axis scaling
+        max_flow = mean_daily_flow["FLOW_OUTcms"].max()
+        
+        # Define tick values for y-axis (log scale)
+        y_ticks = [0.05, 0.18, 1, 10, 50]
+        
+        # Create the line plot for mean daily flow
+        fig2 = px.line(
+            mean_daily_flow, x="DAY", y="FLOW_OUTcms", color="Scenario",
+            title=f"Mean Daily Flow for Reach 3 - {title}",
+            labels={"DAY": "Day of the Year", "FLOW_OUTcms": "Mean Flow (cms)"},
+            color_discrete_map=scenario_colors
+        )
     
-    combined_df = pd.concat(all_data, ignore_index=True)
+        fig2.add_hline(y=0.18, line_dash="dash", line_color="red", line_width=2, 
+                        annotation_text="Fish Protection Cutoff (0.18 cms)", 
+                        annotation_position="right",  # Keep it close to the line
+                        annotation_y=0.18,  # Explicitly place annotation near the line
+                        annotation_font_size=12)
     
-    # Mean daily flow
-    mean_daily = combined_df.groupby(['Scenario', 'DAY'])['FLOW_OUTcms'].mean().reset_index()
+        # Update legend with scenario names
+        fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+        
+        # Update layout with log scale on y-axis
+        fig2.update_layout(
+            xaxis=dict(
+                title="Day of the Year", 
+                showgrid=True,
+                tickmode='array', 
+                tickvals=tickvals,  # Specific days for June, July, August boundaries
+                ticktext=ticktext  # Label the months on those days
+            ),
+            yaxis=dict(
+                title="Mean Flow (cms)",
+                showgrid=True,
+                type="log",  # Set log scale for y-axis
+                range=[np.log10(0.05), np.log10(50)],  # Ensure range starts from 0.1
+                tickvals=y_ticks,  # Manually set tick values to include 0.1
+            ),
+            legend=dict(title="Scenario"),
+            width=800,
+            height=400
+        )
+        
+        # Display the figure in Streamlit app
+        st.plotly_chart(fig2)
     
-    fig1 = px.line(mean_daily, x="DAY", y="FLOW_OUTcms", color="Scenario",
-                   title=f"Mean Daily Flow - {selected_group}",
-                   color_discrete_map=scenario_colors)
+        # Figure 4: Change in Summer Streamflow
+        base_scenario = mean_daily_flow[mean_daily_flow['Scenario'] == 'Scenario R3'].rename(columns={"FLOW_OUTcms": "Base_Flow"})
+        merged_data = pd.merge(mean_daily_flow, base_scenario[['DAY', 'Base_Flow']], on="DAY", how="left")
+        merged_data['Delta Flow'] = (merged_data['FLOW_OUTcms'] - merged_data['Base_Flow']) / merged_data['Base_Flow']
+        
+        fig4 = px.line(merged_data, x="DAY", y="Delta Flow", color="Scenario",
+                       title=f"Change in Summer Streamflow - {title}",
+                       color_discrete_map=scenario_colors)
+        
+        # Set y-axis limits to be from -1.1 to 1.1
+        fig4.update_layout(
+            yaxis=dict(range=[-1.1, 1.1])
+        )
+        
+        # Update legend with scenario names
+        fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+        
+        # Update layout with month labels on x-axis
+        fig4.update_layout(
+            xaxis=dict(
+                title="Day of the Year", 
+                showgrid=True,
+                tickmode='array', 
+                tickvals=tickvals,  # Specific days for June, July, August boundaries
+                ticktext=ticktext  # Label the months on those days
+            ),
+            yaxis=dict(title="Delta Flow (Relative Change)", showgrid=True),
+            legend=dict(title="Scenario"),
+            width=800,  # Specify width in pixels
+            height=400  # Specify height in pixels
+        )
+        
+        st.plotly_chart(fig4)
     
-    fig1.add_hline(y=0.18, line_dash="dash", line_color="red", annotation_text="Fish Cutoff (0.18 cms)")
-    
-    fig1.update_layout(
-        xaxis=dict(tickvals=tickvals, ticktext=ticktext),
-        yaxis=dict(type="log", tickvals=y_ticks),
-        width=800, height=400
-    )
-    
-    fig1.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    st.plotly_chart(fig1)
-    
-    # Delta Flow
-    base_flow = mean_daily[mean_daily["Scenario"] == "Scenario R3"].rename(columns={"FLOW_OUTcms": "Base_Flow"})
-    merged = pd.merge(mean_daily, base_flow[["DAY", "Base_Flow"]], on="DAY", how="left")
-    merged["Delta Flow"] = (merged["FLOW_OUTcms"] - merged["Base_Flow"]) / merged["Base_Flow"]
-    
-    fig2 = px.line(merged, x="DAY", y="Delta Flow", color="Scenario",
-                   title=f"Relative Change in Flow from Base - {selected_group}",
-                   color_discrete_map=scenario_colors)
-    
-    fig2.update_layout(
-        xaxis=dict(tickvals=tickvals, ticktext=ticktext),
-        yaxis=dict(range=[-1.1, 1.1]),
-        width=800, height=400
-    )
-    
-    fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    st.plotly_chart(fig2)
-    
-    # FDC
-    def compute_fdc(df):
-        sorted_flow = df["FLOW_OUTcms"].sort_values(ascending=False)
-        prob = (sorted_flow.rank(ascending=False) / len(sorted_flow)) * 100
-        return pd.DataFrame({"Flow (cms)": sorted_flow.values, "Exceedance Probability (%)": prob.values})
-    
-    fdc_all = pd.concat([
-        compute_fdc(combined_df[combined_df["Scenario"] == s]).assign(Scenario=s) for s in scenarios
-    ], ignore_index=True)
-    
-    fig3 = px.line(fdc_all, x="Exceedance Probability (%)", y="Flow (cms)", color="Scenario",
-                   title=f"Flow Duration Curve - {selected_group}",
-                   color_discrete_map=scenario_colors)
-    
-    fig3.update_layout(
-        yaxis_type="log",
-        width=800, height=400
-    )
-    
-    fig3.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    st.plotly_chart(fig3)
+        # Figure 3: Flow Duration Curve for August
+        def compute_fdc(data):
+            sorted_flow = data['FLOW_OUTcms'].sort_values(ascending=False)
+            exceedance_prob = (sorted_flow.rank(ascending=False) / len(sorted_flow)) * 100
+            return pd.DataFrame({"Flow (cms)": sorted_flow.values, "Exceedance Probability (%)": exceedance_prob.values})
+        
+        fdc_data = pd.concat([compute_fdc(rch3_data[rch3_data['Scenario'] == s]).assign(Scenario=s)
+                              for s in files], ignore_index=True)
+        fig3 = px.line(fdc_data, x="Exceedance Probability (%)", y="Flow (cms)", color="Scenario",
+                       title=f"Flow Duration Curve - {title}",
+                       color_discrete_map=scenario_colors)
+        
+        # Update legend with scenario names
+        fig3.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+        
+        fig3.update_layout(yaxis_type="log")
+        
+        # Update layout with month labels on x-axis for all figures
+        fig3.update_layout(
+            xaxis=dict(
+                title="Exceedance Probability (%)", 
+                showgrid=True,
+                tickmode='array', 
+            ),
+            yaxis=dict(title="Flow (cms)", showgrid=True),
+            legend=dict(title="Scenario"),
+            width=800,  # Specify width in pixels
+            height=400  # Specify height in pixels
+        )
+        
+        st.plotly_chart(fig3)
 
    
 
