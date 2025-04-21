@@ -646,8 +646,6 @@ elif selected_option == "Water use":
         "Scenario aug": "#800080",
         "Scenario R3 G 05": "darkblue",
         "Scenario R3 SG 05": "skyblue",
-        "Scenario mat you": "lightgreen",
-        "Scenario mat 60": "darkgreen"
     }
     
     # Scenario legend
@@ -660,8 +658,6 @@ elif selected_option == "Water use":
         "Scenario R3": "Base case",
         "Scenario R3 X2": "Double Water Use",
         "Scenario R3 SG 05": "Half Water Use",
-        "Scenario mat you": "Mature and Immature Forest",
-        "Scenario mat 60": "Mature Forest"
     }
     
     # Scenario groups
@@ -669,7 +665,6 @@ elif selected_option == "Water use":
         "Half, Double, Base": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
         "Jun-Jul-Aug with Base": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
         "Surface Half, Ground Half, Base": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
-        "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
     }
     
     # Streamlit title
@@ -841,7 +836,7 @@ elif selected_option == "Land use":
     
     The age of trees can impact the water cycle in multiple ways. Land use, as represented by different ages of forests, changes streamflow in the summer less significantly than water use, but changes other parts of the water cycle.  
     
-    <p style="font-size: 12px; font-family: 'Segoe UI', sans-serif;">
+    <p style="font-size: 10px; font-family: 'Segoe UI', sans-serif;">
         You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
     </p>
     """, unsafe_allow_html=True)
