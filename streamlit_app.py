@@ -403,7 +403,6 @@ if selected_option == "Watershed models":
     with col1:
         st.image(image1_path, caption="Conceptual model developed of the Xwulqw’selu Watershed highlighting: hydrology fluxes and subsurface aquifer units with names from the BC provincial aquifer mapping", use_container_width=True)
     with col2:
-        st.markdown("### Introduction")
         st.markdown("""
         The Xwulqw'selu Connections research team at University of Victoria developed a whole-of-watershed model using the best available data to represent current conditions.  
         The complex computer model includes recent climate data and all the ways water travels through the watershed over time and space.  
@@ -419,7 +418,6 @@ if selected_option == "Watershed models":
     with col3:
         st.image(image2_path, caption="This photo shows a view of the upper Xwulqw'selu watershed, where logging and land use change are clearly visible", use_container_width=True)
     with col4:
-        st.markdown("### Content")
         st.markdown("""
         The maps and graphs are interactive, and they offer another way of seeing the whole watershed.  
         Explore how changes in [water use](#) and [forestry practice](#) can impact summer streamflow.  
@@ -947,28 +945,29 @@ elif selected_option == "Land use":
     
     st.markdown("""
     ### 🌲 Land Use Scenarios  
-
+    
     st.markdown("""
         <style>
-        .highlight-box {
-            background-color: #e6f2ff; /* Soft light blue */
+        .definition-box-alt {
+            background-color: #e6f2ff;  /* Light blue */
             border-left: 6px solid #3399ff;
-            padding: 18px;
+            padding: 20px;
             border-radius: 10px;
             font-family: 'Segoe UI', sans-serif;
-            font-size: 1.05em; /* Slightly bigger font */
+            font-size: 1.1em;
             margin-bottom: 20px;
             color: #1a1a1a;
         }
         </style>
         
-        <div class="highlight-box">
+        <div class="definition-box-alt">
             The age of trees can impact the water cycle in multiple ways.
             Land use, as represented by different ages of forests,
             changes streamflow in the summer less significantly than water use,
             but changes other parts of the water cycle.
         </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
     
     <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
         You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
