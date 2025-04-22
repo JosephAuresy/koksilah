@@ -30,6 +30,9 @@ import re
 import requests
 import io
 
+# --- Page setup ---
+st.set_page_config(layout="wide")
+
 # Set the title and favicon that appear in the browser's tab bar.
 st.set_page_config(
     page_title='Xwulqwselu',
@@ -43,9 +46,6 @@ selected_option = st.sidebar.radio(
     #("Watershed models", "Water interactions", "Recharge", "View Report")
     ("Watershed models", "Whole watershed", "Water use", "Land use")
 )
-
-# --- Page setup ---
-st.set_page_config(layout="wide")
 
 # --- Custom CSS for nav styling ---
 st.markdown("""
