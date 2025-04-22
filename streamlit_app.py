@@ -83,6 +83,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- Sidebar navigation ---
+with st.sidebar:
+    st.markdown("## Xwulqw'selu Sta'lo'")
+    selected_option = st.radio(
+        "Select an option:",
+        pages,
+        index=pages.index(st.session_state.selected_page)
+    )
+    st.session_state.selected_page = selected_option
+
 # --- Top nav bar ---
 st.markdown("## Xwulqw'selu Sta'lo'")
 cols = st.columns(len(pages))
@@ -91,16 +101,6 @@ for idx, col in enumerate(cols):
     button_class = "nav-button nav-button-active" if is_active else "nav-button"
     if col.markdown(f"<div class='{button_class}'>{pages[idx]}</div>", unsafe_allow_html=True):
         st.session_state.selected_page = pages[idx]
-
-# --- Sidebar navigation (synchronized) ---
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected_sidebar = st.radio(
-        "Select an option:",
-        pages,
-        index=pages.index(st.session_state.selected_page)
-    )
-    st.session_state.selected_page = selected_sidebar
 
 # --- Page content ---
 st.markdown(f"### You selected: {st.session_state.selected_page}")
