@@ -52,9 +52,9 @@ pages = [
     "Land use"
 ]
 
-# --- Initialize session state ---
+# --- Initialize session state if not set ---
 if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]
+    st.session_state.selected_page = pages[0]  # Set the initial page to "Watershed models"
 
 # --- Custom CSS for nav styling ---
 st.markdown("""
@@ -89,9 +89,9 @@ with st.sidebar:
     selected_option = st.radio(
         "Select an option:",
         pages,
-        index=pages.index(st.session_state.selected_page)
+        index=pages.index(st.session_state.selected_page)  # Use session state to select the page
     )
-    st.session_state.selected_page = selected_option
+    st.session_state.selected_page = selected_option  # Update session state when an option is selected
 
 # --- Top nav bar using Streamlit Buttons ---
 st.markdown("## Xwulqw'selu Sta'lo'")
@@ -107,8 +107,6 @@ for idx, col in enumerate(cols):
         st.session_state.selected_page = pages[idx]
 
 # --- Page content ---
-st.markdown(f"### You selected: {st.session_state.selected_page}")
-
 if st.session_state.selected_page == "Watershed models":
     st.write("🌎 This is the Watershed Models page.")
 elif st.session_state.selected_page == "Whole watershed":
@@ -117,7 +115,6 @@ elif st.session_state.selected_page == "Water use":
     st.write("🚰 This is the Water Use page.")
 elif st.session_state.selected_page == "Land use":
     st.write("🌲 This is the Land Use page.")
-
 
 def clean_text(text):
     replacements = {
