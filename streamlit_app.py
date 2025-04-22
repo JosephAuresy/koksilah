@@ -961,14 +961,14 @@ elif selected_option == "Land use":
             color: #1a1a1a;
         }
         </style>
-    
+        
         <div class="highlight-box">
             The age of trees can impact the water cycle in multiple ways.
             Land use, as represented by different ages of forests,
             changes streamflow in the summer less significantly than water use,
             but changes other parts of the water cycle.
         </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
         You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
