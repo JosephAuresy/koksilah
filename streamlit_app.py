@@ -44,6 +44,80 @@ selected_option = st.sidebar.radio(
     ("Watershed models", "Whole watershed", "Water use", "Land use")
 )
 
+# --- Page setup ---
+st.set_page_config(layout="wide")
+
+# --- Custom CSS for nav styling ---
+st.markdown("""
+<style>
+.nav-button {
+    background-color: #f0f2f6;
+    border: 1px solid #ccc;
+    padding: 0.5em 1.5em;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin: 0.2em;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+.nav-button:hover {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    cursor: pointer;
+}
+.nav-button-active {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border: 1px solid #2563eb;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Page options ---
+pages = [
+    "Watershed models",
+    "Whole watershed",
+    "Water use",
+    "Land use"
+]
+
+# --- Initialize session state ---
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = pages[0]
+
+# --- Top nav bar ---
+st.markdown("## Xwulqw'selu Sta'lo'")
+cols = st.columns(len(pages))
+for idx, col in enumerate(cols):
+    is_active = (st.session_state.selected_page == pages[idx])
+    button_class = "nav-button nav-button-active" if is_active else "nav-button"
+    if col.markdown(f"<div class='{button_class}'>{pages[idx]}</div>", unsafe_allow_html=True):
+        st.session_state.selected_page = pages[idx]
+
+# --- Sidebar navigation (synchronized) ---
+with st.sidebar:
+    st.markdown("## Xwulqw'selu Sta'lo'")
+    selected_sidebar = st.radio(
+        "Select an option:",
+        pages,
+        index=pages.index(st.session_state.selected_page)
+    )
+    st.session_state.selected_page = selected_sidebar
+
+# --- Page content ---
+st.markdown(f"### You selected: {st.session_state.selected_page}")
+
+if st.session_state.selected_page == "Watershed models":
+    st.write("🌎 This is the Watershed Models page.")
+elif st.session_state.selected_page == "Whole watershed":
+    st.write("🗺️ This is the Whole Watershed page.")
+elif st.session_state.selected_page == "Water use":
+    st.write("🚰 This is the Water Use page.")
+elif st.session_state.selected_page == "Land use":
+    st.write("🌲 This is the Land Use page.")
+
+
 def clean_text(text):
     replacements = {
         "’": "'",
