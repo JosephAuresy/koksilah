@@ -155,7 +155,7 @@ def process_swatmf_data(file_path):
     return df
     
 # Conditional Model Selection Display
-if selected_option == "Whole watershed":
+if selected_option == "The importance of the whole watershed":
     # Hidden default values (instead of sidebar widgets)
     selected_decade_climate = '2010'
     selected_decade_land_use = '2010'
