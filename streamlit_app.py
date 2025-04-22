@@ -93,13 +93,17 @@ with st.sidebar:
     )
     st.session_state.selected_page = selected_option
 
-# --- Top nav bar ---
+# --- Top nav bar using Streamlit Buttons ---
 st.markdown("## Xwulqw'selu Sta'lo'")
+
+# Create buttons for top navigation
 cols = st.columns(len(pages))
 for idx, col in enumerate(cols):
     is_active = (st.session_state.selected_page == pages[idx])
     button_class = "nav-button nav-button-active" if is_active else "nav-button"
-    if col.markdown(f"<div class='{button_class}'>{pages[idx]}</div>", unsafe_allow_html=True):
+    
+    # Streamlit button for navigation
+    if col.button(pages[idx]):
         st.session_state.selected_page = pages[idx]
 
 # --- Page content ---
