@@ -44,6 +44,7 @@ st.set_page_config(
 #     #("Watershed models", "Water interactions", "Recharge", "View Report")
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
+
 # --- Page options ---
 pages = [
     "Home",
@@ -52,57 +53,58 @@ pages = [
     "Land use scenarios"
 ]
 
-# --- Initialize session state ---
+# --- Initialize session state if not set ---
 if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]
+    st.session_state.selected_page = pages[0]  # Set the initial page to "Home"
 
-# --- Sidebar with dropdown navigation ---
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected = st.selectbox("📂 Navigate to:", pages, index=pages.index(st.session_state.selected_page))
-    st.session_state.selected_page = selected
-
-# --- Custom CSS for compact top nav pills ---
+# --- Custom CSS for nav styling ---
 st.markdown("""
 <style>
-.navbar {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    margin-bottom: 1em;
-}
-.nav-pill {
-    background-color: #e0e7ff;
-    border: none;
-    border-radius: 999px;
-    padding: 0.4em 1em;
-    font-size: 0.9em;
-    color: #1e3a8a;
+.nav-button {
+    background-color: #f0f2f6;
+    border: 1px solid #ccc;
+    padding: 0.5em 1.5em;
+    border-radius: 8px;
     font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin: 0.2em;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+.nav-button:hover {
+    background-color: #dbeafe;
+    color: #1e3a8a;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
-.nav-pill:hover {
-    background-color: #c7d2fe;
-}
-.nav-pill-active {
-    background-color: #3b82f6;
-    color: white;
+.nav-button-active {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border: 1px solid #2563eb;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Top nav pills ---
-st.markdown('<div class="navbar">', unsafe_allow_html=True)
-for page in pages:
-    is_active = st.session_state.selected_page == page
-    btn_class = "nav-pill nav-pill-active" if is_active else "nav-pill"
-    if st.button(page, key=f"top_btn_{page}"):
-        st.session_state.selected_page = page
-    st.markdown(f'<div class="{btn_class}">{page}</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+# --- Sidebar navigation ---
+with st.sidebar:
+    st.markdown("## Xwulqw'selu Sta'lo'")
+    selected_option = st.radio(
+        "Select an option:",
+        pages,
+        index=pages.index(st.session_state.selected_page)  # Use session state to select the page
+    )
+    st.session_state.selected_page = selected_option  # Update session state when an option is selected
+
+
+# Create buttons for top navigation
+cols = st.columns(len(pages))
+for idx, col in enumerate(cols):
+    is_active = (st.session_state.selected_page == pages[idx])
+    button_class = "nav-button nav-button-active" if is_active else "nav-button"
     
+    # Streamlit button for navigation
+    if col.button(pages[idx]):
+        st.session_state.selected_page = pages[idx]
+        
 def clean_text(text):
     replacements = {
         "’": "'",
@@ -358,8 +360,7 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 # Define initial location (latitude and longitude for Duncan, BC)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
-#if selected_option == "Home":
-if st.session_state.selected_page == "Home":
+if selected_option == "Home":
     custom_title("🌎 Xwulqw'selu Sta'lo' Watershed Model", 28)
 
     st.markdown("""
@@ -466,7 +467,7 @@ if st.session_state.selected_page == "Home":
     """, unsafe_allow_html=True)
 
     
-elif st.session_state.selected_page == "The importance of the whole watershed":
+elif selected_option == "The importance of the whole watershed":
     
     # Title
     st.markdown("### 🗺️ The Importance of the Whole Watershed")
@@ -727,7 +728,7 @@ elif st.session_state.selected_page == "The importance of the whole watershed":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
 
-elif st.session_state.selected_page == "Water use scenarios":
+elif selected_option == "Water use scenarios":
 
     st.markdown("### 🚰 Water Use Scenarios")
     
@@ -983,7 +984,7 @@ elif st.session_state.selected_page == "Water use scenarios":
         else:
             st.markdown("*Scenario group summary not available.*")
 
-elif st.session_state.selected_page == "Land use scenarios":   
+elif selected_option == "Land use scenarios":   
     
     st.markdown("### 🌲 Land Use Scenarios")
     
