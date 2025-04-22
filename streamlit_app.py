@@ -947,7 +947,7 @@ elif selected_option == "Land use":
     
     st.markdown("""
     ### 🌲 Land Use Scenarios  
-    
+
     st.markdown("""
         <style>
         .highlight-box {
@@ -961,9 +961,12 @@ elif selected_option == "Land use":
             color: #1a1a1a;
         }
         </style>
-        
+    
         <div class="highlight-box">
-        The age of trees can impact the water cycle in multiple ways. Land use, as represented by different ages of forests, changes streamflow in the summer less significantly than water use, but changes other parts of the water cycle.
+            The age of trees can impact the water cycle in multiple ways.
+            Land use, as represented by different ages of forests,
+            changes streamflow in the summer less significantly than water use,
+            but changes other parts of the water cycle.
         </div>
     """, unsafe_allow_html=True)
     
