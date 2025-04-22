@@ -47,7 +47,7 @@ st.set_page_config(
 
 # --- Page options ---
 pages = [
-    "Watershed models",
+    "Home",
     "Whole watershed",
     "Water use",
     "Land use"
@@ -55,7 +55,7 @@ pages = [
 
 # --- Initialize session state if not set ---
 if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]  # Set the initial page to "Watershed models"
+    st.session_state.selected_page = pages[0]  # Set the initial page to "Home"
 
 # --- Custom CSS for nav styling ---
 st.markdown("""
@@ -361,7 +361,7 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 # Define initial location (latitude and longitude for Duncan, BC)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
-if selected_option == "Watershed models":
+if selected_option == "Home":
     custom_title("🌎 Xwulqw'selu Sta'lo' Watershed Model", 28)
 
     st.markdown("""
