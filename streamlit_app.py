@@ -54,51 +54,6 @@ elif st.session_state.selected_page == "Water use":
 elif st.session_state.selected_page == "Land use":
     st.write("🌲 This is the Land Use page.")
 
-# --- Fixed bottom nav styling ---
-st.markdown("""
-<style>
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #ffffffcc;
-    border-top: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    z-index: 9999;
-}
-.bottom-nav button {
-    margin: 0 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- Render fixed nav using columns (Streamlit only supports dynamic layouts via components) ---
-import streamlit.components.v1 as components
-
-# Create hidden form to capture button click from custom HTML
-for page in pages:
-    if st.button(page, key=f"btn_{page}_fallback"):
-        st.session_state.selected_page = page
-
-# HTML buttons for fixed nav
-nav_buttons_html = "".join([
-    f"<button onclick=\"fetch('', {{method: 'POST'}}).then(() => window.location.reload()); document.getElementById('{p}').click();\" class='nav-button {'nav-button-active' if st.session_state.selected_page == p else ''}'>{p}</button>"
-    for p in pages
-])
-
-# Create hidden elements to simulate button clicks
-hidden_buttons = "".join([f"<form><button id='{p}' style='display:none'></button></form>" for p in pages])
-
-components.html(f"""
-<div class="bottom-nav">
-    {nav_buttons_html}
-</div>
-{hidden_buttons}
-""", height=80)
-
 def clean_text(text):
     replacements = {
         "’": "'",
@@ -1131,6 +1086,51 @@ elif selected_option == "Land use":
     st.markdown("""
           A mature (60-year-old) forest scenario reduced streamflow slightly by less than 10% during the summer, whereas a mix of mature and immature (30-year-old) forests did not significantly change low flows. These findings highlight the importance of considering forest age distributions when assessing long-term hydrological changes, while remembering that August streamflow and the age of the trees are an overly simplistic approach to assessing the impact of forestry on watersheds.  
     """)    
+
+# --- Fixed bottom nav styling ---
+st.markdown("""
+<style>
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffffcc;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    z-index: 9999;
+}
+.bottom-nav button {
+    margin: 0 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Render fixed nav using columns (Streamlit only supports dynamic layouts via components) ---
+import streamlit.components.v1 as components
+
+# Create hidden form to capture button click from custom HTML
+for page in pages:
+    if st.button(page, key=f"btn_{page}_fallback"):
+        st.session_state.selected_page = page
+
+# HTML buttons for fixed nav
+nav_buttons_html = "".join([
+    f"<button onclick=\"fetch('', {{method: 'POST'}}).then(() => window.location.reload()); document.getElementById('{p}').click();\" class='nav-button {'nav-button-active' if st.session_state.selected_page == p else ''}'>{p}</button>"
+    for p in pages
+])
+
+# Create hidden elements to simulate button clicks
+hidden_buttons = "".join([f"<form><button id='{p}' style='display:none'></button></form>" for p in pages])
+
+components.html(f"""
+<div class="bottom-nav">
+    {nav_buttons_html}
+</div>
+{hidden_buttons}
+""", height=80)
 
 # tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
     
