@@ -945,10 +945,7 @@ elif selected_option == "Land use":
     
     st.markdown("""
     ### 🌲 Land Use Scenarios  
-        <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
-        You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
-    </p>
-    """, unsafe_allow_html=True)
+    """)
     
     st.markdown("""
         <style>
@@ -1020,6 +1017,12 @@ elif selected_option == "Land use":
         
         <p><strong>Mature and immature forest scenario:</strong> The percentage area of mature forest is 66%, while the immature and recently logged are 17% each to show the impact of immature forests.</p>
         </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
+        You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
+    </p>
     """, unsafe_allow_html=True)
 
 
