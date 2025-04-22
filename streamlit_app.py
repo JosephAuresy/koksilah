@@ -45,6 +45,8 @@ st.set_page_config(
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
 
+import streamlit as st
+
 # --- Page options ---
 pages = [
     "Home",
@@ -53,116 +55,58 @@ pages = [
     "Land use scenarios"
 ]
 
-# --- Initialize session state if not set ---
+# --- Initialize session state ---
 if "selected_page" not in st.session_state:
     st.session_state.selected_page = pages[0]
 
-# --- Custom CSS for nav styling and mobile responsiveness ---
+# --- Minimal custom CSS ---
 st.markdown("""
 <style>
-/* Navigation buttons */
-.nav-button {
-    background-color: #f0f2f6;
-    border: 1px solid #ccc;
-    padding: 0.6em 1.2em;
-    border-radius: 8px;
-    font-weight: 500;
-    color: #333;
-    text-align: center;
-    margin: 0.3em;
-    font-size: 1em;
-    display: inline-block;
-    text-decoration: none;
-    transition: background-color 0.3s, color 0.3s;
-}
-.nav-button:hover {
-    background-color: #dbeafe;
-    color: #1e3a8a;
-    cursor: pointer;
-}
-.nav-button-active {
-    background-color: #3b82f6 !important;
-    color: white !important;
-    border: 1px solid #2563eb;
-}
-
-/* Responsive flex container */
-.nav-container {
+/* Compact nav pill buttons */
+.navbar {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.3em;
+    gap: 0.4em;
     margin-bottom: 1em;
 }
-
-/* Card box styling */
-.card-box {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 20px;
-    margin: 10px 0;
-    font-size: 1.05em;
-    line-height: 1.6;
-    color: #333333;
+.nav-pill {
+    background-color: #e0e7ff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.4em 1em;
+    font-size: 0.9em;
+    color: #1e3a8a;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
-
-/* Small font below card */
-.small-note {
+.nav-pill:hover {
+    background-color: #c7d2fe;
+}
+.nav-pill-active {
+    background-color: #3b82f6;
+    color: white;
+}
+.info-note {
     font-size: 0.85em;
-    margin-top: -8px;
     color: #555;
-}
-
-/* Mobile tweaks */
-@media only screen and (max-width: 768px) {
-    .nav-button {
-        font-size: 0.9em;
-        padding: 0.5em 0.9em;
-    }
-    .card-box {
-        font-size: 0.95em;
-        padding: 16px;
-    }
+    margin-top: -0.5em;
+    margin-bottom: 1.2em;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Sidebar navigation (optional, keep if you want both sidebar and top nav) ---
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected_option = st.radio(
-        "Select an option:",
-        pages,
-        index=pages.index(st.session_state.selected_page)
-    )
-    st.session_state.selected_page = selected_option
-
-# --- Top navigation buttons ---
-st.markdown('<div class="nav-container">', unsafe_allow_html=True)
+# --- Render compact top nav ---
+st.markdown('<div class="navbar">', unsafe_allow_html=True)
 for page in pages:
     is_active = st.session_state.selected_page == page
-    button_class = "nav-button nav-button-active" if is_active else "nav-button"
-    # Use form so each button works correctly
-    with st.form(key=f"form_{page}"):
-        if st.form_submit_button(label=page):
-            st.session_state.selected_page = page
-    st.markdown(f'<div class="{button_class}">{page}</div>', unsafe_allow_html=True)
+    btn_style = "nav-pill nav-pill-active" if is_active else "nav-pill"
+    if st.button(page, key=f"btn_{page}"):
+        st.session_state.selected_page = page
+    st.markdown(f'<div class="{btn_style}">{page}</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Sample content for one page ---
-if st.session_state.selected_page == "The importance of the whole watershed":
-    st.markdown("""
-    <div class="card-box">
-    The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <p class="small-note">
-    You can zoom into any part of the maps or change which month you are looking at if you want to see how the hydrologic components of the watershed change by season.
-    </p>
-    """, unsafe_allow_html=True)
     
 def clean_text(text):
     replacements = {
