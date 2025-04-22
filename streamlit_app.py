@@ -58,54 +58,45 @@ pages = [
 # --- Initialize session state ---
 if "selected_page" not in st.session_state:
     st.session_state.selected_page = pages[0]
+if "menu_open" not in st.session_state:
+    st.session_state.menu_open = False
 
-# --- Minimal custom CSS ---
+# --- Custom CSS for simple pills ---
 st.markdown("""
 <style>
-/* Compact nav pill buttons */
-.navbar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.4em;
-    margin-bottom: 1em;
-}
 .nav-pill {
     background-color: #e0e7ff;
     border: none;
     border-radius: 999px;
-    padding: 0.4em 1em;
+    padding: 0.4em 1.2em;
     font-size: 0.9em;
     color: #1e3a8a;
     font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    margin: 0.2em;
+    display: inline-block;
 }
 .nav-pill:hover {
     background-color: #c7d2fe;
+    cursor: pointer;
 }
 .nav-pill-active {
-    background-color: #3b82f6;
-    color: white;
-}
-.info-note {
-    font-size: 0.85em;
-    color: #555;
-    margin-top: -0.5em;
-    margin-bottom: 1.2em;
+    background-color: #3b82f6 !important;
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Render compact top nav ---
-st.markdown('<div class="navbar">', unsafe_allow_html=True)
-for page in pages:
-    is_active = st.session_state.selected_page == page
-    btn_style = "nav-pill nav-pill-active" if is_active else "nav-pill"
-    if st.button(page, key=f"btn_{page}"):
-        st.session_state.selected_page = page
-    st.markdown(f'<div class="{btn_style}">{page}</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+# --- Toggle Menu Button ---
+if st.button("☰ Menu" if not st.session_state.menu_open else "✕ Close Menu"):
+    st.session_state.menu_open = not st.session_state.menu_open
+
+# --- Show menu if toggled ---
+if st.session_state.menu_open:
+    for page in pages:
+        is_active = st.session_state.selected_page == page
+        btn_class = "nav-pill nav-pill-active" if is_active else "nav-pill"
+        if st.button(page):
+            st.session_state.selected_page = page
 
     
 def clean_text(text):
