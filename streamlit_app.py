@@ -731,7 +731,7 @@ elif selected_option == "Water use":
         "Scenario aug": "No Water Use August",
         "Scenario R3 S 05": "Half Surface Water Use",
         "Scenario R3 G 05": "Half Groundwater Use",
-        "Scenario R3": "Base case",
+        "Scenario R3": "Baseline",
         "Scenario R3 X2": "Double Water Use",
         "Scenario R3 SG 05": "Half Water Use",
     }
@@ -964,7 +964,7 @@ elif selected_option == "Land use":
     
     # Scenario legend
     scenario_legend = {
-        "Scenario R3": "Base case",
+        "Scenario R3": "Baseline",
         "Scenario mat you": "Mature and Immature Forest",
         "Scenario mat 60": "Mature Forest"
     }
