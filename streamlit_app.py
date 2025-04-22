@@ -948,16 +948,15 @@ elif selected_option == "Land use":
     
     st.markdown("""
         <style>
-        .definition-box-alt {
-            background-color: #e6f2ff;  /* Light blue */
-            border-left: 6px solid #3399ff;
-            padding: 20px;
+        .definition-box {
+            background-color: #f0f8ff;
+            border-left: 6px solid #4682B4;
+            padding: 16px;
             border-radius: 10px;
             font-family: 'Segoe UI', sans-serif;
-            font-size: 1.1em;
             margin-bottom: 20px;
-            color: #1a1a1a;
         }
+
         </style>
         
         <div class="definition-box-alt">
