@@ -44,6 +44,21 @@ selected_option = st.sidebar.radio(
     ("Watershed models", "Whole watershed", "Water use", "Land use")
 )
 
+def clean_text(text):
+    replacements = {
+        "’": "'",
+        "‘": "'",
+        "“": '"',
+        "”": '"',
+        "–": "-",   # en dash
+        "—": "-",   # em dash
+        "…": "...", # ellipsis
+        " ": " ",   # non-breaking space
+    }
+    for bad, good in replacements.items():
+        text = text.replace(bad, good)
+    return text
+
 def process_swatmf_data(file_path):
     data = []
     current_month = None
