@@ -503,7 +503,7 @@ elif selected_option == "The importance of the whole watershed":
     ---
     
     ### Groundwater-Surface Water Interactions  
-    
+    st.markdown("""
     Groundwater interacts with streams in different ways. Streams can be either **gaining** (with groundwater flowing to streams, shown as blue on the map) or **losing** (with surface water flowing to the aquifer, shown as brown on the map). Most Xwulqw’selu Sta’lo’ tributaries are gaining throughout the whole year, even in winter. This finding underscores the important contributions of groundwater to overall watershed budgets.  
     
     """)
