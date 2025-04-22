@@ -59,56 +59,28 @@ pages = [
 if "selected_page" not in st.session_state:
     st.session_state.selected_page = pages[0]
 
-# --- Sidebar navigation ---
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected = st.radio(
-        "Select an option:",
-        pages,
-        index=pages.index(st.session_state.selected_page)
-    )
-    st.session_state.selected_page = selected
-
-# --- Minimal custom CSS for pill-style top nav ---
+# --- Custom CSS for minimal centered selectbox ---
 st.markdown("""
-<style>
-.navbar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.4em;
-    margin-bottom: 1em;
-}
-.nav-pill {
-    background-color: #e0e7ff;
-    border: none;
-    border-radius: 999px;
-    padding: 0.4em 1em;
-    font-size: 0.9em;
-    color: #1e3a8a;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-.nav-pill:hover {
-    background-color: #c7d2fe;
-}
-.nav-pill-active {
-    background-color: #3b82f6;
-    color: white;
-}
-</style>
+    <style>
+    .centered-dropdown {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1.5em;
+    }
+    .block-container {
+        padding-top: 2rem;
+    }
+    </style>
 """, unsafe_allow_html=True)
 
-# --- Render collapsible-style top nav ---
-with st.expander("📂 Open Navigation", expanded=False):
-    st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    for page in pages:
-        btn_class = "nav-pill nav-pill-active" if st.session_state.selected_page == page else "nav-pill"
-        if st.button(page, key=f"btn_{page}"):
-            st.session_state.selected_page = page
-        st.markdown(f'<div class="{btn_class}">{page}</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+# --- Centered compact navigation dropdown ---
+st.markdown('<div class="centered-dropdown">', unsafe_allow_html=True)
+selected = st.selectbox("📂 Navigate", pages, index=pages.index(st.session_state.selected_page), key="dropdown_nav")
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Update session state
+st.session_state.selected_page = selected
 
     
 def clean_text(text):
