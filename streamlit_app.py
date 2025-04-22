@@ -500,8 +500,6 @@ elif selected_option == "The importance of the whole watershed":
         </p>
     """, unsafe_allow_html=True)
 
-    ---
-
     st.markdown("""
     ### Groundwater-Surface Water Interactions  
     
