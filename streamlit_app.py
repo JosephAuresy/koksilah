@@ -45,6 +45,68 @@ st.set_page_config(
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
 
+# --- Page options ---
+pages = [
+    "Watershed models",
+    "Whole watershed",
+    "Water use",
+    "Land use"
+]
+
+# --- Initialize session state if not set ---
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = pages[0]  # Set the initial page to "Watershed models"
+
+# --- Custom CSS for nav styling ---
+st.markdown("""
+<style>
+.nav-button {
+    background-color: #f0f2f6;
+    border: 1px solid #ccc;
+    padding: 0.5em 1.5em;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin: 0.2em;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+.nav-button:hover {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    cursor: pointer;
+}
+.nav-button-active {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border: 1px solid #2563eb;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Sidebar navigation ---
+with st.sidebar:
+    st.markdown("## Xwulqw'selu Sta'lo'")
+    selected_option = st.radio(
+        "Select an option:",
+        pages,
+        index=pages.index(st.session_state.selected_page)  # Use session state to select the page
+    )
+    st.session_state.selected_page = selected_option  # Update session state when an option is selected
+
+# --- Top nav bar using Streamlit Buttons ---
+st.markdown("## Xwulqw'selu Sta'lo'")
+
+# Create buttons for top navigation
+cols = st.columns(len(pages))
+for idx, col in enumerate(cols):
+    is_active = (st.session_state.selected_page == pages[idx])
+    button_class = "nav-button nav-button-active" if is_active else "nav-button"
+    
+    # Streamlit button for navigation
+    if col.button(pages[idx]):
+        st.session_state.selected_page = pages[idx]
+
 # --- Page content ---
 if st.session_state.selected_page == "Watershed models":
     st.write("🌎 This is the Watershed Models page.")
@@ -54,49 +116,6 @@ elif st.session_state.selected_page == "Water use":
     st.write("🚰 This is the Water Use page.")
 elif st.session_state.selected_page == "Land use":
     st.write("🌲 This is the Land Use page.")
-
-# --- Fixed bottom nav styling ---
-st.markdown("""
-<style>
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #ffffffcc;
-    border-top: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    z-index: 9999;
-}
-.bottom-nav button {
-    margin: 0 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Create hidden form to capture button click from custom HTML
-for page in pages:
-    if st.button(page, key=f"btn_{page}_fallback"):
-        st.session_state.selected_page = page
-
-# HTML buttons for fixed nav
-nav_buttons_html = "".join([
-    f"<button onclick=\"fetch('', {{method: 'POST'}}).then(() => window.location.reload()); document.getElementById('{p}').click();\" class='nav-button {'nav-button-active' if st.session_state.selected_page == p else ''}'>{p}</button>"
-    for p in pages
-])
-
-# Create hidden elements to simulate button clicks
-hidden_buttons = "".join([f"<form><button id='{p}' style='display:none'></button></form>" for p in pages])
-
-components.html(f"""
-<div class="bottom-nav">
-    {nav_buttons_html}
-</div>
-{hidden_buttons}
-""", height=80)
-
 def clean_text(text):
     replacements = {
         "’": "'",
