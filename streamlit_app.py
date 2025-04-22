@@ -94,8 +94,8 @@ with st.sidebar:
     )
     st.session_state.selected_page = selected_option  # Update session state when an option is selected
 
-# --- Top nav bar using Streamlit Buttons ---
-st.markdown("## Xwulqw'selu Sta'lo'")
+# # --- Top nav bar using Streamlit Buttons ---
+# st.markdown("## Xwulqw'selu Sta'lo'")
 
 # Create buttons for top navigation
 cols = st.columns(len(pages))
