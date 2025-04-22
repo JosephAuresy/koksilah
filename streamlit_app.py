@@ -868,7 +868,7 @@ elif selected_option == "Water use scenarios":
             x="DAY",
             y="FLOW_OUTCMS",
             color="SCENARIO",
-            title=f"How {title} scenarios change streamflow as measured at Cowichan Station gauge",
+            title=f"How {title} change streamflow as measured at Cowichan Station gauge",
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
@@ -916,7 +916,7 @@ elif selected_option == "Water use scenarios":
             x="DAY",
             y="Delta Flow",
             color="SCENARIO",
-            title=f"How {title} scenarios change streamflow relative to baseline model",
+            title=f"How {title} change streamflow relative to baseline model",
             color_discrete_map=scenario_colors
         )
     
@@ -1125,7 +1125,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="FLOW_OUTCMS",
             color="SCENARIO",
-            title=f"How {title} scenarios change streamflow as measured at Cowichan Station gauge",
+            title=f"How {title} change streamflow as measured at Cowichan Station gauge",
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
@@ -1173,7 +1173,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="Delta Flow",
             color="SCENARIO",
-            title=f"How {title} scenarios change streamflow relative to baseline model",
+            title=f"How {title} change streamflow relative to baseline model",
             color_discrete_map=scenario_colors
         )
     
