@@ -55,21 +55,25 @@ pages = [
 
 # --- Initialize session state if not set ---
 if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]  # Set the initial page to "Home"
+    st.session_state.selected_page = pages[0]
 
-# --- Custom CSS for nav styling ---
+# --- Custom CSS for nav styling and mobile responsiveness ---
 st.markdown("""
 <style>
+/* Navigation buttons */
 .nav-button {
     background-color: #f0f2f6;
     border: 1px solid #ccc;
-    padding: 0.5em 1.5em;
+    padding: 0.6em 1.2em;
     border-radius: 8px;
     font-weight: 500;
     color: #333;
     text-align: center;
-    margin: 0.2em;
-    transition: background-color 0.3s, color 0.3s, border 0.3s;
+    margin: 0.3em;
+    font-size: 1em;
+    display: inline-block;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
 }
 .nav-button:hover {
     background-color: #dbeafe;
@@ -81,30 +85,84 @@ st.markdown("""
     color: white !important;
     border: 1px solid #2563eb;
 }
+
+/* Responsive flex container */
+.nav-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3em;
+    margin-bottom: 1em;
+}
+
+/* Card box styling */
+.card-box {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    margin: 10px 0;
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #333333;
+}
+
+/* Small font below card */
+.small-note {
+    font-size: 0.85em;
+    margin-top: -8px;
+    color: #555;
+}
+
+/* Mobile tweaks */
+@media only screen and (max-width: 768px) {
+    .nav-button {
+        font-size: 0.9em;
+        padding: 0.5em 0.9em;
+    }
+    .card-box {
+        font-size: 0.95em;
+        padding: 16px;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Sidebar navigation ---
+# --- Sidebar navigation (optional, keep if you want both sidebar and top nav) ---
 with st.sidebar:
     st.markdown("## Xwulqw'selu Sta'lo'")
     selected_option = st.radio(
         "Select an option:",
         pages,
-        index=pages.index(st.session_state.selected_page)  # Use session state to select the page
+        index=pages.index(st.session_state.selected_page)
     )
-    st.session_state.selected_page = selected_option  # Update session state when an option is selected
+    st.session_state.selected_page = selected_option
 
-
-# Create buttons for top navigation
-cols = st.columns(len(pages))
-for idx, col in enumerate(cols):
-    is_active = (st.session_state.selected_page == pages[idx])
+# --- Top navigation buttons ---
+st.markdown('<div class="nav-container">', unsafe_allow_html=True)
+for page in pages:
+    is_active = st.session_state.selected_page == page
     button_class = "nav-button nav-button-active" if is_active else "nav-button"
-    
-    # Streamlit button for navigation
-    if col.button(pages[idx]):
-        st.session_state.selected_page = pages[idx]
+    # Use form so each button works correctly
+    with st.form(key=f"form_{page}"):
+        if st.form_submit_button(label=page):
+            st.session_state.selected_page = page
+    st.markdown(f'<div class="{button_class}">{page}</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
+# --- Sample content for one page ---
+if st.session_state.selected_page == "The importance of the whole watershed":
+    st.markdown("""
+    <div class="card-box">
+    The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <p class="small-note">
+    You can zoom into any part of the maps or change which month you are looking at if you want to see how the hydrologic components of the watershed change by season.
+    </p>
+    """, unsafe_allow_html=True)
     
 def clean_text(text):
     replacements = {
