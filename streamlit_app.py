@@ -943,23 +943,23 @@ elif selected_option == "Water use":
 
 elif selected_option == "Land use":   
     
-    st.markdown("""
-    ### 🌲 Land Use Scenarios  
-    """)
+    st.markdown("### 🌲 Land Use Scenarios")
     
+    # Add styling for the light blue box
     st.markdown("""
         <style>
-        .definition-box {
-            background-color: #f0f8ff;
-            border-left: 6px solid #4682B4;
-            padding: 16px;
+        .definition-box-alt {
+            background-color: #e6f2ff;  /* Light blue */
+            border-left: 6px solid #3399ff;
+            padding: 20px;
             border-radius: 10px;
             font-family: 'Segoe UI', sans-serif;
+            font-size: 1.1em;
             margin-bottom: 20px;
+            color: #1a1a1a;
         }
-
         </style>
-        
+
         <div class="definition-box-alt">
             The age of trees can impact the water cycle in multiple ways.
             Land use, as represented by different ages of forests,
@@ -968,39 +968,22 @@ elif selected_option == "Land use":
         </div>
     """, unsafe_allow_html=True)
 
-    # Define colors for each scenario
-    scenario_colors = {
-        "Scenario R3": "black",
-        "Scenario mat you": "lightgreen",
-        "Scenario mat 60": "darkgreen"
-    }
-    
-    # Scenario legend
-    scenario_legend = {
-        "Scenario R3": "Baseline",
-        "Scenario mat you": "Mature and Immature Forest",
-        "Scenario mat 60": "Mature Forest"
-    }
-    
-    # Scenario groups
-    scenario_groups = {
-        "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
-    }
+    # Keep the grey box for scenario details
     st.markdown("""
         <style>
         .definition-box {
-            background-color: #f5f5f5; /* Light grey background */
-            border-left: 6px solid #999999; /* Optional: softer border color */
+            background-color: #f5f5f5;
+            border-left: 6px solid #999999;
             padding: 14px;
             border-radius: 8px;
             font-family: 'Segoe UI', sans-serif;
-            font-size: 0.9em; /* Smaller font */
+            font-size: 0.9em;
             margin-bottom: 20px;
         }
         .definition-box h4 {
             margin-top: 0;
             color: #333333;
-            font-size: 1em; /* Smaller heading */
+            font-size: 1em;
         }
         .definition-box p {
             margin-bottom: 8px;
@@ -1019,13 +1002,32 @@ elif selected_option == "Land use":
         </div>
     """, unsafe_allow_html=True)
 
+    # Small footer text
     st.markdown("""
         <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
         You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
     </p>
     """, unsafe_allow_html=True)
-
-
+    
+    # Define colors for each scenario
+    scenario_colors = {
+        "Scenario R3": "black",
+        "Scenario mat you": "lightgreen",
+        "Scenario mat 60": "darkgreen"
+    }
+    
+    # Scenario legend
+    scenario_legend = {
+        "Scenario R3": "Baseline",
+        "Scenario mat you": "Mature and Immature Forest",
+        "Scenario mat 60": "Mature Forest"
+    }
+    
+    # Scenario groups
+    scenario_groups = {
+        "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
+    }
+    
     # Load and display the image
     # Set the data folder relative to the script's location
     data_folder = Path(__file__).parent / 'data'
