@@ -366,7 +366,8 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 # Define initial location (latitude and longitude for Duncan, BC)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
-if selected_option == "Home":
+#if selected_option == "Home":
+if st.session_state.selected_page == "Home":
     custom_title("🌎 Xwulqw'selu Sta'lo' Watershed Model", 28)
 
     st.markdown("""
@@ -473,7 +474,7 @@ if selected_option == "Home":
     """, unsafe_allow_html=True)
 
     
-elif selected_option == "The importance of the whole watershed":
+elif st.session_state.selected_page == "The importance of the whole watershed":
     
     # Title
     st.markdown("### 🗺️ The Importance of the Whole Watershed")
@@ -734,7 +735,7 @@ elif selected_option == "The importance of the whole watershed":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
 
-elif selected_option == "Water use scenarios":
+elif st.session_state.selected_page == "Water use scenarios":
 
     st.markdown("### 🚰 Water Use Scenarios")
     
@@ -990,7 +991,7 @@ elif selected_option == "Water use scenarios":
         else:
             st.markdown("*Scenario group summary not available.*")
 
-elif selected_option == "Land use scenarios":   
+elif st.session_state.selected_page == "Land use scenarios":   
     
     st.markdown("### 🌲 Land Use Scenarios")
     
