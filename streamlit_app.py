@@ -470,13 +470,36 @@ if selected_option == "Home":
     
 elif selected_option == "The importance of the whole watershed":
     
+    # Title
+    st.markdown("### 🗺️ The Importance of the Whole Watershed")
+    
+    # Light blue definition-style box
     st.markdown("""
-    ### 🗺️ The Importance of the Whole Watershed
+        <style>
+        .definition-box-alt {
+            background-color: #e6f2ff;  /* Light blue */
+            border-left: 6px solid #3399ff;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.05em;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        </style>
     
-    The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.  
+        <div class="definition-box-alt">
+            The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.
+        </div>
+    """, unsafe_allow_html=True)
     
-    You can zoom into any part of the maps or change which month you are looking at if you want to see how the hydrologic components of the watershed change by season.  
-    
+    # Small footer-style note
+    st.markdown("""
+        <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
+            You can zoom into any part of the maps or change which month you are looking at if you want to see how the hydrologic components of the watershed change by season.
+        </p>
+    """, unsafe_allow_html=True)
+
     ---
     
     ### Groundwater-Surface Water Interactions  
