@@ -53,58 +53,44 @@ pages = [
     "Land use scenarios"
 ]
 
-# --- Initialize session state if not set ---
-if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]  # Set the initial page to "Home"
-
-# --- Custom CSS for nav styling ---
+# --- Custom CSS for the navigation dropdown and styling ---
 st.markdown("""
 <style>
-.nav-button {
-    background-color: #f0f2f6;
-    border: 1px solid #ccc;
-    padding: 0.5em 1.5em;
-    border-radius: 8px;
-    font-weight: 500;
-    color: #333;
-    text-align: center;
-    margin: 0.2em;
-    transition: background-color 0.3s, color 0.3s, border 0.3s;
+/* Dropdown Navigation Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 10px;
 }
-.nav-button:hover {
-    background-color: #dbeafe;
+
+.navbar select {
+    font-size: 1em;
+    padding: 0.4em 1em;
+    border-radius: 5px;
+    border: none;
+    background-color: #e0e7ff;
     color: #1e3a8a;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
-.nav-button-active {
-    background-color: #3b82f6 !important;
-    color: white !important;
-    border: 1px solid #2563eb;
+
+.navbar select:focus {
+    background-color: #c7d2fe;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Sidebar navigation ---
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected_option = st.radio(
-        "Select an option:",
-        pages,
-        index=pages.index(st.session_state.selected_page)  # Use session state to select the page
-    )
-    st.session_state.selected_page = selected_option  # Update session state when an option is selected
+# --- Navbar with dropdown for page selection ---
+st.markdown('<div class="navbar">', unsafe_allow_html=True)
 
+# Dropdown menu in the top navigation
+selected_option = st.selectbox("Navigation", pages)
 
-# Create buttons for top navigation
-cols = st.columns(len(pages))
-for idx, col in enumerate(cols):
-    is_active = (st.session_state.selected_page == pages[idx])
-    button_class = "nav-button nav-button-active" if is_active else "nav-button"
-    
-    # Streamlit button for navigation
-    if col.button(pages[idx]):
-        st.session_state.selected_page = pages[idx]
-        
+st.markdown('</div>', unsafe_allow_html=True)
+
 def clean_text(text):
     replacements = {
         "’": "'",
