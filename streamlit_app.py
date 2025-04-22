@@ -44,16 +44,6 @@ st.set_page_config(
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
 
-# --- Page content ---
-if st.session_state.selected_page == "Watershed models":
-    st.write("🌎 This is the Watershed Models page.")
-elif st.session_state.selected_page == "Whole watershed":
-    st.write("🗺️ This is the Whole Watershed page.")
-elif st.session_state.selected_page == "Water use":
-    st.write("🚰 This is the Water Use page.")
-elif st.session_state.selected_page == "Land use":
-    st.write("🌲 This is the Land Use page.")
-
 def clean_text(text):
     replacements = {
         "’": "'",
@@ -1086,6 +1076,16 @@ elif selected_option == "Land use":
     st.markdown("""
           A mature (60-year-old) forest scenario reduced streamflow slightly by less than 10% during the summer, whereas a mix of mature and immature (30-year-old) forests did not significantly change low flows. These findings highlight the importance of considering forest age distributions when assessing long-term hydrological changes, while remembering that August streamflow and the age of the trees are an overly simplistic approach to assessing the impact of forestry on watersheds.  
     """)    
+
+# --- Page content ---
+if st.session_state.selected_page == "Watershed models":
+    st.write("🌎 This is the Watershed Models page.")
+elif st.session_state.selected_page == "Whole watershed":
+    st.write("🗺️ This is the Whole Watershed page.")
+elif st.session_state.selected_page == "Water use":
+    st.write("🚰 This is the Water Use page.")
+elif st.session_state.selected_page == "Land use":
+    st.write("🌲 This is the Land Use page.")
 
 # --- Fixed bottom nav styling ---
 st.markdown("""
