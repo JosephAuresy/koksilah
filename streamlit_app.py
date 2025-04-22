@@ -49,8 +49,8 @@ st.set_page_config(
 pages = [
     "Home",
     "The importance of the whole watershed",
-    "Water use",
-    "Land use"
+    "Water use scenarios",
+    "Land use scenarios"
 ]
 
 # --- Initialize session state if not set ---
@@ -708,7 +708,7 @@ elif selected_option == "The importance of the whole watershed":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
 
-elif selected_option == "Water use":
+elif selected_option == "Water use scenarios":
     
     # Define colors for each scenario
     scenario_colors = {
@@ -941,7 +941,7 @@ elif selected_option == "Water use":
         else:
             st.markdown("*Scenario group summary not available.*")
 
-elif selected_option == "Land use":   
+elif selected_option == "Land use scenarios":   
     
     st.markdown("### 🌲 Land Use Scenarios")
     
