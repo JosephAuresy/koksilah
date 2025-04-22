@@ -48,7 +48,7 @@ st.set_page_config(
 # --- Page options ---
 pages = [
     "Home",
-    "Whole watershed",
+    "The importance of the whole watershed",
     "Water use",
     "Land use"
 ]
@@ -469,7 +469,7 @@ if selected_option == "Home":
     """), unsafe_allow_html=True)
 
 
-elif selected_option == "Whole watershed":
+elif selected_option == "The importance of the whole watershed":
     
     st.markdown("""
     ### 🗺️ The Importance of the Whole Watershed
