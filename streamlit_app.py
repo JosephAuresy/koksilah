@@ -868,7 +868,7 @@ elif selected_option == "Water use scenarios":
             x="DAY",
             y="FLOW_OUTCMS",
             color="SCENARIO",
-            title=f"Mean Daily Flow for Reach 3 - {title}",
+            title=f"How total water use scenarios change streamflow as measured at Cowichan Station gauge - {title}",
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
@@ -893,7 +893,7 @@ elif selected_option == "Water use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Mean Flow (cms)",
+                title="Mean daily streamflow (cms) at the Cowichan Station",
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
@@ -916,7 +916,7 @@ elif selected_option == "Water use scenarios":
             x="DAY",
             y="Delta Flow",
             color="SCENARIO",
-            title=f"Change in Summer Streamflow - {title}",
+            title=f"How total water use scenarios change streamflow relative to baseline model - {title}",
             color_discrete_map=scenario_colors
         )
     
@@ -931,7 +931,7 @@ elif selected_option == "Water use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Delta Flow (Relative Change)",
+                title="Streamflow change relative to baseline",
                 showgrid=True,
                 range=[-1.1, 1.1]
             ),
@@ -1125,7 +1125,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="FLOW_OUTCMS",
             color="SCENARIO",
-            title=f"Mean Daily Flow for Reach 3 - {title}",
+            title=f"How total water use scenarios change streamflow as measured at Cowichan Station gauge - {title}",
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
@@ -1150,7 +1150,7 @@ elif selected_option == "Land use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Mean Flow (cms)",
+                title="Mean daily streamflow (cms) at the Cowichan Station",
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
@@ -1173,7 +1173,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="Delta Flow",
             color="SCENARIO",
-            title=f"Change in Summer Streamflow - {title}",
+            title=f"How total water use scenarios change streamflow relative to baseline model - {title}",
             color_discrete_map=scenario_colors
         )
     
@@ -1188,7 +1188,7 @@ elif selected_option == "Land use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Delta Flow (Relative Change)",
+                title="Streamflow change relative to baseline",
                 showgrid=True,
                 range=[-1.1, 1.1]
             ),
