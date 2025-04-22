@@ -973,23 +973,25 @@ elif selected_option == "Land use":
     scenario_groups = {
         "Mature, Mature-Immature, Base": ["scenario_mat_you_data.csv", "scenario_mat_60_data.csv", "scenario_R3_data.csv"]
     }
-    
     st.markdown("""
         <style>
         .definition-box {
-            background-color: #f0f8ff;
-            border-left: 6px solid #4682B4;
-            padding: 16px;
-            border-radius: 10px;
+            background-color: #f5f5f5; /* Light grey background */
+            border-left: 6px solid #999999; /* Optional: softer border color */
+            padding: 14px;
+            border-radius: 8px;
             font-family: 'Segoe UI', sans-serif;
+            font-size: 0.9em; /* Smaller font */
             margin-bottom: 20px;
         }
         .definition-box h4 {
             margin-top: 0;
-            color: #2c3e50;
+            color: #333333;
+            font-size: 1em; /* Smaller heading */
         }
         .definition-box p {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         </style>
         
@@ -1002,7 +1004,8 @@ elif selected_option == "Land use":
         
         <p><strong>Mature and immature forest scenario:</strong> The percentage area of mature forest is 66%, while the immature and recently logged are 17% each to show the impact of immature forests.</p>
         </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
 
     # Load and display the image
     # Set the data folder relative to the script's location
