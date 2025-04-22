@@ -110,7 +110,7 @@ with st.sidebar:
     selected_sidebar = st.radio(
         "Select an option:",
         pages,
-        index=pages.index(st.session_state.selected_page)
+        index=pages.index(st.session_state.get("selected_page", pages[0]))
     )
     st.session_state.selected_page = selected_sidebar
 
