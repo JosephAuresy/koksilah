@@ -710,65 +710,68 @@ elif selected_option == "The importance of the whole watershed":
 
 elif selected_option == "Water use scenarios":
 
-    # Display introductory header
     st.markdown("### 🚰 Water Use Scenarios")
-
-    # Blue box for main highlight
+    
+    # Light blue box for main message
     st.markdown("""
-    <style>
-    .blue-box {
-        background-color: #f0f8ff;
-        border-left: 6px solid #4682B4;
-        padding: 16px;
-        border-radius: 10px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 1.1em;
-        margin-bottom: 20px;
-    }
-    </style>
+        <style>
+        .definition-box-alt {
+            background-color: #e6f2ff;  /* Light blue */
+            border-left: 6px solid #3399ff;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        </style>
 
-    <div class="blue-box">
-    Water use, especially surface water use, significantly and quickly changes summer streamflow in the <strong>Xwulqw'selu Sta'lo'</strong> at Cowichan Station.
-    </div>
+        <div class="definition-box-alt">
+            Water use, especially surface water use, significantly and quickly changes summer streamflow in the <strong>Xwulqw'selu Sta'lo'</strong> at Cowichan Station.
+        </div>
     """, unsafe_allow_html=True)
 
-    # Grey box with details
+    # Grey box for scenario explanation
     st.markdown("""
-    <style>
-    .definition-box {
-        background-color: #f5f5f5; /* Light grey */
-        border-left: 6px solid #999999;
-        padding: 14px;
-        border-radius: 8px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 0.9em;
-        margin-bottom: 20px;
-    }
-    .definition-box h4 {
-        margin-top: 0;
-        color: #333333;
-        font-size: 1em;
-    }
-    .definition-box p {
-        margin-bottom: 8px;
-        line-height: 1.4;
-    }
-    </style>
-
-    <div class="definition-box">
-    <h4>We modelled water use scenarios to explore how three behavior changes might impact streamflow in Xwulqw'selu Sta'lo' at Cowichan Station:</h4>
-
-    <p><strong>Total water use:</strong> We doubled and halved total water use (from both groundwater and surface water) compared to the baseline model.</p>
-
-    <p><strong>Source of water use:</strong> We decreased only groundwater use or surface water use year-round to see the differences between the different water sources.</p>
-
-    <p><strong>Timing of water use:</strong> We changed the timing of water use restrictions starting in June, July, or August to see if the timing and duration of summer water use restrictions impact streamflow.</p>
-    </div>
+        <style>
+        .definition-box {
+            background-color: #f5f5f5;
+            border-left: 6px solid #999999;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .definition-box h4 {
+            margin-top: 0;
+            color: #333333;
+            font-size: 1em;
+        }
+        .definition-box p {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        </style>
+        
+        <div class="definition-box">
+        <h4>We modelled water use scenarios to explore how three behavior changes might impact streamflow in Xwulqw'selu Sta'lo' at Cowichan Station:</h4>
+        
+        <p><strong>Total water use:</strong> We doubled and halved total water use (from both groundwater and surface water) compared to the baseline model.</p>
+        
+        <p><strong>Source of water use:</strong> We decreased only groundwater use or surface water use year-round to see the differences between the different water sources.</p>
+        
+        <p><strong>Timing of water use:</strong> We changed the timing of water use restrictions starting in June, July, or August to see if the timing and duration of summer water use restrictions impact streamflow.</p>
+        </div>
     """, unsafe_allow_html=True)
 
-    # Tiny font note
+    # Small footer
     st.markdown("""
-    <p style
+        <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
+        You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out <strong>David’s thesis</strong>. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the <strong>Xwulqw'selu Sta'lo'</strong> in units of volume per time (cubic meters per second).
+    </p>
+    """, unsafe_allow_html=True)
 
 
     # Define colors for each scenario
