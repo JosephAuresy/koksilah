@@ -45,6 +45,8 @@ st.set_page_config(
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
 
+import streamlit as st
+
 # --- Page options ---
 pages = [
     "Home",
@@ -59,7 +61,7 @@ st.markdown("""
 /* Dropdown Navigation Styling */
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     padding: 10px;
     background-color: #3b82f6;
     color: white;
