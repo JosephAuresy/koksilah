@@ -425,29 +425,28 @@ if selected_option == "Home":
         Much more information is available in [David’s thesis](#) if you would like to explore more.
         """)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    # st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown(clean_text("""
+    st.markdown("""
         <style>
         .definition-box {
-            background-color: #f0f8ff;
-            border-left: 6px solid #4682B4;
+            background-color: #f7f9fa;  /* very light grey-blue */
+            border-left: 4px solid #cccccc;
             padding: 16px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95em;
+            color: #333333;
+            margin-bottom: 20px;
         }
         .definition-box h4 {
             margin-top: 0;
             color: #2c3e50;
+            font-size: 1.1em;
         }
         .definition-box p {
             margin-bottom: 10px;
-            transition: color 0.3s, font-weight 0.3s;
-        }
-        .definition-box p:hover {
-            color: #1e90ff;
-            font-weight: bold;
-            cursor: default;
+            line-height: 1.5;
         }
         </style>
     
@@ -456,19 +455,19 @@ if selected_option == "Home":
     
         <p><strong>Low flows:</strong> Streamflow (measured in volume per time) in the Xwulqw'selu Sta'lo' is lowest during the summer. We focus especially on the streamflow in August while recognizing that watershed health involves many other aspects.</p>
     
-        <p><strong>Baseline model:</strong> The model that is the best of the available recent data (2012 – 2023) about geology, climate, topography, streamflow and ecosystems in the Xwulqw'selu watershed.</p>
+        <p><strong>Baseline model:</strong> The model that is the best of the available recent data (2012–2023) about geology, climate, topography, streamflow, and ecosystems in the Xwulqw'selu watershed.</p>
     
         <p><strong>Scenarios:</strong> Changing the baseline model with different water use or land use so that we can see how water use and land use changes low flows.</p>
     
         <p><strong>Water use:</strong> The amount of water taken from streams or aquifers for agriculture. This info comes from the Province of British Columbia.</p>
     
-        <p><strong>Land use:</strong> How people use the land — like growing food (agriculture), cutting trees (forestry), building towns, or leaving it natural. This info comes from Government of Canada.</p>
+        <p><strong>Land use:</strong> How people use the land — like growing food (agriculture), cutting trees (forestry), building towns, or leaving it natural. This info comes from the Government of Canada.</p>
     
         <p><strong>Groundwater:</strong> Groundwater interacts with streams in different ways. Streams can be either <strong>gaining</strong> (with groundwater flowing to streams, shown as blue on the map) or <strong>losing</strong> (with surface water flowing to the aquifer, shown as brown on the map). Most Xwulqw'selu Sta'lo' tributaries are gaining throughout the whole year, even in winter. This finding underscores the important contributions of groundwater to overall watershed budgets.</p>
         </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-
+    
 elif selected_option == "The importance of the whole watershed":
     
     st.markdown("""
