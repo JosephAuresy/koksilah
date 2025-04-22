@@ -945,6 +945,10 @@ elif selected_option == "Land use":
     
     st.markdown("""
     ### 🌲 Land Use Scenarios  
+        <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
+        You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
+    </p>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
         <style>
@@ -965,12 +969,6 @@ elif selected_option == "Land use":
             changes streamflow in the summer less significantly than water use,
             but changes other parts of the water cycle.
         </div>
-    """, unsafe_allow_html=True)
-
-    
-    <p style="font-size: 11px; font-family: 'Segoe UI', sans-serif;">
-        You can zoom into any part of the graphs or if you want to see the detailed differences between scenarios or how these scenarios change evapotranspiration, check out <strong>David’s thesis</strong> for more details.
-    </p>
     """, unsafe_allow_html=True)
 
     # Define colors for each scenario
