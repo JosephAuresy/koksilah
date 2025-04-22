@@ -45,8 +45,6 @@ st.set_page_config(
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
 
-import streamlit as st
-
 # --- Page options ---
 pages = [
     "Home",
@@ -55,43 +53,56 @@ pages = [
     "Land use scenarios"
 ]
 
-# --- Custom CSS for the navigation dropdown and styling ---
+# --- Initialize session state if not set ---
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = pages[0]  # Default to Home
+
+# --- Custom CSS for styling and responsiveness ---
 st.markdown("""
-<style>
-/* Dropdown Navigation Styling */
-.navbar {
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    background-color: #3b82f6;
-    color: white;
-    border-radius: 10px;
-}
+    <style>
+    /* Hide the label above the selectbox */
+    label[for="nav_dropdown"] {
+        display: none;
+    }
 
-.navbar select {
-    font-size: 1em;
-    padding: 0.4em 1em;
-    border-radius: 5px;
-    border: none;
-    background-color: #e0e7ff;
-    color: #1e3a8a;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    /* Customize the dropdown look */
+    div[data-baseweb="select"] {
+        background-color: #1e3a8a !important;
+        color: white !important;
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 8px;
+        margin-bottom: 20px;
+        width: 100% !important;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-.navbar select:focus {
-    background-color: #c7d2fe;
-}
-</style>
+    /* Selected text color */
+    div[data-baseweb="select"] div[role="combobox"] {
+        color: white !important;
+    }
+
+    /* Responsive tweak */
+    @media screen and (max-width: 768px) {
+        div[data-baseweb="select"] {
+            font-size: 1.1rem !important;
+            max-width: 90% !important;
+        }
+    }
+    </style>
 """, unsafe_allow_html=True)
 
-# --- Navbar with dropdown for page selection ---
-st.markdown('<div class="navbar">', unsafe_allow_html=True)
+# --- Centered top navigation dropdown ---
+selected_option = st.selectbox(
+    label="nav_dropdown",  # hidden by CSS
+    options=pages,
+    index=pages.index(st.session_state.selected_page),
+    key="nav_dropdown"
+)
+st.session_state.selected_page = selected_option  # Keep sync
 
-# Dropdown menu in the top navigation
-selected_option = st.selectbox("Navigation", pages)
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 def clean_text(text):
     replacements = {
