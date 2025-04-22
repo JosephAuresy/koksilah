@@ -36,25 +36,25 @@ st.set_page_config(
     page_icon=':herb:',
 )
 
-# Sidebar for navigation
-st.sidebar.title("Xwulqw'selu Sta'lo'")
-selected_option = st.sidebar.radio(
-    "Select an option:",
-    #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Whole watershed", "Water use", "Land use")
-)
+# # Sidebar for navigation
+# st.sidebar.title("Xwulqw'selu Sta'lo'")
+# selected_option = st.sidebar.radio(
+#     "Select an option:",
+#     #("Watershed models", "Water interactions", "Recharge", "View Report")
+#     ("Watershed models", "Whole watershed", "Water use", "Land use")
+# )
 
-with st.sidebar:
-    st.markdown("## Xwulqw'selu Sta'lo'")
-    selected_sidebar = st.radio(
-        "Select an option:",
-        ("Watershed models", "Whole watershed", "Water use", "Land use"),
-        index=("Watershed models", "Whole watershed", "Water use", "Land use").index(st.session_state.selected_page)
-    )
-    st.session_state.selected_page = selected_sidebar
+# --- Page options ---
+pages = [
+    "Watershed models",
+    "Whole watershed",
+    "Water use",
+    "Land use"
+]
 
-# --- Page setup ---
-st.set_page_config(layout="wide")
+# --- Initialize session state ---
+if "selected_page" not in st.session_state:
+    st.session_state.selected_page = pages[0]
 
 # --- Custom CSS for nav styling ---
 st.markdown("""
@@ -83,18 +83,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Page options ---
-pages = [
-    "Watershed models",
-    "Whole watershed",
-    "Water use",
-    "Land use"
-]
-
-# --- Initialize session state ---
-if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]
-
 # --- Top nav bar ---
 st.markdown("## Xwulqw'selu Sta'lo'")
 cols = st.columns(len(pages))
@@ -110,7 +98,7 @@ with st.sidebar:
     selected_sidebar = st.radio(
         "Select an option:",
         pages,
-        index=pages.index(st.session_state.get("selected_page", pages[0]))
+        index=pages.index(st.session_state.selected_page)
     )
     st.session_state.selected_page = selected_sidebar
 
