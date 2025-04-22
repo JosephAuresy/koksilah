@@ -893,7 +893,7 @@ elif selected_option == "Water use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Mean daily streamflow (cms) at the Cowichan Station",
+                title="Mean daily streamflow (cms)",
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
@@ -1150,7 +1150,7 @@ elif selected_option == "Land use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Mean daily streamflow (cms) at the Cowichan Station",
+                title="Mean daily streamflow (cms)",
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
