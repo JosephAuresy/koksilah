@@ -44,9 +44,6 @@ st.set_page_config(
 #     #("Watershed models", "Water interactions", "Recharge", "View Report")
 #     ("Watershed models", "Whole watershed", "Water use", "Land use")
 # )
-
-import streamlit as st
-
 # --- Page options ---
 pages = [
     "Home",
@@ -59,29 +56,52 @@ pages = [
 if "selected_page" not in st.session_state:
     st.session_state.selected_page = pages[0]
 
-# --- Custom CSS for minimal centered selectbox ---
+# --- Sidebar with dropdown navigation ---
+with st.sidebar:
+    st.markdown("## Xwulqw'selu Sta'lo'")
+    selected = st.selectbox("📂 Navigate to:", pages, index=pages.index(st.session_state.selected_page))
+    st.session_state.selected_page = selected
+
+# --- Custom CSS for compact top nav pills ---
 st.markdown("""
-    <style>
-    .centered-dropdown {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 1.5em;
-    }
-    .block-container {
-        padding-top: 2rem;
-    }
-    </style>
+<style>
+.navbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 1em;
+}
+.nav-pill {
+    background-color: #e0e7ff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.4em 1em;
+    font-size: 0.9em;
+    color: #1e3a8a;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.nav-pill:hover {
+    background-color: #c7d2fe;
+}
+.nav-pill-active {
+    background-color: #3b82f6;
+    color: white;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# --- Centered compact navigation dropdown ---
-st.markdown('<div class="centered-dropdown">', unsafe_allow_html=True)
-selected = st.selectbox("📂 Navigate", pages, index=pages.index(st.session_state.selected_page), key="dropdown_nav")
+# --- Top nav pills ---
+st.markdown('<div class="navbar">', unsafe_allow_html=True)
+for page in pages:
+    is_active = st.session_state.selected_page == page
+    btn_class = "nav-pill nav-pill-active" if is_active else "nav-pill"
+    if st.button(page, key=f"top_btn_{page}"):
+        st.session_state.selected_page = page
+    st.markdown(f'<div class="{btn_class}">{page}</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
-
-# Update session state
-st.session_state.selected_page = selected
-
     
 def clean_text(text):
     replacements = {
