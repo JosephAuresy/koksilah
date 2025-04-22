@@ -94,8 +94,6 @@ with st.sidebar:
     )
     st.session_state.selected_page = selected_option  # Update session state when an option is selected
 
-# # --- Top nav bar using Streamlit Buttons ---
-# st.markdown("## Xwulqw'selu Sta'lo'")
 
 # Create buttons for top navigation
 cols = st.columns(len(pages))
@@ -107,15 +105,7 @@ for idx, col in enumerate(cols):
     if col.button(pages[idx]):
         st.session_state.selected_page = pages[idx]
 
-# --- Page content ---
-if st.session_state.selected_page == "Watershed models":
-    st.write("🌎 This is the Watershed Models page.")
-elif st.session_state.selected_page == "Whole watershed":
-    st.write("🗺️ This is the Whole Watershed page.")
-elif st.session_state.selected_page == "Water use":
-    st.write("🚰 This is the Water Use page.")
-elif st.session_state.selected_page == "Land use":
-    st.write("🌲 This is the Land Use page.")
+    
 def clean_text(text):
     replacements = {
         "’": "'",
@@ -372,7 +362,7 @@ grid_gdf = grid_gdf.to_crs(epsg=epsg)
 initial_location = [48.67, -123.79]  # Duncan, BC
 
 if selected_option == "Watershed models":
-    custom_title("Xwulqw'selu Sta'lo' Watershed Model", 28)
+    custom_title("🌎 Xwulqw'selu Sta'lo' Watershed Model", 28)
 
     st.markdown("""
     
@@ -480,11 +470,11 @@ if selected_option == "Watershed models":
         </div>
     """), unsafe_allow_html=True)
 
-           
+
 elif selected_option == "Whole watershed":
     
     st.markdown("""
-    ### The Importance of the Whole Watershed
+    ### 🗺️ The Importance of the Whole Watershed
     
     The watershed model results reaffirm the importance of a whole-of-watershed approach to watershed management.  
     
@@ -720,7 +710,6 @@ elif selected_option == "Whole watershed":
     # st.title("Watershed Map")
     # st_folium(m, width=700, height=600)  
 
-
 elif selected_option == "Water use":
     
     # Define colors for each scenario
@@ -756,7 +745,7 @@ elif selected_option == "Water use":
         
     # Display introductory text
     st.markdown("""
-    ### Water Use Scenarios
+    ### 🚰 Water Use Scenarios
     
     Water use, especially surface water use, significantly and quickly changes summer streamflow in the **Xwulqw'selu Sta'lo' at Cowichan Station**.
     
@@ -954,11 +943,10 @@ elif selected_option == "Water use":
         else:
             st.markdown("*Scenario group summary not available.*")
 
-    
 elif selected_option == "Land use":   
     
     st.markdown("""
-    ### Land Use Scenarios  
+    ### 🌲 Land Use Scenarios  
     
     The age of trees can impact the water cycle in multiple ways. Land use, as represented by different ages of forests, changes streamflow in the summer less significantly than water use, but changes other parts of the water cycle.  
     
