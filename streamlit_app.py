@@ -925,7 +925,7 @@ elif selected_option == "Water use scenarios":
             )
     
         fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(showlegend=False, autosize=True)
+        fig1.update_layout(showlegend=False, height=250, width=350)
         #st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
@@ -997,7 +997,7 @@ elif selected_option == "Water use scenarios":
                 tickvals=y_ticks
             ),
             legend=dict(title="Scenario"),
-            showlegend=False, autosize=True
+            showlegend=False, height=250, width=350
         )
         #st.plotly_chart(fig2, use_container_width=True)
         
@@ -1033,8 +1033,7 @@ elif selected_option == "Water use scenarios":
                 range=[-110, 110]  # <- Adjust as needed
             ),
             legend=dict(title="Scenario"),
-            showlegend=False,
-            autosize=True
+            showlegend=False, height=250, width=350
         )
         
         #st.plotly_chart(fig4, use_container_width=True)
@@ -1043,9 +1042,9 @@ elif selected_option == "Water use scenarios":
         col1, col2 = st.columns([1.5, 1])
         
         with col1:
-            st.plotly_chart(fig1, use_container_width=True)
-            st.plotly_chart(fig2, use_container_width=True)
-            st.plotly_chart(fig4, use_container_width=True)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
+            st.plotly_chart(fig4)
         
         with col2:
             if title == "Total water use":
