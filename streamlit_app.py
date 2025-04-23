@@ -1039,25 +1039,18 @@ elif selected_option == "Water use scenarios":
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
-        
-        # Add Fish Protection Cutoff annotation inside the graph (lower-left)
+    
         fig2.add_hline(
-            y=0.18, 
-            line_dash="dash", 
-            line_color="red", 
-            line_width=2,
+            y=0.18, line_dash="dash", line_color="red", line_width=2,
             annotation_text="Fish Protection Cutoff (0.18 cms)",
-            annotation_position="bottom right",  # Adjust if needed
-            annotation_x=0.01,  # Position near the bottom-left (can be adjusted)
-            annotation_y=0.02,  # Position near the lower-left (can be adjusted)
-            annotation_font_size=12,
-            showarrow=False
+            annotation_position="right",
+            annotation_y=0.18,
+            annotation_font_size=12
         )
-        
+    
         # Update legend names
         fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-        
-        # Update layout to move the legend to the top and adjust other elements
+    
         fig2.update_layout(
             xaxis=dict(
                 title="Day of the Year",
@@ -1073,64 +1066,11 @@ elif selected_option == "Water use scenarios":
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
                 tickvals=y_ticks
             ),
-            legend=dict(
-                title="Scenario", 
-                yanchor="top",  # Place legend at the top
-                y=1.0,          # Top of the plot
-                xanchor="center",  # Center the legend horizontally
-                x=0.5
-            ),
-            width=800,
-            height=400
+            legend=dict(title="Scenario"),
+            width=800, height=400, showlegend=False
         )
-        
-        # Plot the figure
-        st.plotly_chart(fig2, use_container_width=True)
-
     
-        # # === Plot Mean Daily Flow ===
-        # fig2 = px.line(
-        #     mean_daily_flow,
-        #     x="DAY",
-        #     y="FLOW_OUTCMS",
-        #     color="SCENARIO",
-        #     title=f"How {title} change streamflow at Cowichan Station gauge",
-        #     labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
-        #     color_discrete_map=scenario_colors
-        # )
-    
-        # fig2.add_hline(
-        #     y=0.18, line_dash="dash", line_color="red", line_width=2,
-        #     annotation_text="Fish Protection Cutoff (0.18 cms)",
-        #     annotation_position="right",
-        #     annotation_y=0.18,
-        #     annotation_font_size=12
-        # )
-    
-        # # Update legend names
-        # fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    
-        # fig2.update_layout(
-        #     xaxis=dict(
-        #         title="Day of the Year",
-        #         showgrid=True,
-        #         tickmode="array",
-        #         tickvals=tickvals,
-        #         ticktext=ticktext
-        #     ),
-        #     yaxis=dict(
-        #         title="Mean daily streamflow (cms)",
-        #         showgrid=True,
-        #         type="log",
-        #         range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
-        #         tickvals=y_ticks
-        #     ),
-        #     legend=dict(title="Scenario"),
-        #     width=800,
-        #     height=400
-        # )
-    
-        # st.plotly_chart(fig2)
+        st.plotly_chart(fig2)
     
         # === Plot Delta Flow ===
         base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
