@@ -612,7 +612,8 @@ elif selected_option == "The importance of the whole watershed":
             plot_bgcolor='rgba(240, 240, 240, 0.8)',
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black'),
-            margin=dict(l=40, r=40, t=60, b=40)
+            margin=dict(l=40, r=40, t=60, b=40),
+            height=350
         )
     
         # Show the final figure in Streamlit
@@ -693,39 +694,9 @@ elif selected_option == "The importance of the whole watershed":
         xaxis_title='Column',
         yaxis_title='Row',
         yaxis=dict(autorange='reversed'),  # Reverse y-axis for heatmap
-        width=800,
-        height=600,
+        height=350,
     )
-
-    # # Initialize the map centered on Duncan
-    # m = folium.Map(location=initial_location, zoom_start=11, control_scale=True)
-
-    # # Add the subbasins layer to the map but keep it initially turned off
-    # subbasins_layer = folium.GeoJson(subbasins_gdf, 
-    #                                 name="Subbasins", 
-    #                                 style_function=lambda x: {'color': 'green', 'weight': 2},
-    #                                 # show=False  # Keep the layer off initially
-    #                                 ).add_to(m)
-
-    # # Add the grid layer to the map but keep it initially turned off
-    # grid_layer = folium.GeoJson(grid_gdf, 
-    #                             name="Grid", 
-    #                             style_function=lambda x: {'color': 'blue', 'weight': 1},
-    #                             show=False  # Keep the layer off initially
-    #                         ).add_to(m)
-
-    # # Add MousePosition to display coordinates
-    # MousePosition().add_to(m)
-
-    # # Add a layer control to switch between the subbasins and grid layers
-    # folium.LayerControl().add_to(m)
-
-    # Display the plotly heatmap in Streamlit
-    st.plotly_chart(fig_recharge, use_container_width=True)  
-    
-    # # Render the Folium map in Streamlit
-    # st.title("Watershed Map")
-    # st_folium(m, width=700, height=600)  
+ 
 
 elif selected_option == "Water use scenarios":
 
