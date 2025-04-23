@@ -1042,9 +1042,9 @@ elif selected_option == "Water use scenarios":
         col1, col2 = st.columns([1.5, 1])
         
         with col1:
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
-            st.plotly_chart(fig4)
+            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig4, use_container_width=True)
         
         with col2:
             if title == "Total water use":
