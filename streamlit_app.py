@@ -1037,8 +1037,20 @@ elif selected_option == "Water use scenarios":
                 showgrid=True,
                 range=[-110, 110]  # <- Adjust as needed
             ),
-            legend=dict(title="Scenario"),
-            showlegend=False, height=250, width=350
+            legend=dict(
+                    title="Scenario",
+                    orientation='h',  # Set to horizontal
+                    yanchor='bottom',  # Align legend to the bottom
+                    y=-0.2,  # Adjust the value to move the legend lower (can be fine-tuned)
+                    x=0.5,  # Center the legend horizontally
+                    xanchor='center'
+                ),
+                showlegend=True,  # Show the legend (instead of False)
+                height=250,
+                width=350
+            )
+            # legend=dict(title="Scenario"),
+            # showlegend=False, height=250, width=350
         )
         
         #st.plotly_chart(fig4, use_container_width=True)
