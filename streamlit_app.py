@@ -613,7 +613,7 @@ elif selected_option == "The importance of the whole watershed":
             paper_bgcolor='white',
             font=dict(family='Arial, sans-serif', size=8, color='black'),
             margin=dict(l=40, r=40, t=60, b=40),
-            width=500,
+            width=400,
             height=350
         )
     
@@ -695,8 +695,8 @@ elif selected_option == "The importance of the whole watershed":
         xaxis_title='Column',
         yaxis_title='Row',
         yaxis=dict(autorange='reversed'),  # Reverse y-axis for heatmap
+        width=400,
         height=350,
-        width=500
     )
  
 
