@@ -1042,7 +1042,7 @@ elif selected_option == "Water use scenarios":
                 xanchor='center'  # Align the center of the legend with the x=0.5 position
             ),
             showlegend=True, 
-            height=250, 
+            height=300, 
             width=350
         )
 
