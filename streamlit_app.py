@@ -37,76 +37,76 @@ st.set_page_config(
     page_icon=':herb:',
 )
 
-# # Sidebar for navigation
-# st.sidebar.title("Xwulqw'selu Sta'lo'")
-# selected_option = st.sidebar.radio(
-#     "Select an option:",
-#     #("Watershed models", "Water interactions", "Recharge", "View Report")
-#     ("Watershed models", "Whole watershed", "Water use", "Land use")
-# )
-
-# --- Page options ---
-pages = [
-    "Home",
-    "The importance of the whole watershed",
-    "Water use scenarios",
-    "Land use scenarios"
-]
-
-# --- Initialize session state if not set ---
-if "selected_page" not in st.session_state:
-    st.session_state.selected_page = pages[0]  # Default to Home
-
-# --- Custom CSS for styling and responsiveness ---
-st.markdown("""
-    <style>
-    /* Hide the label above the selectbox */
-    label[for="Menu"] {
-        display: none;
-    }
-
-    /* Customize the dropdown look */
-    div[data-baseweb="select"] {
-        background-color: #1e3a8a !important;
-        color: white !important;
-        border-radius: 10px;
-        font-weight: 500;
-        padding: 8px;
-        margin-bottom: 20px;
-        width: 100% !important;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Selected text color */
-    div[data-baseweb="select"] div[role="combobox"] {
-        color: white !important;
-    }
-
-    /* Responsive tweak */
-    @media screen and (max-width: 768px) {
-        div[data-baseweb="select"] {
-            font-size: 1.1rem !important;
-            max-width: 90% !important;
-        }
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Centered top navigation dropdown ---
-selected_option = st.selectbox(
-    label="Menu",  # hidden by CSS
-    options=pages,
-    index=pages.index(st.session_state.selected_page),
-    key="Menu"
+# Sidebar for navigation
+st.sidebar.title("Xwulqw'selu Sta'lo'")
+selected_option = st.sidebar.radio(
+    "Select an option:",
+    #("Watershed models", "Water interactions", "Recharge", "View Report")
+    ("Watershed models", "Whole watershed", "Water use", "Land use")
 )
 
-# st.session_state.selected_page = selected_option  # Keep sync
+# # --- Page options ---
+# pages = [
+#     "Home",
+#     "The importance of the whole watershed",
+#     "Water use scenarios",
+#     "Land use scenarios"
+# ]
 
-# Ensure the session state is updated on interaction
-if selected_option != st.session_state.selected_page:
-    st.session_state.selected_page = selected_option
+# # --- Initialize session state if not set ---
+# if "selected_page" not in st.session_state:
+#     st.session_state.selected_page = pages[0]  # Default to Home
+
+# # --- Custom CSS for styling and responsiveness ---
+# st.markdown("""
+#     <style>
+#     /* Hide the label above the selectbox */
+#     label[for="Menu"] {
+#         display: none;
+#     }
+
+#     /* Customize the dropdown look */
+#     div[data-baseweb="select"] {
+#         background-color: #1e3a8a !important;
+#         color: white !important;
+#         border-radius: 10px;
+#         font-weight: 500;
+#         padding: 8px;
+#         margin-bottom: 20px;
+#         width: 100% !important;
+#         max-width: 400px;
+#         margin-left: auto;
+#         margin-right: auto;
+#     }
+
+#     /* Selected text color */
+#     div[data-baseweb="select"] div[role="combobox"] {
+#         color: white !important;
+#     }
+
+#     /* Responsive tweak */
+#     @media screen and (max-width: 768px) {
+#         div[data-baseweb="select"] {
+#             font-size: 1.1rem !important;
+#             max-width: 90% !important;
+#         }
+#     }
+#     </style>
+# """, unsafe_allow_html=True)
+
+# # --- Centered top navigation dropdown ---
+# selected_option = st.selectbox(
+#     label="Menu",  # hidden by CSS
+#     options=pages,
+#     index=pages.index(st.session_state.selected_page),
+#     key="Menu"
+# )
+
+# # st.session_state.selected_page = selected_option  # Keep sync
+
+# # Ensure the session state is updated on interaction
+# if selected_option != st.session_state.selected_page:
+#     st.session_state.selected_page = selected_option
 
 
 def clean_text(text):
@@ -469,10 +469,6 @@ if selected_option == "Home":
         <p><strong>Groundwater:</strong> Groundwater interacts with streams in different ways. Streams can be either <strong>gaining</strong> (with groundwater flowing to streams, shown as blue on the map) or <strong>losing</strong> (with surface water flowing to the aquifer, shown as brown on the map). Most Xwulqw'selu Sta'lo' tributaries are gaining throughout the whole year, even in winter. This finding underscores the important contributions of groundwater to overall watershed budgets.</p>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Ensure the session state is updated on interaction
-    if selected_option != st.session_state.selected_page:
-        st.session_state.selected_page = selected_option
 
     
 elif selected_option == "The importance of the whole watershed":
