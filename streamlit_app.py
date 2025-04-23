@@ -985,7 +985,7 @@ elif selected_option == "Water use scenarios":
         fig2.update_layout(
             xaxis=dict(
                 title="Day of the Year",
-                titlefont=dict(size=10),
+                # titlefont=dict(size=10),
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
@@ -993,7 +993,7 @@ elif selected_option == "Water use scenarios":
             ),
             yaxis=dict(
                 title="Mean daily streamflow (cms)",
-                titlefont=dict(size=10),
+                # titlefont=dict(size=10),
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
@@ -1025,7 +1025,7 @@ elif selected_option == "Water use scenarios":
         fig4.update_layout(
             xaxis=dict(
                 title="Day of the Year",
-                titlefont=dict(size=10),
+                # titlefont=dict(size=10),
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
@@ -1033,7 +1033,7 @@ elif selected_option == "Water use scenarios":
             ),
             yaxis=dict(
                 title="Streamflow change relative to baseline (%)",
-                titlefont=dict(size=10),
+                # titlefont=dict(size=10),
                 showgrid=True,
                 range=[-110, 110]  # <- Adjust as needed
             ),
