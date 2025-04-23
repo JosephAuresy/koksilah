@@ -1040,7 +1040,7 @@ elif selected_option == "Water use scenarios":
         #st.plotly_chart(fig4, use_container_width=True)
 
         # Create two columns: 2 parts width for plots, 1 part for text
-        col1, col2 = st.columns([2, 1])
+        col1, col2 = st.columns([1.5, 1])
         
         with col1:
             st.plotly_chart(fig1, use_container_width=True)
