@@ -41,8 +41,8 @@ st.set_page_config(
 st.sidebar.title("Xwulqw'selu Sta'lo'")
 selected_option = st.sidebar.radio(
     "Select an option:",
-    #("Watershed models", "Water interactions", "Recharge", "View Report")
-    ("Watershed models", "Whole watershed", "Water use", "Land use")
+    #("Home", "The importance of the whole watershed", "Recharge", "View Report")
+    ("Watershed models", "Whole watershed", "Water use scenarios", "Land use scenarios")
 )
 
 # # --- Page options ---
