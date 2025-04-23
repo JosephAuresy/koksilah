@@ -695,15 +695,22 @@ elif selected_option == "The importance of the whole watershed":
         )
     ))
 
+    # Update layout settings for better visibility on all devices
     fig_recharge.update_layout(
         title=f'Monthly Recharge - {selected_recharge_month_name}',
+        title_font=dict(size=20),  # Increase title font size
         xaxis_title='Column',
         yaxis_title='Row',
-        yaxis=dict(autorange='reversed'),  # Reverse y-axis for heatmap
-        width=350,
-        height=400
+        xaxis=dict(title_font=dict(size=14)),  # Adjust axis title font size
+        yaxis=dict(title_font=dict(size=14), autorange='reversed'),  # Reverse y-axis and adjust font size
+        margin=dict(l=40, r=40, t=40, b=40),  # Add margin for better spacing
+        width=None,  # Use full container width
+        height=None,  # Use full container height
+        autosize=True,  # Ensure the figure resizes to fit the container
     )
-    st.plotly_chart(fig_recharge, use_container_width=True)  
+    
+    # Display the plot in the Streamlit app with responsive container width
+    st.plotly_chart(fig_recharge, use_container_width=True)
 
 
 elif selected_option == "Water use scenarios":
