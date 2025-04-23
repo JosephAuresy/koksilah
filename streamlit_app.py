@@ -1070,7 +1070,8 @@ elif selected_option == "Water use scenarios":
             st.plotly_chart(fig2, use_container_width=True)
             st.plotly_chart(fig4, use_container_width=True)
         
-
+        # End of the box
+        st.markdown("</div>", unsafe_allow_html=True)
 
 elif selected_option == "Land use scenarios":   
     
