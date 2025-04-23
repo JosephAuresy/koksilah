@@ -822,7 +822,7 @@ elif selected_option == "Water use scenarios":
     
     # Load monthly water use
     monthly_data = pd.DataFrame({
-        'Scenario': ['base', 'jun', 'july', 'agu', 'half', 'double', 'surface half', 'ground half'],
+        'Scenario': ['Baseline', 'No Water Use June-August', 'No Water Use July-August', 'No Water Use August', 'Half Water Use', 'Double Water Use', 'Half Surface Water Use', 'Half Groundwater Use'],
         'Jan': [320.038, 320.038, 320.038, 320.038, 160.019, 640.076, 311.948, 168.109],
         'Feb': [709.0108, 709.0108, 709.0108, 709.0108, 354.5054, 1418.0216, 683.9858, 379.5304],
         'Mar': [1351.2816, 1351.2816, 1351.2816, 1351.2816, 675.6408, 2702.5632, 1301.7066, 725.2158],
