@@ -101,8 +101,11 @@ selected_option = st.selectbox(
     index=pages.index(st.session_state.selected_page),
     key="Menu"
 )
-st.session_state.selected_page = selected_option  # Keep sync
+# st.session_state.selected_page = selected_option  # Keep sync
 
+# Ensure the session state is updated on interaction
+if selected_option != st.session_state.selected_page:
+    st.session_state.selected_page = selected_option
 
 def clean_text(text):
     replacements = {
