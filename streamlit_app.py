@@ -684,7 +684,7 @@ elif selected_option == "The importance of the whole watershed":
     # Create heatmap for recharge in mm/month
     fig_recharge = go.Figure(data=go.Heatmap(
         z=recharge_grid_mm_per_month,  # Using the converted recharge values in mm/month
-        colorscale='viridis',
+        colorscale=[[0, 'white'], [1, 'darkblue']],
         colorbar=dict(
             title='Recharge [mm/month]',
             orientation='h',
