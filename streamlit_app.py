@@ -888,77 +888,7 @@ elif selected_option == "Water use scenarios":
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     y_ticks = [0.05, 0.18, 1, 10, 50]    
-    # # Load monthly water use
-    # monthly_data = pd.DataFrame({
-    #     'Scenario': ['Baseline', 'No Water Use June-August', 'No Water Use July-August', 'No Water Use August', 'Half Water Use', 'Double Water Use', 'Half Surface Water Use', 'Half Groundwater Use'],
-    #     'Jan': [320.038, 320.038, 320.038, 320.038, 160.019, 640.076, 311.948, 168.109],
-    #     'Feb': [709.0108, 709.0108, 709.0108, 709.0108, 354.5054, 1418.0216, 683.9858, 379.5304],
-    #     'Mar': [1351.2816, 1351.2816, 1351.2816, 1351.2816, 675.6408, 2702.5632, 1301.7066, 725.2158],
-    #     'Apr': [21465.8808, 21465.8808, 21465.8808, 21465.8808, 10732.9404, 42931.7616, 14746.4058, 17452.4154],
-    #     'May': [638342.5862, 638342.5862, 638342.5862, 638342.5862, 319171.2931, 1276685.172, 424648.3762, 532865.5031],
-    #     'Jun': [1633352.933, 0, 1633352.933, 1633352.933, 816676.4665, 3266705.866, 1110746.623, 1339282.777],
-    #     'Jul': [2184271.361, 0, 0, 2184271.361, 1092135.681, 4368542.722, 1485624.676, 1790782.366],
-    #     'Aug': [2040178.788, 0, 0, 0, 1020089.394, 4080357.576, 1387471.918, 1672796.264],
-    #     'Sep': [1567066.121, 1567066.121, 1567066.121, 1567066.121, 783533.0603, 3134132.241, 1073292.891, 1277306.29],
-    #     'Oct': [338660.5508, 338660.5508, 338660.5508, 338660.5508, 169330.2754, 677321.1016, 229677.5758, 278313.2504],
-    #     'Nov': [936.1898, 936.1898, 936.1898, 936.1898, 468.0949, 1872.3796, 883.9948, 520.2899],
-    #     'Dec': [0, 0, 0, 0, 0, 0, 0, 0]
-    # })
     
-    # # Convert monthly to m³/s
-    # seconds_in_month = 30.42 * 24 * 60 * 60
-    # monthly_data.iloc[:, 1:] = monthly_data.iloc[:, 1:] / seconds_in_month
-    
-    # # Map month name to days
-    # days_in_month = {'Jan': 31, 'Feb': 28, 'Mar': 31, 'Apr': 30, 'May': 31, 'Jun': 30,
-    #                  'Jul': 31, 'Aug': 31, 'Sep': 30, 'Oct': 31, 'Nov': 30, 'Dec': 31}
-    
-    # # Generate daily water use table
-    # daily_data = []
-    # for scenario in monthly_data['Scenario']:
-    #     for month in monthly_data.columns[1:]:
-    #         daily_value = monthly_data.loc[monthly_data['Scenario'] == scenario, month].values[0]
-    #         for day in range(1, days_in_month[month] + 1):
-    #             daily_data.append([scenario, f"{month}-{day}", daily_value])
-    # daily_df = pd.DataFrame(daily_data, columns=["Scenario", "Day", "Water Use (m³/s)"])
-    
-    # # Setup for visuals
-    # tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-    # ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    
-    # # New dictionary for colors, line styles, and marker shapes based on full scenario names
-    # monthly_colors = {
-    #     "Baseline": "black",
-    #     "No Water Use June-August": "pink",
-    #     "No Water Use July-August": "#C71585",
-    #     "No Water Use August": "#800080",
-    #     "Half Water Use": "lightblue",
-    #     "Double Water Use": "navy",
-    #     "Half Surface Water Use": "skyblue",
-    #     "Half Groundwater Use": "darkblue"
-    # }
-    
-    # line_styles = {
-    #     "Baseline": dict(dash="solid", width=3),
-    #     "No Water Use June-August": dict(dash="solid", width=3),
-    #     "No Water Use July-August": dict(dash="dash", width=3),
-    #     "No Water Use August": dict(dash="longdash", width=3),
-    #     "Half Water Use": dict(dash="dashdot", width=3),
-    #     "Double Water Use": dict(dash="solid", width=3),
-    #     "Half Surface Water Use": dict(dash="dot", width=3),
-    #     "Half Groundwater Use": dict(dash="longdash", width=3)
-    # }
-    
-    # marker_shapes = {
-    #     "Baseline": "circle",
-    #     "No Water Use June-August": "square",
-    #     "No Water Use July-August": "diamond",
-    #     "No Water Use August": "cross",
-    #     "Half Water Use": "x",
-    #     "Double Water Use": "star",
-    #     "Half Surface Water Use": "triangle-up",
-    #     "Half Groundwater Use": "triangle-down"
-    # }
     
     # Scenario groups (defined once here)
     scenario_groups = {
@@ -995,7 +925,7 @@ elif selected_option == "Water use scenarios":
             )
     
         fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(showlegend=False)
+        fig1.update_layout(showlegend=False, autosize=True)
         st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
@@ -1067,7 +997,7 @@ elif selected_option == "Water use scenarios":
                 tickvals=y_ticks
             ),
             legend=dict(title="Scenario"),
-            showlegend=False
+            showlegend=False, autosize=True
         )
         st.plotly_chart(fig2, use_container_width=True)
     
@@ -1101,7 +1031,7 @@ elif selected_option == "Water use scenarios":
                 range=[-1.1, 1.1]
             ),
             legend=dict(title="Scenario"),
-            showlegend=False
+            showlegend=False, autosize=True
         )
         st.plotly_chart(fig4, use_container_width=True)
         
