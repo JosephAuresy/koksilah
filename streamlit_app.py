@@ -1027,54 +1027,49 @@ elif selected_option == "Water use scenarios":
 
         #st.plotly_chart(fig4, use_container_width=True)
 
+        # Start of the styled box
+        st.markdown("""
+        <div style="background-color: #f0f8ff; border: 2px solid #1a3c40; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+        """, unsafe_allow_html=True)
+
         # Create two columns: 2 parts width for plots, 1 part for text
-        col2, col1 = st.columns([1, 1.5])
+        col1, col2 = st.columns([1, 1.5])
         
         with col1:
+            if title == "Total water use":
+                col1.markdown("""        
+                    <div style='font-size: 36px; font-weight: bold; margin-bottom: 1rem;'>Total water use</div>
+                    <p>The upper graph shows the different rates of total water use in different scenarios.<br><br>
+                    The middle graph shows changes in streamflow over the same time period...<br><br>
+                    <span style='color:red;'>The red line at 0.18 cms</span> represents the streamflow threshold that triggers the provincial government to restrict water use.<br><br>
+                    Doubling overall water use results in August streamflow 50% lower than the baseline.<br>
+                    Halving it boosts streamflow by 50%, showing the power of conservation.</p>
+                """, unsafe_allow_html=True)
+        
+            elif title == "Decreasing groundwater or surface water use":
+                col1.markdown("""        
+                    <div style='font-size: 36px; font-weight: bold; margin-bottom: 1rem;'>Decreasing groundwater or surface water use</div>
+                    <p>In these graphs only groundwater OR surface water is decreased...<br>
+                    Surface water use has a much faster and stronger impact on low flows.<br>
+                    The effect of groundwater use changes is slower and varies by well location.</p>
+                """, unsafe_allow_html=True)
+        
+            elif title == "Change the timing of water use restrictions":
+                col1.markdown("""        
+                    <div style='font-size: 36px; font-weight: bold; margin-bottom: 1rem;'>Change the timing of water use restrictions</div>
+                    <p>These scenarios shift the start of water use restrictions to June, July, or August.<br><br>
+                    Early restrictions increase low flows up to 100%.<br>
+                    Timing matters, but the water source used is more influential overall.</p>
+                """, unsafe_allow_html=True)
+        
+            else:
+                col1.markdown("*Scenario group summary not available.*")
+        
+        with col2:
             st.plotly_chart(fig1, use_container_width=True)
             st.plotly_chart(fig2, use_container_width=True)
             st.plotly_chart(fig4, use_container_width=True)
         
-        with col2:
-            if title == "Total water use":
-                col2.markdown("""        
-                **Total water use:**  
-                The upper graph shows the different rates of total water use in different scenarios.  
-                The middle graph shows changes in streamflow over the same time period. Notice that the mean flow (in volume per time or cms = cubic meters per second) changes seasonally, and the changes are dramatic; we modified the y-axis scale to emphasize and better show the impact during seasonal low flows.
-        
-                The red line at 0.18 cms represents the streamflow threshold that triggers the provincial government to issue a temporary order to restrict water use to protect fish populations.
-        
-                The lower graph is the same changes in streamflow shown as a percentage change compared to the baseline (so 0.5 = 50% more streamflow and -0.5 = 50% less streamflow).  
-        
-                Doubling overall water use results in August streamflow that is 50% lower than the baseline and less than 0.18 cms for nearly a month.  
-                In contrast, halving overall water use results in August streamflow that is 50% higher, emphasizing that conserving water is a crucial water management strategy.
-                """)
-            
-            elif title == "Decreasing groundwater or surface water use":
-                col2.markdown("""    
-                **Decreasing groundwater or surface water use:**  
-                 In these graphs only groundwater OR surface water is decreased. In these scenarios, water use from the other water source was kept constant (so the overall volume of water use also decreased in these scenarios).
-        
-                Streamflow is impacted quickly when you take water from a stream, whereas when you pump from a well, it takes days, weeks, or months to impact streamflow.
-        
-                Scenarios of halving groundwater or surface water use show that surface water use has a much more significant and direct impact on low flows.  
-                The impact of decreased groundwater use on low flows is slower and less significant and needs additional research; the impact of individual wells depends on the location of the wells, streams, and aquifers.
-                """)
-            
-            elif title == "Change the timing of water use restrictions":
-                col2.markdown("""    
-                **Change the timing of water use restrictions:**  
-                In these scenarios, water use restrictions start at the beginning of June, July, or August.  
-        
-                Scenarios of starting water use restrictions at different times suggested low flows can be increased by up to 100%.  
-                Starting earlier in the season is less important since surface water use restrictions change low flows quickly.  
-        
-                The results suggest the impacts of water source are greater than the impacts of the timing of water use restrictions.  
-                Future research could explore the strategic use of groundwater and surface water at different times of the summer season.
-                """)
-            
-            else:
-                col2.markdown("*Scenario group summary not available.*")
 
 
 elif selected_option == "Land use scenarios":   
