@@ -924,7 +924,7 @@ elif selected_option == "Water use scenarios":
                 opacity=0.7
             )
     
-        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext, tickfont=dict(size=10))
+        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext, tickfont=dict(size=10), title_font=dict(size=10))
         fig1.update_yaxes(tickfont=dict(size=10))
         fig1.update_layout(showlegend=False, height=250, width=350)
         #st.plotly_chart(fig1, use_container_width=True)        
@@ -985,6 +985,7 @@ elif selected_option == "Water use scenarios":
         fig2.update_layout(
             xaxis=dict(
                 title="Day of the Year",
+                titlefont=dict(size=10),
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
@@ -992,6 +993,7 @@ elif selected_option == "Water use scenarios":
             ),
             yaxis=dict(
                 title="Mean daily streamflow (cms)",
+                titlefont=dict(size=10),
                 showgrid=True,
                 type="log",
                 range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
@@ -1023,6 +1025,7 @@ elif selected_option == "Water use scenarios":
         fig4.update_layout(
             xaxis=dict(
                 title="Day of the Year",
+                titlefont=dict(size=10),
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
@@ -1030,6 +1033,7 @@ elif selected_option == "Water use scenarios":
             ),
             yaxis=dict(
                 title="Streamflow change relative to baseline (%)",
+                titlefont=dict(size=10),
                 showgrid=True,
                 range=[-110, 110]  # <- Adjust as needed
             ),
