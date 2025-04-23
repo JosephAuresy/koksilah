@@ -1000,12 +1000,14 @@ elif selected_option == "Water use scenarios":
             showlegend=False, autosize=True
         )
         st.plotly_chart(fig2, use_container_width=True)
-    
+        
         # === Plot Delta Flow ===
         base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
         merged_data = pd.merge(mean_daily_flow, base_scenario[["DAY", "Base_Flow"]], on="DAY", how="left")
-        merged_data["Delta Flow"] = (merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]
-    
+        
+        # Convert to percent
+        merged_data["Delta Flow"] = ((merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]) * 100
+        
         fig4 = px.line(
             merged_data,
             x="DAY",
@@ -1014,9 +1016,9 @@ elif selected_option == "Water use scenarios":
             title=f"How {title} change streamflow relative to baseline model",
             color_discrete_map=scenario_colors
         )
-    
+        
         fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    
+        
         fig4.update_layout(
             xaxis=dict(
                 title="Day of the Year",
@@ -1026,14 +1028,50 @@ elif selected_option == "Water use scenarios":
                 ticktext=ticktext
             ),
             yaxis=dict(
-                title="Streamflow change relative to baseline",
+                title="Streamflow change relative to baseline (%)",
                 showgrid=True,
-                range=[-1.1, 1.1]
+                range=[-110, 110]  # <- Adjust as needed
             ),
             legend=dict(title="Scenario"),
-            showlegend=False, autosize=True
+            showlegend=False,
+            autosize=True
         )
+        
         st.plotly_chart(fig4, use_container_width=True)
+
+        # # === Plot Delta Flow ===
+        # base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
+        # merged_data = pd.merge(mean_daily_flow, base_scenario[["DAY", "Base_Flow"]], on="DAY", how="left")
+        # merged_data["Delta Flow"] = (merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]
+    
+        # fig4 = px.line(
+        #     merged_data,
+        #     x="DAY",
+        #     y="Delta Flow",
+        #     color="SCENARIO",
+        #     title=f"How {title} change streamflow relative to baseline model",
+        #     color_discrete_map=scenario_colors
+        # )
+    
+        # fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
+    
+        # fig4.update_layout(
+        #     xaxis=dict(
+        #         title="Day of the Year",
+        #         showgrid=True,
+        #         tickmode="array",
+        #         tickvals=tickvals,
+        #         ticktext=ticktext
+        #     ),
+        #     yaxis=dict(
+        #         title="Streamflow change relative to baseline",
+        #         showgrid=True,
+        #         range=[-1.1, 1.1]
+        #     ),
+        #     legend=dict(title="Scenario"),
+        #     showlegend=False, autosize=True
+        # )
+        # st.plotly_chart(fig4, use_container_width=True)
         
         # Add detailed explanation for the scenario group
         if title == "Total water use":
