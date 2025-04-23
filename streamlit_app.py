@@ -1046,7 +1046,7 @@ elif selected_option == "Water use scenarios":
                     xanchor='center'
                 ),
                 showlegend=True, 
-                height=250,
+                height=400,
                 width=350
         )
             # legend=dict(title="Scenario"),
