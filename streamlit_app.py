@@ -107,7 +107,7 @@ selected_option = st.selectbox(
 # Ensure the session state is updated on interaction
 if selected_option != st.session_state.selected_page:
     st.session_state.selected_page = selected_option
-    st.experimental_rerun() 
+
 
 def clean_text(text):
     replacements = {
