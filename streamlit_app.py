@@ -1215,7 +1215,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="FLOW_OUTCMS",
             color="SCENARIO",
-            title=f"How {title} change streamflow at Cowichan Station gauge",
+            title=f"How mature and mature-immature change streamflow at Cowichan Station gauge",
             labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
             color_discrete_map=scenario_colors
         )
@@ -1263,7 +1263,7 @@ elif selected_option == "Land use scenarios":
             x="DAY",
             y="Delta Flow",
             color="SCENARIO",
-            title=f"How {title} change streamflow relative to baseline model",
+            title=f"How mature and mature-immature change streamflow relative to baseline model",
             color_discrete_map=scenario_colors
         )
     
