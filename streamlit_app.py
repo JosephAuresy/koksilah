@@ -925,7 +925,7 @@ elif selected_option == "Water use scenarios":
             )
     
         fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(showlegend=False, autosize=True, width=None, height=300,)
+        fig1.update_layout(showlegend=False, autosize=True)
         #st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
