@@ -157,12 +157,12 @@ def process_swatmf_data(file_path):
     df = pd.DataFrame(data, columns=['Year', 'Month', 'Layer', 'Row', 'Column', 'Rate'])
     return df
     
-# # Conditional Model Selection Display
-# if selected_option == "The importance of the whole watershed":
-#     # Hidden default values (instead of sidebar widgets)
-#     selected_decade_climate = '2010'
-#     selected_decade_land_use = '2010'
-#     selected_decade_water_use = '2010'
+# Conditional Model Selection Display
+if selected_option == "The importance of the whole watershed":
+    # Hidden default values (instead of sidebar widgets)
+    selected_decade_climate = '2010'
+    selected_decade_land_use = '2010'
+    selected_decade_water_use = '2010'
     # Display Model selection part only when these options are selected
 
     # st.sidebar.title("Model selection")
