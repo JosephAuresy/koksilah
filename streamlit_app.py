@@ -791,14 +791,15 @@ elif selected_option == "Water use scenarios":
         You can zoom into any part of the graphs. If you want to see more details about the scenarios, check out <strong>David’s thesis</strong>. Water use means any water extracted from streams or aquifers for agriculture as calculated by the Province of British Columbia. Streamflow means the flow in the <strong>Xwulqw'selu Sta'lo'</strong> in units of volume per time (cubic meters per second).
     </p>
     """, unsafe_allow_html=True)
-
-
+    
+    # === SCENARIO SETUP ===
+    
     # Define colors for each scenario
     scenario_colors = {
         "Scenario R3": "black",
         "Scenario R3 S 05": "lightblue",
         "Scenario R3 X2": "navy",
-        "Scenario jun": "pink",  # magenta
+        "Scenario jun": "pink",
         "Scenario jul": "#C71585",
         "Scenario aug": "#800080",
         "Scenario R3 G 05": "darkblue",
@@ -817,12 +818,11 @@ elif selected_option == "Water use scenarios":
         "Scenario R3 SG 05": "Half Water Use",
     }
     
-    # === SETUP ===
-    
-    # Load monthly water use (m³/month)
+    # === LOAD MONTHLY WATER USE (m³/month) ===
     monthly_data = pd.DataFrame({
-        'Scenario': ['base', 'jun', 'july', 'agu', 'half', 'double', 'surface half', 'ground half'],
-        'Jan': [320.038, 320.038, 320.038, 320.038, 160.019, 640.076, 311.948, 168.109],
+        'Scenario': ['Scenario R3', 'Scenario jun', 'Scenario jul', 'Scenario aug',
+                     'Scenario R3 SG 05', 'Scenario R3 X2', 'Scenario R3 S 05', 'Scenario R3 G 05'],
+        'Jan': [320.038]*8,
         'Feb': [709.0108]*8,
         'Mar': [1351.2816]*8,
         'Apr': [21465.8808]*8,
@@ -836,7 +836,7 @@ elif selected_option == "Water use scenarios":
         'Dec': [0]*8
     })
     
-    # Convert to m³/s (using average seconds in a month)
+    # Convert to m³/s
     seconds_in_month = 30.42 * 24 * 60 * 60
     monthly_data.iloc[:, 1:] = monthly_data.iloc[:, 1:] / seconds_in_month
     
@@ -856,35 +856,27 @@ elif selected_option == "Water use scenarios":
     # === PLOTTING SETUP ===
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    y_ticks = [0.05, 0.18, 1, 10, 50]
-    
-    monthly_colors = {
-        "base": "black", "jun": "pink", "july": "#C71585", "agu": "#800080",
-        "half": "lightblue", "double": "navy", "surface half": "skyblue", "ground half": "darkblue"
-    }
     
     line_styles = {
-        "base": dict(dash="solid", width=3), "jun": dict(dash="solid", width=3),
-        "july": dict(dash="dash", width=3), "agu": dict(dash="longdash", width=3),
-        "half": dict(dash="dashdot", width=3), "double": dict(dash="solid", width=3),
-        "surface half": dict(dash="dot", width=3), "ground half": dict(dash="longdash", width=3)
+        "Scenario R3": dict(dash="solid", width=3),
+        "Scenario jun": dict(dash="solid", width=3),
+        "Scenario jul": dict(dash="dash", width=3),
+        "Scenario aug": dict(dash="longdash", width=3),
+        "Scenario R3 SG 05": dict(dash="dashdot", width=3),
+        "Scenario R3 X2": dict(dash="solid", width=3),
+        "Scenario R3 S 05": dict(dash="dot", width=3),
+        "Scenario R3 G 05": dict(dash="longdash", width=3),
     }
     
     marker_shapes = {
-        "base": "circle", "jun": "square", "july": "diamond", "agu": "cross",
-        "half": "x", "double": "star", "surface half": "triangle-up", "ground half": "triangle-down"
-    }
-    
-    scenario_colors = monthly_colors  # For consistency
-    scenario_legend = {
-        "Scenario base": "Base",
-        "Scenario jun": "June Restriction",
-        "Scenario july": "July Restriction",
-        "Scenario agu": "Aug Restriction",
-        "Scenario half": "Half Use",
-        "Scenario double": "Double Use",
-        "Scenario surface half": "Surface Half",
-        "Scenario ground half": "Groundwater Half"
+        "Scenario R3": "circle",
+        "Scenario jun": "square",
+        "Scenario jul": "diamond",
+        "Scenario aug": "cross",
+        "Scenario R3 SG 05": "x",
+        "Scenario R3 X2": "star",
+        "Scenario R3 S 05": "triangle-up",
+        "Scenario R3 G 05": "triangle-down",
     }
     
     # === SCENARIO GROUPS ===
@@ -897,22 +889,22 @@ elif selected_option == "Water use scenarios":
     # === MAIN LOOP ===
     for title, files in scenario_groups.items():
         scenario_alias = {
-            "scenario_SG_05_data.csv": "half",
-            "scenario_SG_X2_data.csv": "double",
-            "scenario_R3_data.csv": "base",
-            "scenario_S_05_data.csv": "surface half",
-            "scenario_G_05_data.csv": "ground half",
-            "scenario_jun_data.csv": "jun",
-            "scenario_jul_data.csv": "july",
-            "scenario_aug_data.csv": "agu"
+            "scenario_R3_data.csv": "Scenario R3",
+            "scenario_SG_05_data.csv": "Scenario R3 SG 05",
+            "scenario_SG_X2_data.csv": "Scenario R3 X2",
+            "scenario_S_05_data.csv": "Scenario R3 S 05",
+            "scenario_G_05_data.csv": "Scenario R3 G 05",
+            "scenario_jun_data.csv": "Scenario jun",
+            "scenario_jul_data.csv": "Scenario jul",
+            "scenario_aug_data.csv": "Scenario aug"
         }
-        
+    
         group_scenarios = [scenario_alias.get(f, f) for f in files]
     
         # --- Plot Daily Water Use ---
         group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
         fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario", title=f"Daily Water Use – {title}",
-                       color_discrete_map=monthly_colors)
+                       color_discrete_map=scenario_colors)
         
         for trace in fig1.data:
             trace.update(
@@ -933,7 +925,7 @@ elif selected_option == "Water use scenarios":
                 df.columns = [col.upper() for col in df.columns]
                 if "SCENARIO" not in df.columns:
                     name = os.path.splitext(file)[0].replace("scenario_", "").replace("_data", "")
-                    df["SCENARIO"] = f"Scenario {name.replace('_', ' ')}"
+                    df["SCENARIO"] = scenario_alias[file]
                 scenario_data.append(df)
             except Exception as e:
                 st.error(f"Error loading {file_path}: {e}")
@@ -951,7 +943,7 @@ elif selected_option == "Water use scenarios":
                        title=f"Streamflow at Cowichan Station – {title}",
                        labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
                        color_discrete_map=scenario_colors)
-        
+    
         fig2.add_hline(y=0.18, line_dash="dash", line_color="red", line_width=2,
                        annotation_text="Fish Protection Cutoff (0.18 cms)",
                        annotation_position="right", annotation_font_size=12)
@@ -959,6 +951,7 @@ elif selected_option == "Water use scenarios":
         fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
         fig2.update_layout(width=800, height=350, xaxis=dict(tickvals=tickvals, ticktext=ticktext))
         st.plotly_chart(fig2, use_container_width=True)
+
 
     # # === DAILY WATER USE FIGURES SETUP ===
     
