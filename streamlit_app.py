@@ -1027,9 +1027,9 @@ elif selected_option == "Water use scenarios":
 
         #st.plotly_chart(fig4, use_container_width=True)
 
-        # Start of the styled box with a thinner width
+        # Start of the styled box with no black outline and a longer line
         st.markdown("""
-        <div style="background-color: #f0f8ff; border: 2px solid #1a3c40; border-radius: 12px; padding: 10px; margin-bottom: 30px; width: 60%;">
+        <div style="background-color: #f0f8ff; border: none; border-radius: 12px; padding: 10px; margin-bottom: 30px; width: 100%;">
         """, unsafe_allow_html=True)
 
         # Create two columns: 2 parts width for plots, 1 part for text
