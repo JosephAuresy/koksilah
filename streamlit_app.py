@@ -696,7 +696,7 @@ elif selected_option == "The importance of the whole watershed":
         yaxis_title='Row',
         yaxis=dict(autorange='reversed'),  # Reverse y-axis for heatmap
         width=350,
-        height=350
+        height=400
     )
     st.plotly_chart(fig_recharge, use_container_width=True)  
 
