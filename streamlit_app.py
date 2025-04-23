@@ -1037,6 +1037,10 @@ elif selected_option == "Water use scenarios":
                 showgrid=True,
                 range=[-110, 110]  # <- Adjust as needed
             ),
+            legend=dict(title="Scenario"),
+            showlegend=False, height=250, width=350
+        )
+
         #     legend=dict(
         #             title="Scenario"
         #             # orientation='h',  # Set to horizontal
@@ -1047,10 +1051,6 @@ elif selected_option == "Water use scenarios":
         #     ),
         #     showlegend=True, height=250, width=350
         # )
-            legend=dict(title="Scenario"),
-            showlegend=False, height=250, width=350
-        )
-        
         #st.plotly_chart(fig4, use_container_width=True)
 
         # Create two columns: 2 parts width for plots, 1 part for text
