@@ -696,7 +696,7 @@ elif selected_option == "The importance of the whole watershed":
         yaxis_title='Row',
         yaxis=dict(autorange='reversed'),  # Reverse y-axis for heatmap
         width=400,
-        height=350,
+        height=350
     )
  
 
