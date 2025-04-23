@@ -858,49 +858,59 @@ elif selected_option == "Water use scenarios":
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
+    # New dictionary for colors, line styles, and marker shapes based on full scenario names
     monthly_colors = {
-        "base": "black", "jun": "pink", "july": "#C71585", "agu": "#800080",
-        "half": "lightblue", "double": "navy", "surface half": "skyblue", "ground half": "darkblue"
+        "Baseline": "black",
+        "No Water Use June-August": "pink",
+        "No Water Use July-August": "#C71585",
+        "No Water Use August": "#800080",
+        "Half Water Use": "lightblue",
+        "Double Water Use": "navy",
+        "Half Surface Water Use": "skyblue",
+        "Half Groundwater Use": "darkblue"
     }
     
     line_styles = {
-        "base": dict(dash="solid", width=3), "jun": dict(dash="solid", width=3),
-        "july": dict(dash="dash", width=3), "agu": dict(dash="longdash", width=3),
-        "half": dict(dash="dashdot", width=3), "double": dict(dash="solid", width=3),
-        "surface half": dict(dash="dot", width=3), "ground half": dict(dash="longdash", width=3)
+        "Baseline": dict(dash="solid", width=3),
+        "No Water Use June-August": dict(dash="solid", width=3),
+        "No Water Use July-August": dict(dash="dash", width=3),
+        "No Water Use August": dict(dash="longdash", width=3),
+        "Half Water Use": dict(dash="dashdot", width=3),
+        "Double Water Use": dict(dash="solid", width=3),
+        "Half Surface Water Use": dict(dash="dot", width=3),
+        "Half Groundwater Use": dict(dash="longdash", width=3)
     }
     
     marker_shapes = {
-        "base": "circle", "jun": "square", "july": "diamond", "agu": "cross",
-        "half": "x", "double": "star", "surface half": "triangle-up", "ground half": "triangle-down"
+        "Baseline": "circle",
+        "No Water Use June-August": "square",
+        "No Water Use July-August": "diamond",
+        "No Water Use August": "cross",
+        "Half Water Use": "x",
+        "Double Water Use": "star",
+        "Half Surface Water Use": "triangle-up",
+        "Half Groundwater Use": "triangle-down"
     }
     
-    # === END OF DAILY FIGURE SETUP ===
-    
-    # Scenario groups
+    # Scenario groups (defined once here)
     scenario_groups = {
         "Total water use": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
         "Decreasing groundwater or surface water use": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
         "Change the timing of water use restrictions": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
     }
     
-    # Define tick values (start of each month approx)
-    tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-    ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    y_ticks = [0.05, 0.18, 1, 10, 50]
-    
-    # Process each scenario group
+    # Process each scenario group (defined once here)
     for title, files in scenario_groups.items():
         
         scenario_alias = {
-            "scenario_SG_05_data.csv": "half",
-            "scenario_SG_X2_data.csv": "double",
-            "scenario_R3_data.csv": "base",
-            "scenario_S_05_data.csv": "surface half",
-            "scenario_G_05_data.csv": "ground half",
-            "scenario_jun_data.csv": "jun",
-            "scenario_jul_data.csv": "july",
-            "scenario_aug_data.csv": "agu"
+            "scenario_SG_05_data.csv": "Half Water Use",
+            "scenario_SG_X2_data.csv": "Double Water Use",
+            "scenario_R3_data.csv": "Baseline",
+            "scenario_S_05_data.csv": "Half Surface Water Use",
+            "scenario_G_05_data.csv": "Half Groundwater Use",
+            "scenario_jun_data.csv": "No Water Use June-August",
+            "scenario_jul_data.csv": "No Water Use July-August",
+            "scenario_aug_data.csv": "No Water Use August"
         }
         group_scenarios = [scenario_alias[f] for f in files if f in scenario_alias]
     
