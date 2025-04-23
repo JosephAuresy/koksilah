@@ -1048,10 +1048,10 @@ elif selected_option == "Water use scenarios":
                 showlegend=True,  # Show the legend (instead of False)
                 height=250,
                 width=350
-            )
+        )
             # legend=dict(title="Scenario"),
             # showlegend=False, height=250, width=350
-        )
+        # )
         
         #st.plotly_chart(fig4, use_container_width=True)
 
