@@ -970,7 +970,7 @@ elif selected_option == "Water use scenarios":
     # Process each scenario group (defined once here)
     for title, files in scenario_groups.items():
         scenario_alias = {
-            "scenario_SG_05_data.csv": "halfing",
+            "scenario_SG_05_data.csv": "half",
             "scenario_SG_X2_data.csv": "double",
             "scenario_R3_data.csv": "base",
             "scenario_S_05_data.csv": "surface half",
@@ -995,7 +995,7 @@ elif selected_option == "Water use scenarios":
             )
     
         fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(width=700, height=300)
+        fig1.update_layout(width=700, height=300, showlegend=False))
         st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
