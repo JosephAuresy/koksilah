@@ -1102,8 +1102,7 @@ elif selected_option == "Water use scenarios":
                 range=[-1.1, 1.1]
             ),
             legend=dict(title="Scenario"),
-            width=800,
-            height=400
+            width=800, height=400, showlegend=False
         )
     
         st.plotly_chart(fig4)
