@@ -852,7 +852,7 @@ elif selected_option == "Water use scenarios":
             daily_value = monthly_data.loc[monthly_data['Scenario'] == scenario, month].values[0]
             for day in range(1, days_in_month[month] + 1):
                 daily_data.append([scenario, f"{month}-{day}", daily_value])
-    daily_df = pd.DataFrame(daily_data, columns=["Scenario", "Day", "Water Use (m³/s)"])
+    daily_df = pd.DataFrame(daily_data, columns=["Scenario", "Day", "Water Use (cms)"])
     
     # Setup for visuals
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
@@ -995,7 +995,7 @@ elif selected_option == "Water use scenarios":
             )
     
         fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(width=700, height=300)
+        fig1.update_layout(width=700, height=300, showlegend=False)
         st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
