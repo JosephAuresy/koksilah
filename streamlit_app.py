@@ -383,10 +383,10 @@ if selected_option == "Home":
     <style>
     .card {
         background-color: #eef6f9;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        border-radius: 6px;         /* Sharper corners */
+        padding: 10px;              /* Less internal space */
+        margin-bottom: 15px;        /* Less space below */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* Lighter shadow */
     }
     .card h3 {
         color: #1a3c40;
@@ -1167,7 +1167,7 @@ elif selected_option == "Land use scenarios":
     # Load and display the image
     # Set the data folder relative to the script's location
     data_folder = Path(__file__).parent / 'data'
-    image_path = data_folder / 'mature.jpg'
+    image_path = data_folder / 'mature2.jpg'
     st.image(image_path)
     
     # Add the paragraph
