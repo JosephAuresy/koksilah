@@ -61,7 +61,7 @@ if "selected_page" not in st.session_state:
 st.markdown("""
     <style>
     /* Hide the label above the selectbox */
-    label[for="nav_dropdown"] {
+    label[for="Menu"] {
         display: none;
     }
 
@@ -96,10 +96,10 @@ st.markdown("""
 
 # --- Centered top navigation dropdown ---
 selected_option = st.selectbox(
-    label="nav_dropdown",  # hidden by CSS
+    label="Menu",  # hidden by CSS
     options=pages,
     index=pages.index(st.session_state.selected_page),
-    key="nav_dropdown"
+    key="Menu"
 )
 st.session_state.selected_page = selected_option  # Keep sync
 
