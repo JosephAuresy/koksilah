@@ -1037,12 +1037,12 @@ elif selected_option == "Water use scenarios":
                 title="Scenario",
                 orientation='h',  # Set the legend to be horizontal
                 yanchor='bottom',  # Align the legend to the bottom
-                y=-0.3,  # Move the legend lower (you can adjust this value)
+                y=-0.5,  # Move the legend lower (you can adjust this value)
                 x=0.5,  # Center the legend horizontally
                 xanchor='center'  # Align the center of the legend with the x=0.5 position
             ),
             showlegend=True, 
-            height=250, 
+            height=400, 
             width=350
         )
         #     legend=dict(title="Scenario"),
