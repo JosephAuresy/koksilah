@@ -818,353 +818,218 @@ elif selected_option == "Water use scenarios":
         "Scenario R3 SG 05": "Half Water Use",
     }
     
-    # === LOAD MONTHLY WATER USE (m³/month) ===
+    # === DAILY WATER USE FIGURES SETUP ===
+    
+    # Load monthly water use
     monthly_data = pd.DataFrame({
-        'Scenario': ['Scenario R3', 'Scenario jun', 'Scenario jul', 'Scenario aug',
-                     'Scenario R3 SG 05', 'Scenario R3 X2', 'Scenario R3 S 05', 'Scenario R3 G 05'],
-        'Jan': [320.038]*8,
-        'Feb': [709.0108]*8,
-        'Mar': [1351.2816]*8,
-        'Apr': [21465.8808]*8,
-        'May': [638342.5862]*8,
+        'Scenario': ['base', 'jun', 'july', 'agu', 'half', 'double', 'surface half', 'ground half'],
+        'Jan': [320.038, 320.038, 320.038, 320.038, 160.019, 640.076, 311.948, 168.109],
+        'Feb': [709.0108, 709.0108, 709.0108, 709.0108, 354.5054, 1418.0216, 683.9858, 379.5304],
+        'Mar': [1351.2816, 1351.2816, 1351.2816, 1351.2816, 675.6408, 2702.5632, 1301.7066, 725.2158],
+        'Apr': [21465.8808, 21465.8808, 21465.8808, 21465.8808, 10732.9404, 42931.7616, 14746.4058, 17452.4154],
+        'May': [638342.5862, 638342.5862, 638342.5862, 638342.5862, 319171.2931, 1276685.172, 424648.3762, 532865.5031],
         'Jun': [1633352.933, 0, 1633352.933, 1633352.933, 816676.4665, 3266705.866, 1110746.623, 1339282.777],
         'Jul': [2184271.361, 0, 0, 2184271.361, 1092135.681, 4368542.722, 1485624.676, 1790782.366],
         'Aug': [2040178.788, 0, 0, 0, 1020089.394, 4080357.576, 1387471.918, 1672796.264],
-        'Sep': [1567066.121]*8,
-        'Oct': [338660.5508]*8,
-        'Nov': [936.1898]*8,
-        'Dec': [0]*8
+        'Sep': [1567066.121, 1567066.121, 1567066.121, 1567066.121, 783533.0603, 3134132.241, 1073292.891, 1277306.29],
+        'Oct': [338660.5508, 338660.5508, 338660.5508, 338660.5508, 169330.2754, 677321.1016, 229677.5758, 278313.2504],
+        'Nov': [936.1898, 936.1898, 936.1898, 936.1898, 468.0949, 1872.3796, 883.9948, 520.2899],
+        'Dec': [0, 0, 0, 0, 0, 0, 0, 0]
     })
     
-    # Convert to m³/s
+    # Convert monthly to m³/s
     seconds_in_month = 30.42 * 24 * 60 * 60
     monthly_data.iloc[:, 1:] = monthly_data.iloc[:, 1:] / seconds_in_month
     
-    # Day count per month
+    # Map month name to days
     days_in_month = {'Jan': 31, 'Feb': 28, 'Mar': 31, 'Apr': 30, 'May': 31, 'Jun': 30,
                      'Jul': 31, 'Aug': 31, 'Sep': 30, 'Oct': 31, 'Nov': 30, 'Dec': 31}
     
-    # === CREATE DAILY WATER USE DATA ===
+    # Generate daily water use table
     daily_data = []
-    for _, row in monthly_data.iterrows():
-        scenario = row['Scenario']
-        for month, value in row.iloc[1:].items():
+    for scenario in monthly_data['Scenario']:
+        for month in monthly_data.columns[1:]:
+            daily_value = monthly_data.loc[monthly_data['Scenario'] == scenario, month].values[0]
             for day in range(1, days_in_month[month] + 1):
-                daily_data.append([scenario, f"{month}-{day}", value])
+                daily_data.append([scenario, f"{month}-{day}", daily_value])
     daily_df = pd.DataFrame(daily_data, columns=["Scenario", "Day", "Water Use (m³/s)"])
     
-    # === PLOTTING SETUP ===
+    # Setup for visuals
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
+    monthly_colors = {
+        "base": "black", "jun": "pink", "july": "#C71585", "agu": "#800080",
+        "half": "lightblue", "double": "navy", "surface half": "skyblue", "ground half": "darkblue"
+    }
+    
     line_styles = {
-        "Scenario R3": dict(dash="solid", width=3),
-        "Scenario jun": dict(dash="solid", width=3),
-        "Scenario jul": dict(dash="dash", width=3),
-        "Scenario aug": dict(dash="longdash", width=3),
-        "Scenario R3 SG 05": dict(dash="dashdot", width=3),
-        "Scenario R3 X2": dict(dash="solid", width=3),
-        "Scenario R3 S 05": dict(dash="dot", width=3),
-        "Scenario R3 G 05": dict(dash="longdash", width=3),
+        "base": dict(dash="solid", width=3), "jun": dict(dash="solid", width=3),
+        "july": dict(dash="dash", width=3), "agu": dict(dash="longdash", width=3),
+        "half": dict(dash="dashdot", width=3), "double": dict(dash="solid", width=3),
+        "surface half": dict(dash="dot", width=3), "ground half": dict(dash="longdash", width=3)
     }
     
     marker_shapes = {
-        "Scenario R3": "circle",
-        "Scenario jun": "square",
-        "Scenario jul": "diamond",
-        "Scenario aug": "cross",
-        "Scenario R3 SG 05": "x",
-        "Scenario R3 X2": "star",
-        "Scenario R3 S 05": "triangle-up",
-        "Scenario R3 G 05": "triangle-down",
+        "base": "circle", "jun": "square", "july": "diamond", "agu": "cross",
+        "half": "x", "double": "star", "surface half": "triangle-up", "ground half": "triangle-down"
     }
     
-    # === SCENARIO GROUPS ===
+    # === END OF DAILY FIGURE SETUP ===
+    
+    # Scenario groups
     scenario_groups = {
         "Total water use": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
         "Decreasing groundwater or surface water use": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
         "Change the timing of water use restrictions": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
     }
     
-    # === MAIN LOOP ===
+    # Define tick values (start of each month approx)
+    tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+    ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    y_ticks = [0.05, 0.18, 1, 10, 50]
+    
+    # Process each scenario group
     for title, files in scenario_groups.items():
-        scenario_alias = {
-            "scenario_R3_data.csv": "Scenario R3",
-            "scenario_SG_05_data.csv": "Scenario R3 SG 05",
-            "scenario_SG_X2_data.csv": "Scenario R3 X2",
-            "scenario_S_05_data.csv": "Scenario R3 S 05",
-            "scenario_G_05_data.csv": "Scenario R3 G 05",
-            "scenario_jun_data.csv": "Scenario jun",
-            "scenario_jul_data.csv": "Scenario jul",
-            "scenario_aug_data.csv": "Scenario aug"
-        }
-    
-        group_scenarios = [scenario_alias.get(f, f) for f in files]
-    
-        # --- Plot Daily Water Use ---
-        group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
-        fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario", title=f"Daily Water Use – {title}",
-                       color_discrete_map=scenario_colors)
         
+        scenario_alias = {
+            "scenario_SG_05_data.csv": "half",
+            "scenario_SG_X2_data.csv": "double",
+            "scenario_R3_data.csv": "base",
+            "scenario_S_05_data.csv": "surface half",
+            "scenario_G_05_data.csv": "ground half",
+            "scenario_jun_data.csv": "jun",
+            "scenario_jul_data.csv": "july",
+            "scenario_aug_data.csv": "agu"
+        }
+        group_scenarios = [scenario_alias[f] for f in files if f in scenario_alias]
+    
+        group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
+        fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario",
+                       title=f"Daily Water Use – {title}",
+                       color_discrete_map=monthly_colors)
+    
         for trace in fig1.data:
             trace.update(
                 line=line_styles.get(trace.name, dict(dash="solid", width=2)),
                 marker=dict(symbol=marker_shapes.get(trace.name, "circle")),
-                opacity=0.8
+                opacity=0.7
             )
-        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-        fig1.update_layout(width=800, height=350)
-        st.plotly_chart(fig1, use_container_width=True)
     
-        # --- Read Flow Data ---
+        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
+        fig1.update_layout(width=700, height=300)
+        st.plotly_chart(fig1, use_container_width=True)        
+        
         scenario_data = []
+    
         for file in files:
             file_path = os.path.join("data/reach_csv", file)
+    
             try:
                 df = pd.read_csv(file_path)
-                df.columns = [col.upper() for col in df.columns]
-                if "SCENARIO" not in df.columns:
-                    name = os.path.splitext(file)[0].replace("scenario_", "").replace("_data", "")
-                    df["SCENARIO"] = scenario_alias[file]
-                scenario_data.append(df)
             except Exception as e:
-                st.error(f"Error loading {file_path}: {e}")
-                continue
+                st.error(f"Failed to load file: {file_path}\nError: {e}")
+                st.stop()
     
-        if not scenario_data:
-            continue
+            # Capitalize column names just in case
+            df.columns = [col.upper() for col in df.columns]
+    
+            # Add a Scenario column from file name if not in the file
+            if "SCENARIO" not in df.columns:
+                scenario_name = os.path.splitext(file)[0].replace("scenario_", "").replace("_data", "")
+                df["SCENARIO"] = f"Scenario {scenario_name.replace('_', ' ')}"
+    
+            scenario_data.append(df)
     
         combined_data = pd.concat(scenario_data, ignore_index=True)
+    
+        # Filter for Reach 3 and valid days
         rch3_data = combined_data[(combined_data["RCH"] == 3) & (combined_data["DAY"].between(1, 365))]
+    
+        # Mean daily flow per scenario
         mean_daily_flow = rch3_data.groupby(["SCENARIO", "DAY"])["FLOW_OUTCMS"].mean().reset_index()
     
-        # --- Plot Streamflow ---
-        fig2 = px.line(mean_daily_flow, x="DAY", y="FLOW_OUTCMS", color="SCENARIO",
-                       title=f"Streamflow at Cowichan Station – {title}",
-                       labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
-                       color_discrete_map=scenario_colors)
+        max_flow = mean_daily_flow["FLOW_OUTCMS"].max()
     
-        fig2.add_hline(y=0.18, line_dash="dash", line_color="red", line_width=2,
-                       annotation_text="Fish Protection Cutoff (0.18 cms)",
-                       annotation_position="right", annotation_font_size=12)
+        # === Plot Mean Daily Flow ===
+        fig2 = px.line(
+            mean_daily_flow,
+            x="DAY",
+            y="FLOW_OUTCMS",
+            color="SCENARIO",
+            title=f"How {title} change streamflow at Cowichan Station gauge",
+            labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
+            color_discrete_map=scenario_colors
+        )
     
+        fig2.add_hline(
+            y=0.18, line_dash="dash", line_color="red", line_width=2,
+            annotation_text="Fish Protection Cutoff (0.18 cms)",
+            annotation_position="right",
+            annotation_y=0.18,
+            annotation_font_size=12
+        )
+    
+        # Update legend names
         fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-        fig2.update_layout(width=800, height=350, xaxis=dict(tickvals=tickvals, ticktext=ticktext))
-        st.plotly_chart(fig2, use_container_width=True)
-
-
-    # # === DAILY WATER USE FIGURES SETUP ===
     
-    # # Load monthly water use
-    # monthly_data = pd.DataFrame({
-    #     'Scenario': ['base', 'jun', 'july', 'agu', 'half', 'double', 'surface half', 'ground half'],
-    #     'Jan': [320.038, 320.038, 320.038, 320.038, 160.019, 640.076, 311.948, 168.109],
-    #     'Feb': [709.0108, 709.0108, 709.0108, 709.0108, 354.5054, 1418.0216, 683.9858, 379.5304],
-    #     'Mar': [1351.2816, 1351.2816, 1351.2816, 1351.2816, 675.6408, 2702.5632, 1301.7066, 725.2158],
-    #     'Apr': [21465.8808, 21465.8808, 21465.8808, 21465.8808, 10732.9404, 42931.7616, 14746.4058, 17452.4154],
-    #     'May': [638342.5862, 638342.5862, 638342.5862, 638342.5862, 319171.2931, 1276685.172, 424648.3762, 532865.5031],
-    #     'Jun': [1633352.933, 0, 1633352.933, 1633352.933, 816676.4665, 3266705.866, 1110746.623, 1339282.777],
-    #     'Jul': [2184271.361, 0, 0, 2184271.361, 1092135.681, 4368542.722, 1485624.676, 1790782.366],
-    #     'Aug': [2040178.788, 0, 0, 0, 1020089.394, 4080357.576, 1387471.918, 1672796.264],
-    #     'Sep': [1567066.121, 1567066.121, 1567066.121, 1567066.121, 783533.0603, 3134132.241, 1073292.891, 1277306.29],
-    #     'Oct': [338660.5508, 338660.5508, 338660.5508, 338660.5508, 169330.2754, 677321.1016, 229677.5758, 278313.2504],
-    #     'Nov': [936.1898, 936.1898, 936.1898, 936.1898, 468.0949, 1872.3796, 883.9948, 520.2899],
-    #     'Dec': [0, 0, 0, 0, 0, 0, 0, 0]
-    # })
+        fig2.update_layout(
+            xaxis=dict(
+                title="Day of the Year",
+                showgrid=True,
+                tickmode="array",
+                tickvals=tickvals,
+                ticktext=ticktext
+            ),
+            yaxis=dict(
+                title="Mean daily streamflow (cms)",
+                showgrid=True,
+                type="log",
+                range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
+                tickvals=y_ticks
+            ),
+            legend=dict(title="Scenario"),
+            width=800,
+            height=400
+        )
     
-    # # Convert monthly to m³/s
-    # seconds_in_month = 30.42 * 24 * 60 * 60
-    # monthly_data.iloc[:, 1:] = monthly_data.iloc[:, 1:] / seconds_in_month
+        st.plotly_chart(fig2)
     
-    # # Map month name to days
-    # days_in_month = {'Jan': 31, 'Feb': 28, 'Mar': 31, 'Apr': 30, 'May': 31, 'Jun': 30,
-    #                  'Jul': 31, 'Aug': 31, 'Sep': 30, 'Oct': 31, 'Nov': 30, 'Dec': 31}
+        # === Plot Delta Flow ===
+        base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
+        merged_data = pd.merge(mean_daily_flow, base_scenario[["DAY", "Base_Flow"]], on="DAY", how="left")
+        merged_data["Delta Flow"] = (merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]
     
-    # # Generate daily water use table
-    # daily_data = []
-    # for scenario in monthly_data['Scenario']:
-    #     for month in monthly_data.columns[1:]:
-    #         daily_value = monthly_data.loc[monthly_data['Scenario'] == scenario, month].values[0]
-    #         for day in range(1, days_in_month[month] + 1):
-    #             daily_data.append([scenario, f"{month}-{day}", daily_value])
-    # daily_df = pd.DataFrame(daily_data, columns=["Scenario", "Day", "Water Use (m³/s)"])
+        fig4 = px.line(
+            merged_data,
+            x="DAY",
+            y="Delta Flow",
+            color="SCENARIO",
+            title=f"How {title} change streamflow relative to baseline model",
+            color_discrete_map=scenario_colors
+        )
     
-    # # Setup for visuals
-    # tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-    # ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
     
-    # monthly_colors = {
-    #     "base": "black", "jun": "pink", "july": "#C71585", "agu": "#800080",
-    #     "half": "lightblue", "double": "navy", "surface half": "skyblue", "ground half": "darkblue"
-    # }
+        fig4.update_layout(
+            xaxis=dict(
+                title="Day of the Year",
+                showgrid=True,
+                tickmode="array",
+                tickvals=tickvals,
+                ticktext=ticktext
+            ),
+            yaxis=dict(
+                title="Streamflow change relative to baseline",
+                showgrid=True,
+                range=[-1.1, 1.1]
+            ),
+            legend=dict(title="Scenario"),
+            width=800,
+            height=400
+        )
     
-    # line_styles = {
-    #     "base": dict(dash="solid", width=3), "jun": dict(dash="solid", width=3),
-    #     "july": dict(dash="dash", width=3), "agu": dict(dash="longdash", width=3),
-    #     "half": dict(dash="dashdot", width=3), "double": dict(dash="solid", width=3),
-    #     "surface half": dict(dash="dot", width=3), "ground half": dict(dash="longdash", width=3)
-    # }
-    
-    # marker_shapes = {
-    #     "base": "circle", "jun": "square", "july": "diamond", "agu": "cross",
-    #     "half": "x", "double": "star", "surface half": "triangle-up", "ground half": "triangle-down"
-    # }
-    
-    # # === END OF DAILY FIGURE SETUP ===
-    
-    # # Scenario groups
-    # scenario_groups = {
-    #     "Total water use": ["scenario_SG_05_data.csv", "scenario_SG_X2_data.csv", "scenario_R3_data.csv"],
-    #     "Decreasing groundwater or surface water use": ["scenario_S_05_data.csv", "scenario_G_05_data.csv", "scenario_R3_data.csv"],
-    #     "Change the timing of water use restrictions": ["scenario_jun_data.csv", "scenario_jul_data.csv", "scenario_aug_data.csv", "scenario_R3_data.csv"],
-    # }
-    
-    # # Define tick values (start of each month approx)
-    # tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-    # ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    # y_ticks = [0.05, 0.18, 1, 10, 50]
-    
-    # # Process each scenario group
-    # for title, files in scenario_groups.items():
-        
-    #     scenario_alias = {
-    #         "scenario_SG_05_data.csv": "half",
-    #         "scenario_SG_X2_data.csv": "double",
-    #         "scenario_R3_data.csv": "base",
-    #         "scenario_S_05_data.csv": "surface half",
-    #         "scenario_G_05_data.csv": "ground half",
-    #         "scenario_jun_data.csv": "jun",
-    #         "scenario_jul_data.csv": "july",
-    #         "scenario_aug_data.csv": "agu"
-    #     }
-    #     group_scenarios = [scenario_alias[f] for f in files if f in scenario_alias]
-    
-    #     group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
-    #     fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario",
-    #                    title=f"Daily Water Use – {title}",
-    #                    color_discrete_map=monthly_colors)
-    
-    #     for trace in fig1.data:
-    #         trace.update(
-    #             line=line_styles.get(trace.name, dict(dash="solid", width=2)),
-    #             marker=dict(symbol=marker_shapes.get(trace.name, "circle")),
-    #             opacity=0.7
-    #         )
-    
-    #     fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-    #     fig1.update_layout(width=700, height=300)
-    #     st.plotly_chart(fig1, use_container_width=True)        
-        
-    #     scenario_data = []
-    
-    #     for file in files:
-    #         file_path = os.path.join("data/reach_csv", file)
-    
-    #         try:
-    #             df = pd.read_csv(file_path)
-    #         except Exception as e:
-    #             st.error(f"Failed to load file: {file_path}\nError: {e}")
-    #             st.stop()
-    
-    #         # Capitalize column names just in case
-    #         df.columns = [col.upper() for col in df.columns]
-    
-    #         # Add a Scenario column from file name if not in the file
-    #         if "SCENARIO" not in df.columns:
-    #             scenario_name = os.path.splitext(file)[0].replace("scenario_", "").replace("_data", "")
-    #             df["SCENARIO"] = f"Scenario {scenario_name.replace('_', ' ')}"
-    
-    #         scenario_data.append(df)
-    
-    #     combined_data = pd.concat(scenario_data, ignore_index=True)
-    
-    #     # Filter for Reach 3 and valid days
-    #     rch3_data = combined_data[(combined_data["RCH"] == 3) & (combined_data["DAY"].between(1, 365))]
-    
-    #     # Mean daily flow per scenario
-    #     mean_daily_flow = rch3_data.groupby(["SCENARIO", "DAY"])["FLOW_OUTCMS"].mean().reset_index()
-    
-    #     max_flow = mean_daily_flow["FLOW_OUTCMS"].max()
-    
-    #     # === Plot Mean Daily Flow ===
-    #     fig2 = px.line(
-    #         mean_daily_flow,
-    #         x="DAY",
-    #         y="FLOW_OUTCMS",
-    #         color="SCENARIO",
-    #         title=f"How {title} change streamflow at Cowichan Station gauge",
-    #         labels={"DAY": "Day of the Year", "FLOW_OUTCMS": "Mean Flow (cms)"},
-    #         color_discrete_map=scenario_colors
-    #     )
-    
-    #     fig2.add_hline(
-    #         y=0.18, line_dash="dash", line_color="red", line_width=2,
-    #         annotation_text="Fish Protection Cutoff (0.18 cms)",
-    #         annotation_position="right",
-    #         annotation_y=0.18,
-    #         annotation_font_size=12
-    #     )
-    
-    #     # Update legend names
-    #     fig2.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    
-    #     fig2.update_layout(
-    #         xaxis=dict(
-    #             title="Day of the Year",
-    #             showgrid=True,
-    #             tickmode="array",
-    #             tickvals=tickvals,
-    #             ticktext=ticktext
-    #         ),
-    #         yaxis=dict(
-    #             title="Mean daily streamflow (cms)",
-    #             showgrid=True,
-    #             type="log",
-    #             range=[np.log10(min(y_ticks)), np.log10(max(y_ticks))],
-    #             tickvals=y_ticks
-    #         ),
-    #         legend=dict(title="Scenario"),
-    #         width=800,
-    #         height=400
-    #     )
-    
-    #     st.plotly_chart(fig2)
-    
-    #     # === Plot Delta Flow ===
-    #     base_scenario = mean_daily_flow[mean_daily_flow["SCENARIO"] == "Scenario R3"].rename(columns={"FLOW_OUTCMS": "Base_Flow"})
-    #     merged_data = pd.merge(mean_daily_flow, base_scenario[["DAY", "Base_Flow"]], on="DAY", how="left")
-    #     merged_data["Delta Flow"] = (merged_data["FLOW_OUTCMS"] - merged_data["Base_Flow"]) / merged_data["Base_Flow"]
-    
-    #     fig4 = px.line(
-    #         merged_data,
-    #         x="DAY",
-    #         y="Delta Flow",
-    #         color="SCENARIO",
-    #         title=f"How {title} change streamflow relative to baseline model",
-    #         color_discrete_map=scenario_colors
-    #     )
-    
-    #     fig4.for_each_trace(lambda t: t.update(name=scenario_legend.get(t.name, t.name)))
-    
-    #     fig4.update_layout(
-    #         xaxis=dict(
-    #             title="Day of the Year",
-    #             showgrid=True,
-    #             tickmode="array",
-    #             tickvals=tickvals,
-    #             ticktext=ticktext
-    #         ),
-    #         yaxis=dict(
-    #             title="Streamflow change relative to baseline",
-    #             showgrid=True,
-    #             range=[-1.1, 1.1]
-    #         ),
-    #         legend=dict(title="Scenario"),
-    #         width=800,
-    #         height=400
-    #     )
-    
-    #     st.plotly_chart(fig4)
+        st.plotly_chart(fig4)
         
         # Add detailed explanation for the scenario group
         if title == "Total water use":
