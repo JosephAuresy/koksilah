@@ -924,7 +924,8 @@ elif selected_option == "Water use scenarios":
                 opacity=0.7
             )
     
-        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
+        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext, tickfont=dict(size=10))
+        fig1.update_yaxes(tickfont=dict(size=10))
         fig1.update_layout(showlegend=False, height=250, width=350)
         #st.plotly_chart(fig1, use_container_width=True)        
         
