@@ -984,7 +984,7 @@ elif selected_option == "Water use scenarios":
     
         fig2.update_layout(
             xaxis=dict(
-                title="Day of the Year",
+                title=None,
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
@@ -1022,7 +1022,7 @@ elif selected_option == "Water use scenarios":
         
         fig4.update_layout(
             xaxis=dict(
-                title="Day of the Year",
+                title=None,
                 showgrid=True,
                 tickmode="array",
                 tickvals=tickvals,
