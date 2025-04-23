@@ -892,32 +892,32 @@ elif selected_option == "Water use scenarios":
     for title, files in scenario_groups.items():
         
         scenario_alias = {
-                "scenario_SG_05_data.csv": "half",
-                "scenario_SG_X2_data.csv": "double",
-                "scenario_R3_data.csv": "base",
-                "scenario_S_05_data.csv": "surface half",
-                "scenario_G_05_data.csv": "ground half",
-                "scenario_jun_data.csv": "jun",
-                "scenario_jul_data.csv": "july",
-                "scenario_aug_data.csv": "agu"
-            }
-            group_scenarios = [scenario_alias[f] for f in files if f in scenario_alias]
-        
-            group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
-            fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario",
-                           title=f"Daily Water Use – {title}",
-                           color_discrete_map=monthly_colors)
-        
-            for trace in fig1.data:
-                trace.update(
-                    line=line_styles.get(trace.name, dict(dash="solid", width=2)),
-                    marker=dict(symbol=marker_shapes.get(trace.name, "circle")),
-                    opacity=0.7
-                )
-        
-            fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
-            fig1.update_layout(width=700, height=300)
-            st.plotly_chart(fig1, use_container_width=True)        
+            "scenario_SG_05_data.csv": "half",
+            "scenario_SG_X2_data.csv": "double",
+            "scenario_R3_data.csv": "base",
+            "scenario_S_05_data.csv": "surface half",
+            "scenario_G_05_data.csv": "ground half",
+            "scenario_jun_data.csv": "jun",
+            "scenario_jul_data.csv": "july",
+            "scenario_aug_data.csv": "agu"
+        }
+        group_scenarios = [scenario_alias[f] for f in files if f in scenario_alias]
+    
+        group_data = daily_df[daily_df["Scenario"].isin(group_scenarios)]
+        fig1 = px.line(group_data, x="Day", y="Water Use (m³/s)", color="Scenario",
+                       title=f"Daily Water Use – {title}",
+                       color_discrete_map=monthly_colors)
+    
+        for trace in fig1.data:
+            trace.update(
+                line=line_styles.get(trace.name, dict(dash="solid", width=2)),
+                marker=dict(symbol=marker_shapes.get(trace.name, "circle")),
+                opacity=0.7
+            )
+    
+        fig1.update_xaxes(tickvals=tickvals, ticktext=ticktext)
+        fig1.update_layout(width=700, height=300)
+        st.plotly_chart(fig1, use_container_width=True)        
         
         scenario_data = []
     
