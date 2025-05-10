@@ -959,10 +959,10 @@ elif selected_option == "Water use scenarios":
         )
     
         fig2.add_hline(
-            y=0.18, line_dash="dash", line_color="red", line_width=2,
-            annotation_text="Fish Protection Cutoff (0.18 cms)",
+            y=0.5, line_dash="dash", line_color="red", line_width=2,
+            annotation_text="Fish Protection Cutoff (0.5 cms)",
             annotation_position="right",
-            annotation_y=0.18,
+            annotation_y=0.5,
             annotation_font_size=12
         )
     
@@ -1049,9 +1049,9 @@ elif selected_option == "Water use scenarios":
                     <div style='font-size: 36px; font-weight: bold; margin-bottom: 1rem;'>Total water use</div>
                     <p>The upper graph shows the different rates of total water use in different scenarios.</p>
                     <p>The middle graph shows changes in streamflow over the same time period. Notice that the mean flow (in volume per time or cms = cubic meters per second) changes seasonally, and the changes are dramatic; we modified the y-axis scale to emphasize and better show the impact during seasonal low flows.</p>
-                    <p>The red line at 0.18 cms represents the streamflow threshold that triggers the provincial government to issue a temporary order to restrict water use to protect fish populations.</p>
+                    <p>The red line at 0.5 cms represents the streamflow threshold that triggers the provincial government to issue a temporary order to restrict water use to protect fish populations.</p>
                     <p>The lower graph is the same changes in streamflow shown as a percentage change compared to the baseline (so 0.5 = 50% more streamflow and -0.5 = 50% less streamflow).</p>
-                    <p>Doubling overall water use results in August streamflow that are 50% lower than the baseline and less than 0.18 cms for nearly a month.</p>
+                    <p>Doubling overall water use results in August streamflow that are 50% lower than the baseline and less than 0.5 cms for nearly a month.</p>
                     <p>In contrast, halving overall water use results in August streamflow that are 50% higher, emphasizing that conserving water is a crucial water management strategy.</p>
                 """, unsafe_allow_html=True)
         
@@ -1229,10 +1229,10 @@ elif selected_option == "Land use scenarios":
         )
     
         fig2.add_hline(
-            y=0.18, line_dash="dash", line_color="red", line_width=2,
-            annotation_text="Fish Protection Cutoff (0.18 cms)",
+            y=0.5, line_dash="dash", line_color="red", line_width=2,
+            annotation_text="Fish Protection Cutoff (0.5 cms)",
             annotation_position="right",
-            annotation_y=0.18,
+            annotation_y=0.5,
             annotation_font_size=12
         )
     
