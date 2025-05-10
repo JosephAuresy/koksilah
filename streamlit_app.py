@@ -1102,7 +1102,7 @@ elif selected_option == "Land use scenarios":
 
         <div class="definition-box-alt">
             The age of trees can impact the water cycle in multiple ways.
-            Land use, as represented by different ages of forests,
+            Land use, as represented by different ages of trees,
             changes streamflow in the summer less significantly than water use,
             but changes other parts of the water cycle.
         </div>
@@ -1132,13 +1132,13 @@ elif selected_option == "Land use scenarios":
         </style>
         
         <div class="definition-box">
-        <h4>We modelled two land use scenarios by changing the age of Douglas Fir forests across the watershed:</h4>
+        <h4>We modelled two land use scenarios by changing the age of Douglas Fir trees across the watershed:</h4>
         
-        <p><strong>Baseline model:</strong> In the baseline model, the watershed area is ~78% mature forest (trees 60 years or older), 3% immature forest (trees ~30 years), and ~19% recently logged.</p>
+        <p><strong>Baseline model:</strong> In the baseline model, the watershed area is ~78% mature trees (60 years or older), 3% immature trees (~30 years), and ~19% recently logged.</p>
         
-        <p><strong>Mature forest scenario:</strong> The percentage area of mature forest is increased from 78% in the baseline model to 96% to show the impact of mature forests.</p>
+        <p><strong>Mature trees scenario:</strong> The percentage area of mature trees is increased from 78% in the baseline model to 96% to show the impact of mature trees.</p>
         
-        <p><strong>Mature and immature forest scenario:</strong> The percentage area of mature forest is 66%, while the immature and recently logged are 17% each to show the impact of immature forests.</p>
+        <p><strong>Mature and immature trees scenario:</strong> The percentage area of mature trees is 66%, while the immature and recently logged are 17% each to show the impact of immature trees.</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -1159,8 +1159,8 @@ elif selected_option == "Land use scenarios":
     # Scenario legend
     scenario_legend = {
         "Scenario R3": "Baseline",
-        "Scenario mat you": "Mature and Immature Forest",
-        "Scenario mat 60": "Mature Forest"
+        "Scenario mat you": "Mature and Immature Trees",
+        "Scenario mat 60": "Mature Trees"
     }
     
     # Scenario groups
@@ -1176,7 +1176,7 @@ elif selected_option == "Land use scenarios":
     
     # Add the paragraph
     st.markdown("""
-    We compared current conditions in the baseline model to two other land use scenarios where we changed the distribution of forest age, since the age of trees can impact the water cycle in multiple ways. This watershed drawing shows how increasing the percentage of mature forest affects different parts of the water cycle. Mature forests increased the rates of evapotranspiration and shallow flow below the ground, suggesting the forest age distributions impact various hydrologic processes.
+    We compared current conditions in the baseline model to two other land use scenarios where we changed the distribution of trees age, since the age of trees can impact the water cycle in multiple ways. This watershed drawing shows how increasing the percentage of mature trees affects different parts of the water cycle. Mature trees increased the rates of evapotranspiration and shallow flow below the ground, suggesting the trees age distributions impact various hydrologic processes.
     """)
 
     # Define tick values (start of each month approx)
@@ -1298,7 +1298,7 @@ elif selected_option == "Land use scenarios":
         st.plotly_chart(fig4)
 
     st.markdown("""
-          A mature (60-year-old) forest scenario reduced streamflow slightly by less than 10% during the summer, whereas a mix of mature and immature (30-year-old) forests did not significantly change low flows. These findings highlight the importance of considering forest age distributions when assessing long-term hydrological changes, while remembering that August streamflow and the age of the trees are an overly simplistic approach to assessing the impact of forestry on watersheds.  
+          A mature (60-year-old) trees scenario reduced streamflow slightly by less than 10% during the summer, whereas a mix of mature and immature (30-year-old) trees did not significantly change low flows. These findings highlight the importance of considering trees age distributions when assessing long-term hydrological changes, while remembering that August streamflow and the age of the trees are an overly simplistic approach to assessing the impact of forestry on watersheds.  
     """)    
 
 # tabs = st.tabs(["Watershed models", "Whole watershed", "Water use", "Land use"])
