@@ -874,7 +874,7 @@ elif selected_option == "Water use scenarios":
     # Define tick values (start of each month approx)
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    y_ticks = [0.05, 0.18, 1, 10, 50]    
+    y_ticks = [0.05, 0.5, 1, 10, 50]    
     
     
     # Scenario groups (defined once here)
@@ -1182,7 +1182,7 @@ elif selected_option == "Land use scenarios":
     # Define tick values (start of each month approx)
     tickvals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
     ticktext = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    y_ticks = [0.05, 0.18, 1, 10, 50]
+    y_ticks = [0.05, 0.5, 1, 10, 50]
     
     # Process each scenario group
     for title, files in scenario_groups.items():
